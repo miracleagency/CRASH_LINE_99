@@ -884,28 +884,29 @@
       const leverPower = Phaser.Math.Clamp(this.turboPower, 0, 1);
       const speedHeat = Phaser.Math.Clamp(this.speed / 42, 0, 1);
       const emitPower = Phaser.Math.Clamp(0.14 + leverPower * 0.56 + speedHeat * 0.44, 0.14, 1);
+      const turboCurve = Phaser.Math.Easing.Cubic.Out(emitPower);
       const colors = this.getTurboParticleColors(leverPower);
-      const travel = 72 + emitPower * 360;
-      const spread = 6 + emitPower * 22;
-      const amount = Phaser.Math.Clamp(Math.floor(count || 1), 1, 3);
+      const travel = 42 + turboCurve * 470;
+      const spread = 4 + turboCurve * 28;
+      const amount = Phaser.Math.Clamp(Math.floor(count || 1), 1, 5);
       for (let i = 0; i < amount; i++) {
         const color = colors[Phaser.Math.Between(0, colors.length - 1)];
         const puff = this.add.circle(
-          this.car.x - 118 + Phaser.Math.Between(-8, 10),
-          this.car.y + 10 + Phaser.Math.Between(-10, 16),
-          Phaser.Math.Between(5, 9 + Math.round(emitPower * 7)),
+          this.car.x - 118 + Phaser.Math.Between(-6, 8),
+          this.car.y + 10 + Phaser.Math.Between(-8, 14),
+          Phaser.Math.Between(4, 8 + Math.round(turboCurve * 9)),
           color,
-          0.18 + emitPower * 0.16
+          0.14 + turboCurve * 0.22
         ).setDepth(8).setBlendMode(leverPower >= 0.7 ? Phaser.BlendModes.ADD : Phaser.BlendModes.NORMAL);
         this.smokeLayer.add(puff);
         this.tweens.add({
           targets: puff,
           x: puff.x - Phaser.Math.Between(Math.round(travel * 0.82), Math.round(travel * 1.25)),
           y: puff.y + Phaser.Math.Between(-Math.round(spread), Math.round(spread * 0.55)),
-          scaleX: Phaser.Math.FloatBetween(1.55, 2.2 + emitPower * 2.2),
-          scaleY: Phaser.Math.FloatBetween(0.82, 1.32 + emitPower * 0.7),
+          scaleX: Phaser.Math.FloatBetween(1.3, 1.9 + turboCurve * 3.8),
+          scaleY: Phaser.Math.FloatBetween(0.72, 1.08 + turboCurve * 0.9),
           alpha: 0,
-          duration: Phaser.Math.Between(Math.round(760 - emitPower * 80), Math.round(1080 - emitPower * 110)),
+          duration: Phaser.Math.Between(Math.round(500 - turboCurve * 110), Math.round(760 - turboCurve * 150)),
           ease: "Cubic.out",
           onComplete: () => puff.destroy()
         });
@@ -923,16 +924,17 @@
     updateTurboExhaust(delta) {
       const speedHeat = Phaser.Math.Clamp(this.speed / 42, 0, 1);
       const emitPower = Phaser.Math.Clamp(0.14 + this.turboPower * 0.56 + speedHeat * 0.44, 0.14, 1);
-      const interval = Phaser.Math.Linear(150, 44, emitPower);
-      const particlesPerBurst = emitPower >= 0.92 ? 3 : emitPower >= 0.5 ? 2 : 1;
+      const turboCurve = Phaser.Math.Easing.Cubic.Out(emitPower);
+      const interval = Phaser.Math.Linear(165, 28, turboCurve);
+      const particlesPerBurst = turboCurve >= 0.97 ? 5 : turboCurve >= 0.86 ? 4 : turboCurve >= 0.68 ? 3 : turboCurve >= 0.38 ? 2 : 1;
       this.turboExhaustClock += delta;
       let spawned = 0;
-      while (this.turboExhaustClock >= interval && spawned < 3) {
+      while (this.turboExhaustClock >= interval && spawned < 4) {
         this.turboExhaustClock -= interval;
         this.spawnTurboExhaust(particlesPerBurst);
         spawned += 1;
       }
-      if (spawned >= 3) this.turboExhaustClock = 0;
+      if (spawned >= 4) this.turboExhaustClock = 0;
     }
 
     update(_time, delta) {
