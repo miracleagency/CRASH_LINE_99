@@ -3,8 +3,8 @@
   const assetRoot = new URL("./assets/", window.location.href).href;
 
   CT.Config = {
-    build: "2026-06-16-v0.1.1",
-    gameVersion: "v0.1.1",
+    build: "2026-06-16-v0.1.5-play-button",
+    gameVersion: "v0.1.5",
     phaserVersion: "3.88.2",
     width: 720,
     height: 1280,
@@ -13,7 +13,8 @@
     betOptions: [1, 2, 5, 10, 50, 100],
     assets: {
       root: assetRoot,
-      images: new URL("images/", assetRoot).href
+      images: new URL("images/", assetRoot).href,
+      audio: new URL("audio/", assetRoot).href
     },
     gameplay: {
       startMultiplier: 0,

@@ -28,6 +28,11 @@
       this.rareBounceCount = 0;
       this.nextRareBounceAt = 0;
       this.remainingBounces = null;
+      this.sfx = {};
+      this.engineAudioToken = 0;
+      this.engineLoopTimer = null;
+      this.engineLoopIndex = 0;
+      this.startOverlay = null;
     }
 
     create() {
@@ -47,8 +52,152 @@
         onSafeToggle: () => this.toggleSafeMode(),
         onMultiplierDisplay: (value) => this.setMultiplierDisplay(value)
       });
+      this.createAudio();
       this.resetRunVisuals();
+      this.createStartAudioOverlay();
       this.hideBootLoader();
+    }
+
+    createAudio() {
+      const addSound = (key, config) => {
+        if (!this.cache.audio.exists(key)) return null;
+        return this.sound.add(key, config || {});
+      };
+      this.sound.mute = localStorage.getItem(CT.Config.storage.muted) === "1";
+
+      this.sfx = {
+        mainTrack: addSound("mainTrack", { loop: true, volume: 0.28 }),
+        bonusUp: addSound("bonusUp", { volume: 0.66 }),
+        carCrash: addSound("carCrash", { volume: 0.78 }),
+        carEngineFail: addSound("carEngineFail", { volume: 0.78 }),
+        carEngineStart: addSound("carEngineStart", { volume: 0.68 }),
+        carEngineLoopA: addSound("carEngineLoop", { loop: false, volume: 0.48 }),
+        carEngineLoopB: addSound("carEngineLoop", { loop: false, volume: 0.48 })
+      };
+
+      this.ensureBackgroundMusic();
+      this.input.once("pointerdown", () => this.ensureBackgroundMusic());
+      if (this.sound.locked) {
+        this.sound.once("unlocked", () => this.ensureBackgroundMusic());
+      }
+    }
+
+    ensureBackgroundMusic() {
+      const track = this.sfx && this.sfx.mainTrack;
+      if (!track || track.isPlaying || this.sound.locked) return;
+      track.play();
+    }
+
+    playOneShot(key) {
+      const volumes = {
+        bonusUp: 0.66,
+        carCrash: 0.78,
+        carEngineFail: 0.78
+      };
+      if (this.cache.audio.exists(key)) {
+        this.sound.play(key, { volume: volumes[key] || 0.7 });
+      }
+    }
+
+    playEngineStart() {
+      this.stopEngineAudio();
+      const token = ++this.engineAudioToken;
+      if (this.sound.locked) {
+        this.sound.once("unlocked", () => {
+          if (token === this.engineAudioToken && this.state === "running") this.playEngineStart();
+        });
+        return;
+      }
+
+      const start = this.sfx && this.sfx.carEngineStart;
+      if (!start) {
+        this.startEngineLoop(token);
+        return;
+      }
+
+      start.play();
+      start.once("complete", () => this.startEngineLoop(token));
+    }
+
+    startEngineLoop(token) {
+      if (token !== this.engineAudioToken || this.state !== "running") return;
+      this.engineLoopIndex = 0;
+      this.playEngineLoopLayer(token);
+    }
+
+    playEngineLoopLayer(token) {
+      if (token !== this.engineAudioToken || this.state !== "running") return;
+      const loops = [this.sfx.carEngineLoopA, this.sfx.carEngineLoopB].filter(Boolean);
+      if (!loops.length) return;
+
+      const loop = loops[this.engineLoopIndex % loops.length];
+      this.engineLoopIndex += 1;
+      loop.stop();
+      loop.play();
+
+      const duration = loop.totalDuration || loop.duration || 1.1;
+      const overlap = Phaser.Math.Clamp(duration * 0.16, 0.08, 0.18);
+      const nextDelay = Math.max(120, Math.round((duration - overlap) * 1000));
+      if (this.engineLoopTimer) this.engineLoopTimer.remove(false);
+      this.engineLoopTimer = this.time.delayedCall(nextDelay, () => this.playEngineLoopLayer(token));
+    }
+
+    stopEngineAudio() {
+      this.engineAudioToken += 1;
+      if (this.engineLoopTimer) {
+        this.engineLoopTimer.remove(false);
+        this.engineLoopTimer = null;
+      }
+      if (this.sfx && this.sfx.carEngineStart) this.sfx.carEngineStart.stop();
+      if (this.sfx && this.sfx.carEngineLoopA) this.sfx.carEngineLoopA.stop();
+      if (this.sfx && this.sfx.carEngineLoopB) this.sfx.carEngineLoopB.stop();
+    }
+
+    createStartAudioOverlay() {
+      const W = CT.Config.width;
+      const H = CT.Config.height;
+      const overlay = this.add.container(0, 0).setDepth(1000).setScrollFactor(0);
+      const shade = this.add.rectangle(W / 2, H / 2, W, H, 0x9aa0a4, 0.34)
+        .setInteractive({ useHandCursor: true });
+      const button = this.add.image(W / 2, H / 2, "playButton")
+        .setInteractive({ useHandCursor: true });
+      const maxWidth = W * 0.42;
+      if (button.width > maxWidth) {
+        button.setScale(maxWidth / button.width);
+      }
+
+      overlay.add([shade, button]);
+      this.startOverlay = overlay;
+      shade.once("pointerdown", () => this.dismissStartAudioOverlay());
+      button.once("pointerdown", () => this.dismissStartAudioOverlay());
+      this.tweens.add({
+        targets: button,
+        scaleX: button.scaleX * 1.08,
+        scaleY: button.scaleY * 1.08,
+        duration: 680,
+        yoyo: true,
+        repeat: -1,
+        ease: "Sine.inOut"
+      });
+    }
+
+    dismissStartAudioOverlay() {
+      if (!this.startOverlay) return;
+      this.ensureBackgroundMusic();
+      if (this.sound.locked) {
+        this.sound.once("unlocked", () => this.ensureBackgroundMusic());
+      }
+
+      const overlay = this.startOverlay;
+      this.startOverlay = null;
+      this.tweens.killTweensOf(overlay.list);
+      this.tweens.add({
+        targets: overlay,
+        alpha: 0,
+        duration: 220,
+        ease: "Cubic.out",
+        onComplete: () => overlay.destroy()
+      });
     }
 
     createBackground() {
@@ -265,6 +414,8 @@
       this.hud.setResult("RUNNING...", "#ffffff");
       this.applyMultiplierTheme("running");
       this.updateBounceText();
+      this.ensureBackgroundMusic();
+      this.playEngineStart();
       return true;
     }
 
@@ -313,6 +464,8 @@
     cashOutCrash() {
       if (this.state !== "running") return;
       this.setTurboPower(0);
+      this.stopEngineAudio();
+      this.playOneShot("carCrash");
       this.state = "crashing";
       const cfg = CT.Config;
       const W = CT.Config.width;
@@ -618,6 +771,7 @@
       bonus.collected = true;
       this.bonusAdd += bonus.bonusValue;
       this.hud.setMultiplier(this.getDisplayedMultiplier());
+      this.playOneShot("bonusUp");
       this.showBonusPop(bonus.x, bonus.y, bonus.bonusValue);
       this.cameras.main.shake(bonus.bonusValue >= 5 ? 150 : 75, bonus.bonusValue >= 5 ? 0.006 : 0.003);
       this.pauseForBonus(bonus.bonusValue);
@@ -783,6 +937,8 @@
       this.turbo = false;
       this.turboPower = 0;
       this.turboExhaustClock = 0;
+      this.stopEngineAudio();
+      this.playOneShot("carEngineFail");
       this.hud.setTurbo(false);
       this.hud.setLocked(true);
       this.setPageControlsDimmed(false);
@@ -814,6 +970,7 @@
       this.turbo = false;
       this.turboPower = 0;
       this.turboExhaustClock = 0;
+      this.stopEngineAudio();
       this.setPageControlsDimmed(false);
       this.hud.setTurbo(false);
       this.resetRunVisuals(false);
@@ -845,6 +1002,7 @@
       this.turbo = false;
       this.turboPower = 0;
       this.turboExhaustClock = 0;
+      this.stopEngineAudio();
       this.autoCrash = false;
       this.bonusAdd = 0;
       this.rareBounceCount = 0;
