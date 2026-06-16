@@ -12,6 +12,7 @@
       this.speed = 0;
       this.turbo = false;
       this.turboPower = 0;
+      this.turboExhaustClock = 0;
       this.engineBreakAt = 0;
       this.roadOffset = 0;
       this.visualSpeed = 0;
@@ -300,7 +301,7 @@
       this.turbo = nextTurbo;
       this.hud.setTurbo(this.turbo);
       this.car.engineGlow.setScale(1 + this.turboPower * 0.85);
-      if (this.turboPower > 0.03) this.spawnSmoke(this.car.x - 118, this.car.y + 8, Math.ceil(2 + this.turboPower * 6), 0x37e5ff);
+      if (!this.turbo) this.turboExhaustClock = 0;
     }
 
     toggleSafeMode() {
@@ -315,6 +316,7 @@
       this.setTurboPower(0);
       this.state = "crashing";
       const cfg = CT.Config;
+      const W = CT.Config.width;
       const payout = this.wallet.currentBet * this.multiplier;
       this.pendingPayout = payout;
       this.bonusAdd = 0;
@@ -322,33 +324,48 @@
       this.hud.setLocked(true);
       this.hud.setResult(this.autoCrash ? "WALL HIT!" : "CRASH!", "#ffffff");
       this.barrier.setVisible(true);
-      this.barrier.setAlpha(0).setScale(0.75);
+      this.barrier.setPosition(W + 92, cfg.gameplay.roadY - 36).setAlpha(1).setScale(1);
       this.tweens.killTweensOf(this.car);
+      this.tweens.killTweensOf(this.barrier);
+      this.cameras.main.shake(360, 0.004);
+
+      const roadMotion = { t: 0 };
+      let lastRoadT = 0;
+      this.tweens.add({
+        targets: roadMotion,
+        t: 1,
+        duration: 430,
+        ease: "Cubic.in",
+        onUpdate: () => {
+          const diff = roadMotion.t - lastRoadT;
+          lastRoadT = roadMotion.t;
+          this.advanceRoad(diff * 820);
+        }
+      });
       this.tweens.add({
         targets: this.barrier,
-        alpha: 1,
-        scaleX: 1,
-        scaleY: 1,
-        duration: 90,
-        ease: "Back.out"
+        x: cfg.gameplay.barrierX,
+        duration: 430,
+        ease: "Cubic.in",
+        onComplete: () => this.playCrashImpact(payout)
       });
       this.tweens.add({
         targets: this.car,
         x: cfg.gameplay.barrierX - 126,
-        duration: 185,
-        ease: "Cubic.in",
-        onComplete: () => this.playCrashImpact(payout)
+        duration: 430,
+        ease: "Sine.in"
       });
     }
 
     playCrashImpact(payout) {
-      this.cameras.main.shake(220, 0.011);
+      this.cameras.main.shake(420, 0.022);
+      this.impactFlash();
       this.spawnSmoke(this.car.x + 96, this.car.y - 10, 14, 0xffcf30);
       this.tweens.add({
         targets: this.car,
         x: this.car.x - 22,
-        angle: -7,
-        duration: 130,
+        angle: -11,
+        duration: 150,
         yoyo: true,
         ease: "Quad.out"
       });
@@ -367,6 +384,24 @@
       this.state = "dummyFlight";
       this.flightRoadSpeed = Math.max(620, (this.visualSpeed || 280) * 1.18);
       this.playDummyFlight(payout);
+    }
+
+    impactFlash() {
+      const flash = this.add.rectangle(
+        this.cameras.main.scrollX + CT.Config.width / 2,
+        CT.Config.height / 2,
+        CT.Config.width,
+        CT.Config.height,
+        0xffffff,
+        0.22
+      ).setDepth(50);
+      this.tweens.add({
+        targets: flash,
+        alpha: 0,
+        duration: 170,
+        ease: "Quad.out",
+        onComplete: () => flash.destroy()
+      });
     }
 
     playDummyFlight(payout) {
@@ -476,8 +511,9 @@
     createCurveBonuses(startX, endX, groundY, height, slots, bounceIndex) {
       const cfg = CT.Config;
       const bonuses = [];
-      const tier = Phaser.Math.Clamp(Number(bounceIndex || 0) / Math.max(1, cfg.gameplay.maxBounces - 1), 0, 1);
-      const spawnChance = Phaser.Math.Clamp(cfg.gameplay.bonusChance + tier * 0.12, cfg.gameplay.bonusChance, 0.46);
+      const baseTier = Phaser.Math.Clamp(Number(bounceIndex || 0) / Math.max(1, cfg.gameplay.maxBounces - 1), 0, 1);
+      const tier = Math.pow(baseTier, 0.62);
+      const spawnChance = Phaser.Math.Clamp(cfg.gameplay.bonusChance - 0.05 + tier * 0.22, 0.14, 0.58);
       const arcDistance = Math.max(1, endX - startX);
       const cameraAhead = CT.Config.width * 0.56;
       const introT = Phaser.Math.Clamp(cameraAhead / arcDistance, 0.34, 0.44);
@@ -523,24 +559,25 @@
 
     pickBonusMultiplier(tier) {
       const t = Phaser.Math.Clamp(Number(tier || 0), 0, 1);
-      const lowBias = 1 - t;
+      const lowBias = Math.pow(1 - t, 1.8);
+      const highBias = Math.pow(t, 1.45);
       const weights = [
-        { value: 0.1, weight: 44 * lowBias + 8 },
-        { value: 0.25, weight: 31 * lowBias + 10 },
-        { value: 0.5, weight: 20 * lowBias + 12 },
-        { value: 1, weight: 9 + 17 * t },
-        { value: 2, weight: 4 + 20 * t },
-        { value: 5, weight: 1.4 + 16 * t },
-        { value: 10, weight: 0.5 + 10 * t },
-        { value: 20, weight: 0.16 + 7 * t },
-        { value: 100, weight: 0.05 + 3.2 * t },
-        { value: 200, weight: 0.025 + 1.8 * t },
-        { value: 500, weight: 0.01 + 1 * t },
-        { value: 1000, weight: 0.004 + 0.6 * t },
-        { value: 2000, weight: 0.002 + 0.3 * t },
-        { value: 3000, weight: 0.001 + 0.18 * t },
-        { value: 4000, weight: 0.0005 + 0.1 * t },
-        { value: 5000, weight: 0.00025 + 0.06 * t }
+        { value: 0.1, weight: 68 * lowBias + 2 },
+        { value: 0.25, weight: 42 * lowBias + 3 },
+        { value: 0.5, weight: 26 * lowBias + 5 },
+        { value: 1, weight: 8 + 13 * t },
+        { value: 2, weight: 2.5 + 18 * t },
+        { value: 5, weight: 0.65 + 19 * highBias },
+        { value: 10, weight: 0.16 + 15 * highBias },
+        { value: 20, weight: 0.04 + 11 * highBias },
+        { value: 100, weight: 0.008 + 5.8 * highBias },
+        { value: 200, weight: 0.003 + 3.6 * highBias },
+        { value: 500, weight: 0.0012 + 2.1 * highBias },
+        { value: 1000, weight: 0.0005 + 1.25 * highBias },
+        { value: 2000, weight: 0.0002 + 0.72 * highBias },
+        { value: 3000, weight: 0.0001 + 0.45 * highBias },
+        { value: 4000, weight: 0.00005 + 0.28 * highBias },
+        { value: 5000, weight: 0.00002 + 0.18 * highBias }
       ];
       const total = weights.reduce((sum, item) => sum + item.weight, 0);
       let roll = Math.random() * total;
@@ -745,6 +782,7 @@
       this.state = "failed";
       this.turbo = false;
       this.turboPower = 0;
+      this.turboExhaustClock = 0;
       this.hud.setTurbo(false);
       this.hud.setLocked(true);
       this.setPageControlsDimmed(false);
@@ -774,6 +812,7 @@
       this.state = "returning";
       this.turbo = false;
       this.turboPower = 0;
+      this.turboExhaustClock = 0;
       this.setPageControlsDimmed(false);
       this.hud.setTurbo(false);
       this.resetRunVisuals(false);
@@ -804,6 +843,7 @@
       this.visualSpeed = 0;
       this.turbo = false;
       this.turboPower = 0;
+      this.turboExhaustClock = 0;
       this.autoCrash = false;
       this.bonusAdd = 0;
       this.rareBounceCount = 0;
@@ -841,6 +881,61 @@
       }
     }
 
+    spawnTurboExhaust(count) {
+      const power = Phaser.Math.Clamp(this.turboPower, 0, 1);
+      const colors = this.getTurboParticleColors(power);
+      const travel = 92 + power * 330;
+      const spread = 7 + power * 24;
+      const amount = Phaser.Math.Clamp(Math.floor(count || 1), 1, 2);
+      for (let i = 0; i < amount; i++) {
+        const color = colors[Phaser.Math.Between(0, colors.length - 1)];
+        const puff = this.add.circle(
+          this.car.x - 118 + Phaser.Math.Between(-8, 10),
+          this.car.y + 10 + Phaser.Math.Between(-10, 16),
+          Phaser.Math.Between(5, 11 + Math.round(power * 6)),
+          color,
+          0.2 + power * 0.2
+        ).setDepth(8).setBlendMode(power > 0.68 ? Phaser.BlendModes.ADD : Phaser.BlendModes.NORMAL);
+        this.smokeLayer.add(puff);
+        this.tweens.add({
+          targets: puff,
+          x: puff.x - Phaser.Math.Between(Math.round(travel * 0.82), Math.round(travel * 1.25)),
+          y: puff.y + Phaser.Math.Between(-Math.round(spread), Math.round(spread * 0.55)),
+          scaleX: Phaser.Math.FloatBetween(1.45, 2.35 + power * 2.4),
+          scaleY: Phaser.Math.FloatBetween(0.85, 1.45 + power * 0.95),
+          alpha: 0,
+          duration: Phaser.Math.Between(Math.round(820 - power * 120), Math.round(1160 - power * 140)),
+          ease: "Cubic.out",
+          onComplete: () => puff.destroy()
+        });
+      }
+    }
+
+    getTurboParticleColors(power) {
+      if (power >= 0.98) return [0xb45cff, 0xd94dff, 0x8a3dff, 0x37e5ff];
+      if (power >= 0.70) return [0x37e5ff, 0x7cf7ff, 0xff433f, 0xb45cff];
+      if (power >= 0.50) return [0xff433f, 0xff7b2f, 0xffcf30];
+      if (power >= 0.20) return [0xffcf30, 0xffe86b, 0xb8b8b8];
+      return [0x9b9b9b, 0xb8b8b8, 0xd0d0d0];
+    }
+
+    updateTurboExhaust(delta) {
+      if (this.turboPower <= 0.03) {
+        this.turboExhaustClock = 0;
+        return;
+      }
+
+      const interval = Phaser.Math.Linear(185, 92, this.turboPower);
+      this.turboExhaustClock += delta;
+      let spawned = 0;
+      while (this.turboExhaustClock >= interval && spawned < 3) {
+        this.turboExhaustClock -= interval;
+        this.spawnTurboExhaust(1);
+        spawned += 1;
+      }
+      if (spawned >= 3) this.turboExhaustClock = 0;
+    }
+
     update(_time, delta) {
       const cfg = CT.Config;
       const dt = delta / 1000;
@@ -871,15 +966,13 @@
       if (this.car.x < cfg.gameplay.carCruiseX) {
         this.car.x = Math.min(cfg.gameplay.carCruiseX, this.car.x + dx);
       }
-      const lift = Math.min(10, this.speed * 0.035 * this.turboPower);
-      this.car.y = cfg.gameplay.roadY - 54 - lift + Math.sin(this.time.now * 0.035) * (2.2 + this.turboPower * 1.6);
-      this.car.angle = this.turboPower > 0.03 ? Phaser.Math.Clamp(-this.speed * 0.035 * this.turboPower, -9, -0.5) : 0;
+      const leverLift = Phaser.Math.Easing.Cubic.Out(this.turboPower);
+      const lift = leverLift * 24;
+      this.car.y = cfg.gameplay.roadY - 54 - lift + Math.sin(this.time.now * 0.035) * (2.2 + this.turboPower * 1.9);
+      this.car.angle = this.turboPower > 0.03 ? -Phaser.Math.Linear(1.2, 17, leverLift) : 0;
       this.car.wheels.forEach((wheel) => { wheel.angle += dx * 2.65; });
       this.advanceRoad(dx);
-
-      if (this.turboPower > 0.03 && Math.random() < 0.03 + this.turboPower * 0.12) {
-        this.spawnSmoke(this.car.x - 118, this.car.y + 10, 1, 0x37e5ff);
-      }
+      this.updateTurboExhaust(delta);
       if (this.multiplier >= this.engineBreakAt) {
         this.engineFail();
         return;
