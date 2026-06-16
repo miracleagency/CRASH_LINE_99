@@ -778,6 +778,7 @@
 
     engineFail() {
       if (this.state !== "running") return;
+      const baseCarY = CT.Config.gameplay.roadY - 54;
       this.state = "failed";
       this.turbo = false;
       this.turboPower = 0;
@@ -796,6 +797,7 @@
       this.tweens.add({
         targets: this.car,
         x: this.car.x + 42,
+        y: baseCarY,
         angle: 3,
         duration: 360,
         ease: "Cubic.out",
