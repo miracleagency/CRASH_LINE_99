@@ -301,7 +301,6 @@
       this.turbo = nextTurbo;
       this.hud.setTurbo(this.turbo);
       this.car.engineGlow.setScale(1 + this.turboPower * 0.85);
-      if (!this.turbo) this.turboExhaustClock = 0;
     }
 
     toggleSafeMode() {
@@ -882,29 +881,31 @@
     }
 
     spawnTurboExhaust(count) {
-      const power = Phaser.Math.Clamp(this.turboPower, 0, 1);
-      const colors = this.getTurboParticleColors(power);
-      const travel = 92 + power * 330;
-      const spread = 7 + power * 24;
-      const amount = Phaser.Math.Clamp(Math.floor(count || 1), 1, 2);
+      const leverPower = Phaser.Math.Clamp(this.turboPower, 0, 1);
+      const speedHeat = Phaser.Math.Clamp(this.speed / 42, 0, 1);
+      const emitPower = Phaser.Math.Clamp(0.14 + leverPower * 0.56 + speedHeat * 0.44, 0.14, 1);
+      const colors = this.getTurboParticleColors(leverPower);
+      const travel = 72 + emitPower * 360;
+      const spread = 6 + emitPower * 22;
+      const amount = Phaser.Math.Clamp(Math.floor(count || 1), 1, 3);
       for (let i = 0; i < amount; i++) {
         const color = colors[Phaser.Math.Between(0, colors.length - 1)];
         const puff = this.add.circle(
           this.car.x - 118 + Phaser.Math.Between(-8, 10),
           this.car.y + 10 + Phaser.Math.Between(-10, 16),
-          Phaser.Math.Between(5, 11 + Math.round(power * 6)),
+          Phaser.Math.Between(5, 9 + Math.round(emitPower * 7)),
           color,
-          0.2 + power * 0.2
-        ).setDepth(8).setBlendMode(power > 0.68 ? Phaser.BlendModes.ADD : Phaser.BlendModes.NORMAL);
+          0.18 + emitPower * 0.16
+        ).setDepth(8).setBlendMode(leverPower >= 0.7 ? Phaser.BlendModes.ADD : Phaser.BlendModes.NORMAL);
         this.smokeLayer.add(puff);
         this.tweens.add({
           targets: puff,
           x: puff.x - Phaser.Math.Between(Math.round(travel * 0.82), Math.round(travel * 1.25)),
           y: puff.y + Phaser.Math.Between(-Math.round(spread), Math.round(spread * 0.55)),
-          scaleX: Phaser.Math.FloatBetween(1.45, 2.35 + power * 2.4),
-          scaleY: Phaser.Math.FloatBetween(0.85, 1.45 + power * 0.95),
+          scaleX: Phaser.Math.FloatBetween(1.55, 2.2 + emitPower * 2.2),
+          scaleY: Phaser.Math.FloatBetween(0.82, 1.32 + emitPower * 0.7),
           alpha: 0,
-          duration: Phaser.Math.Between(Math.round(820 - power * 120), Math.round(1160 - power * 140)),
+          duration: Phaser.Math.Between(Math.round(760 - emitPower * 80), Math.round(1080 - emitPower * 110)),
           ease: "Cubic.out",
           onComplete: () => puff.destroy()
         });
@@ -912,25 +913,23 @@
     }
 
     getTurboParticleColors(power) {
-      if (power >= 0.98) return [0xb45cff, 0xd94dff, 0x8a3dff, 0x37e5ff];
-      if (power >= 0.70) return [0x37e5ff, 0x7cf7ff, 0xff433f, 0xb45cff];
-      if (power >= 0.50) return [0xff433f, 0xff7b2f, 0xffcf30];
-      if (power >= 0.20) return [0xffcf30, 0xffe86b, 0xb8b8b8];
-      return [0x9b9b9b, 0xb8b8b8, 0xd0d0d0];
+      if (power >= 0.995) return [0xa05cff, 0xc874ff, 0xecb6ff];
+      if (power >= 0.70) return [0x3ed7ff, 0x75edff, 0xb5f7ff];
+      if (power >= 0.50) return [0xff5533, 0xff7a4a, 0xffcf30];
+      if (power >= 0.20) return [0xffcf30, 0xffe06c, 0xffefac];
+      return [0x8e9499, 0xb1b8bd, 0xd0d6db];
     }
 
     updateTurboExhaust(delta) {
-      if (this.turboPower <= 0.03) {
-        this.turboExhaustClock = 0;
-        return;
-      }
-
-      const interval = Phaser.Math.Linear(185, 92, this.turboPower);
+      const speedHeat = Phaser.Math.Clamp(this.speed / 42, 0, 1);
+      const emitPower = Phaser.Math.Clamp(0.14 + this.turboPower * 0.56 + speedHeat * 0.44, 0.14, 1);
+      const interval = Phaser.Math.Linear(150, 44, emitPower);
+      const particlesPerBurst = emitPower >= 0.92 ? 3 : emitPower >= 0.5 ? 2 : 1;
       this.turboExhaustClock += delta;
       let spawned = 0;
       while (this.turboExhaustClock >= interval && spawned < 3) {
         this.turboExhaustClock -= interval;
-        this.spawnTurboExhaust(1);
+        this.spawnTurboExhaust(particlesPerBurst);
         spawned += 1;
       }
       if (spawned >= 3) this.turboExhaustClock = 0;
