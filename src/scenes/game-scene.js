@@ -30,6 +30,10 @@
     }
 
     create() {
+      console.log("GAME TEXTURES:", {
+        bounceIcon: this.textures.exists("bounceIcon"),
+        bounceIconExtra: this.textures.exists("bounceIconExtra")
+      });
       this.wallet = new CT.Wallet();
       this.cameras.main.setBounds(0, 0, CT.Config.gameplay.worldWidth, CT.Config.height);
       this.cameras.main.setScroll(0, 0);
@@ -78,15 +82,6 @@
         this.roadLines.push(line);
       }
 
-      this.bounceText = this.add.text(W / 2, cfg.gameplay.roadY - 228, "BOUNCES 0", {
-        fontFamily: "Arial",
-        fontSize: "22px",
-        color: "#baf7ff",
-        fontStyle: "bold",
-        stroke: "#000000",
-        strokeThickness: 4
-      }).setOrigin(0.5).setAlpha(0.92).setDepth(9).setScrollFactor(0);
-
       this.barrier = this.add.container(cfg.gameplay.barrierX, cfg.gameplay.roadY - 36).setDepth(4).setVisible(false);
       this.barrier.add([
         this.add.rectangle(0, 0, 42, 132, 0xd7dde2, 1).setStrokeStyle(4, 0x6b747c, 1),
@@ -102,11 +97,11 @@
       this.multiplierPanel = this.add.container(W / 2, cfg.gameplay.roadY - 345).setDepth(9);
       this.multiplierPanel.setScrollFactor(0);
       this.multiplierGlow = this.add.circle(0, 0, 178, 0xffcf30, 0.12).setBlendMode(Phaser.BlendModes.ADD);
-      const panelBg = this.add.rectangle(0, 0, 438, 188, 0x071012, 0.84)
+      this.multiplierPanelBg = this.add.rectangle(0, 0, 438, 188, 0x071012, 0.84)
         .setStrokeStyle(7, 0xffcf30, 0.9);
-      const panelInner = this.add.rectangle(0, 0, 396, 146, 0x1b2327, 0.58)
+      this.multiplierPanelInner = this.add.rectangle(0, 0, 396, 146, 0x1b2327, 0.58)
         .setStrokeStyle(3, 0xffffff, 0.28);
-      const panelLabel = this.add.text(0, -72, "MULTIPLIER", {
+      this.multiplierPanelLabel = this.add.text(0, -72, "MULTIPLIER", {
         fontFamily: "Arial",
         fontSize: "20px",
         color: "#baf7ff",
@@ -127,7 +122,92 @@
           fill: true
         }
       }).setOrigin(0.5);
-      this.multiplierPanel.add([this.multiplierGlow, panelBg, panelInner, panelLabel, this.multiplierText]);
+      this.multiplierPanel.add([this.multiplierGlow, this.multiplierPanelBg, this.multiplierPanelInner, this.multiplierPanelLabel, this.multiplierText]);
+      this.createBounceBadge();
+      this.applyMultiplierTheme("idle");
+    }
+
+    createBounceBadge() {
+      this.bounceBadge = this.add.container(170, -88).setVisible(false).setAlpha(0).setScale(0.45);
+      this.bounceBadgeIcon = this.add.image(0, 0, "bounceIcon").setScale(0.56);
+      this.bounceBadgeExtraIcon = this.add.image(0, 0, "bounceIconExtra").setScale(0.56).setAlpha(0);
+      this.bounceBadgeText = this.add.text(34, 2, "0", {
+        fontFamily: "Arial",
+        fontSize: "60px",
+        color: "#000000",
+        fontStyle: "bold"
+      }).setOrigin(0.5);
+      this.bounceBadge.add([this.bounceBadgeIcon, this.bounceBadgeExtraIcon, this.bounceBadgeText]);
+      this.bounceBadge.lastCount = 0;
+      this.multiplierPanel.add(this.bounceBadge);
+    }
+
+    applyMultiplierTheme(theme) {
+      if (!this.multiplierText || !this.multiplierPanelBg) return;
+      const themes = {
+        idle: { main: 0x8f969b, text: "#8f969b", label: "#8f969b", glow: 0x8f969b, shadow: "#303538" },
+        running: { main: 0x41ce44, text: "#41CE44", label: "#41CE44", glow: 0x41ce44, shadow: "#0f4a19" },
+        fail: { main: 0xff3f3f, text: "#ff3f3f", label: "#ff6b6b", glow: 0xff3f3f, shadow: "#4a0f0f" }
+      };
+      const next = themes[theme] || themes.idle;
+      this.multiplierGlow.setFillStyle(next.glow, theme === "idle" ? 0.08 : 0.16);
+      this.multiplierPanelBg.setStrokeStyle(7, next.main, theme === "idle" ? 0.62 : 0.92);
+      this.multiplierPanelInner.setStrokeStyle(3, next.main, theme === "idle" ? 0.18 : 0.32);
+      this.multiplierPanelLabel.setColor(next.label);
+      this.multiplierText.setColor(next.text);
+      this.multiplierText.setShadow(0, 4, next.shadow, 0, true, true);
+    }
+
+    showBounceBadge(count) {
+      if (!this.bounceBadge) return;
+      const n = Math.max(0, Math.floor(Number(count || 0)));
+      this.bounceBadgeText.setText(String(n));
+      if (n <= 0) {
+        if (!this.bounceBadge.visible) return;
+        this.tweens.killTweensOf(this.bounceBadge);
+        this.tweens.add({
+          targets: this.bounceBadge,
+          alpha: 0,
+          scaleX: 0.2,
+          scaleY: 1.18,
+          angle: 12,
+          duration: 240,
+          ease: "Back.in",
+          onComplete: () => {
+            this.bounceBadge.setVisible(false).setScale(0.45).setAngle(0);
+            this.bounceBadgeIcon.setAlpha(1);
+            this.bounceBadgeExtraIcon.setAlpha(0);
+            this.bounceBadgeText.setColor("#000000");
+            this.bounceBadge.lastCount = 0;
+          }
+        });
+        return;
+      }
+
+      if (!this.bounceBadge.visible) {
+        this.bounceBadge.setVisible(true).setAlpha(0).setScale(0.45).setAngle(-10);
+        this.tweens.killTweensOf(this.bounceBadge);
+        this.tweens.add({
+          targets: this.bounceBadge,
+          alpha: 1,
+          scaleX: 1,
+          scaleY: 1,
+          angle: 0,
+          duration: 360,
+          ease: "Back.out"
+        });
+      } else if (this.bounceBadge.lastCount !== n) {
+        this.tweens.killTweensOf(this.bounceBadge);
+        this.bounceBadge.setScale(1.18);
+        this.tweens.add({
+          targets: this.bounceBadge,
+          scaleX: 1,
+          scaleY: 1,
+          duration: 220,
+          ease: "Back.out"
+        });
+      }
+      this.bounceBadge.lastCount = n;
     }
 
     createCar() {
@@ -182,6 +262,7 @@
       this.hud.setTurbo(false);
       this.setPageControlsDimmed(true);
       this.hud.setResult("RUNNING...", "#ffffff");
+      this.applyMultiplierTheme("running");
       this.updateBounceText();
       return true;
     }
@@ -284,7 +365,7 @@
         yoyo: true
       });
       this.state = "dummyFlight";
-      this.flightRoadSpeed = Math.max(280, this.visualSpeed || 280);
+      this.flightRoadSpeed = Math.max(620, (this.visualSpeed || 280) * 1.18);
       this.playDummyFlight(payout);
     }
 
@@ -333,6 +414,7 @@
 
       const next = () => {
         if (index >= count) {
+          this.flightRoadSpeed = 0;
           this.settleDummy(payout);
           return;
         }
@@ -346,6 +428,10 @@
         const bonuses = plan.bonuses;
         const arc = { t: 0 };
         index++;
+        const isLastBounce = index >= count;
+        const roadSpeedAtArcStart = this.flightRoadSpeed;
+        this.remainingBounces = Math.max(0, count - index);
+        this.updateBounceText();
 
         this.tweens.add({
           targets: arc,
@@ -357,13 +443,15 @@
             this.dummy.x = Phaser.Math.Linear(startX, endX, u);
             this.dummy.y = groundY - Math.sin(Math.PI * u) * height;
             this.dummy.angle = Phaser.Math.Linear(startAngle, endAngle, u);
+            if (isLastBounce) {
+              const brakeT = Phaser.Math.Clamp((u - 0.48) / 0.52, 0, 1);
+              this.flightRoadSpeed = roadSpeedAtArcStart * Math.pow(1 - brakeT, 2.2);
+            }
             this.collectBonusesOnCurve(bonuses, u);
           },
           onComplete: () => {
             this.dummy.setPosition(endX, groundY).setAngle(endAngle);
             this.spawnSmoke(this.dummy.x, groundY + 6, 3, 0xd7dde2);
-            this.remainingBounces = Math.max(0, count - index);
-            this.updateBounceText();
             next();
           }
         });
@@ -379,15 +467,17 @@
         const height = Math.max(120, firstHeight * (1 - t * 0.10));
         const startX = firstStartX + hopDistance * i;
         const endX = startX + hopDistance;
-        const bonuses = this.createCurveBonuses(startX, endX, groundY, height, 10);
+        const bonuses = this.createCurveBonuses(startX, endX, groundY, height, 10, i);
         plans.push({ startX, endX, height, bonuses });
       }
       return plans;
     }
 
-    createCurveBonuses(startX, endX, groundY, height, slots) {
+    createCurveBonuses(startX, endX, groundY, height, slots, bounceIndex) {
       const cfg = CT.Config;
       const bonuses = [];
+      const tier = Phaser.Math.Clamp(Number(bounceIndex || 0) / Math.max(1, cfg.gameplay.maxBounces - 1), 0, 1);
+      const spawnChance = Phaser.Math.Clamp(cfg.gameplay.bonusChance + tier * 0.12, cfg.gameplay.bonusChance, 0.46);
       const arcDistance = Math.max(1, endX - startX);
       const cameraAhead = CT.Config.width * 0.56;
       const introT = Phaser.Math.Clamp(cameraAhead / arcDistance, 0.34, 0.44);
@@ -395,10 +485,10 @@
       for (let i = 0; i < slots; i++) {
         const slotT = slots <= 1 ? 0.5 : i / (slots - 1);
         const t = Phaser.Math.Linear(introT, outroT, slotT);
-        if (Math.random() > cfg.gameplay.bonusChance) continue;
+        if (Math.random() > spawnChance) continue;
         const x = Phaser.Math.Linear(startX, endX, t);
         const y = groundY - Math.sin(Math.PI * t) * height;
-        const bonus = this.createBonusCoin(x, y, this.pickBonusMultiplier());
+        const bonus = this.createBonusCoin(x, y, this.pickBonusMultiplier(tier));
         bonus.pathT = t;
         bonuses.push(bonus);
       }
@@ -431,24 +521,34 @@
       return root;
     }
 
-    pickBonusMultiplier() {
-      const roll = Math.random();
-      if (roll < 0.40) return 0.1;
-      if (roll < 0.68) return 0.25;
-      if (roll < 0.85) return 0.5;
-      if (roll < 0.94) return 1;
-      if (roll < 0.982) return 2;
-      if (roll < 0.995) return 5;
-      if (roll < 0.9985) return 10;
-      if (roll < 0.99945) return 20;
-      if (roll < 0.99973) return 100;
-      if (roll < 0.99986) return 200;
-      if (roll < 0.99993) return 500;
-      if (roll < 0.999965) return 1000;
-      if (roll < 0.999982) return 2000;
-      if (roll < 0.999992) return 3000;
-      if (roll < 0.999997) return 4000;
-      return 5000;
+    pickBonusMultiplier(tier) {
+      const t = Phaser.Math.Clamp(Number(tier || 0), 0, 1);
+      const lowBias = 1 - t;
+      const weights = [
+        { value: 0.1, weight: 44 * lowBias + 8 },
+        { value: 0.25, weight: 31 * lowBias + 10 },
+        { value: 0.5, weight: 20 * lowBias + 12 },
+        { value: 1, weight: 9 + 17 * t },
+        { value: 2, weight: 4 + 20 * t },
+        { value: 5, weight: 1.4 + 16 * t },
+        { value: 10, weight: 0.5 + 10 * t },
+        { value: 20, weight: 0.16 + 7 * t },
+        { value: 100, weight: 0.05 + 3.2 * t },
+        { value: 200, weight: 0.025 + 1.8 * t },
+        { value: 500, weight: 0.01 + 1 * t },
+        { value: 1000, weight: 0.004 + 0.6 * t },
+        { value: 2000, weight: 0.002 + 0.3 * t },
+        { value: 3000, weight: 0.001 + 0.18 * t },
+        { value: 4000, weight: 0.0005 + 0.1 * t },
+        { value: 5000, weight: 0.00025 + 0.06 * t }
+      ];
+      const total = weights.reduce((sum, item) => sum + item.weight, 0);
+      let roll = Math.random() * total;
+      for (const item of weights) {
+        roll -= item.weight;
+        if (roll <= 0) return item.value;
+      }
+      return 0.1;
     }
 
     getBonusPalette(value) {
@@ -544,6 +644,7 @@
 
     settleDummy(payout) {
       const groundY = CT.Config.gameplay.roadY + 8;
+      this.flightRoadSpeed = 0;
       this.tweens.add({
         targets: this.dummy,
         y: groundY + 5,
@@ -651,6 +752,7 @@
       this.cameras.main.shake(180, 0.006);
       this.spawnSmoke(this.car.x + 94, this.car.y - 8, 22, 0x3e454a);
       this.hud.setResult("ENGINE BROKE!", "#ffffff");
+      this.animateMultiplierFail();
       this.speed = 0;
       this.visualSpeed = 0;
       this.updateBounceText();
@@ -715,6 +817,7 @@
         this.hud.setTurbo(false);
       }
       if (this.car && this.car.engineGlow) this.car.engineGlow.setScale(1);
+      this.applyMultiplierTheme("idle");
       this.updateBounceText();
       this.smokeLayer.removeAll(true);
     }
@@ -742,8 +845,12 @@
       const cfg = CT.Config;
       const dt = delta / 1000;
       if (this.state === "dummyFlight") {
-        this.flightRoadSpeed *= Math.pow(0.985, delta / 16.6667);
-        this.advanceRoad(this.flightRoadSpeed * dt);
+        if (this.flightRoadSpeed > 0.5) {
+          this.flightRoadSpeed *= Math.pow(0.996, delta / 16.6667);
+          this.advanceRoad(this.flightRoadSpeed * 1.35 * dt);
+        } else {
+          this.flightRoadSpeed = 0;
+        }
         this.updateDummyCamera();
         return;
       }
@@ -798,36 +905,53 @@
     }
 
     updateBounceText() {
-      if (!this.bounceText) return;
       const count = this.remainingBounces === null ? this.getBounceCount(this.multiplier) : this.remainingBounces;
-      this.bounceText.setText("BOUNCES " + count);
+      this.showBounceBadge(count);
     }
 
     tryRareBounceProc(dt) {
-      if (this.time.now < this.nextRareBounceAt || this.rareBounceCount >= 3) return;
-      const chancePerSecond = 0.018;
+      if (this.time.now < this.nextRareBounceAt || this.rareBounceCount >= 5) return;
+      const chancePerSecond = 0.068;
       if (Math.random() >= chancePerSecond * dt) return;
       this.rareBounceCount++;
-      this.nextRareBounceAt = this.time.now + 4500;
-      this.flashRareBounce();
+      this.nextRareBounceAt = this.time.now + 2200;
       this.updateBounceText();
+      this.flashRareBounce();
     }
 
     flashRareBounce() {
-      if (!this.bounceText) return;
-      const x = this.bounceText.x;
-      const y = this.bounceText.y;
-      this.bounceText.setColor("#d97cff").setScale(1.35);
+      if (!this.bounceBadge) return;
+      const x = this.multiplierPanel.x + this.bounceBadge.x;
+      const y = this.multiplierPanel.y + this.bounceBadge.y;
+      this.bounceBadge.setVisible(true).setAlpha(1).setScale(1.28);
+      this.bounceBadgeIcon.setAlpha(0);
+      this.bounceBadgeExtraIcon.setAlpha(1);
+      this.bounceBadgeText.setColor("#ffffff");
+      this.tweens.killTweensOf([this.bounceBadgeIcon, this.bounceBadgeExtraIcon, this.bounceBadgeText]);
       this.tweens.add({
-        targets: this.bounceText,
+        targets: this.bounceBadge,
         scaleX: 1,
         scaleY: 1,
         duration: 360,
-        ease: "Back.out",
-        onComplete: () => this.bounceText.setColor("#baf7ff")
+        ease: "Back.out"
+      });
+      this.tweens.add({
+        targets: this.bounceBadgeExtraIcon,
+        alpha: 0,
+        duration: 820,
+        ease: "Sine.inOut"
+      });
+      this.tweens.add({
+        targets: this.bounceBadgeIcon,
+        alpha: 1,
+        duration: 820,
+        ease: "Sine.inOut"
+      });
+      this.time.delayedCall(620, () => {
+        if (this.bounceBadgeText && this.bounceBadgeText.active) this.bounceBadgeText.setColor("#000000");
       });
 
-      const label = this.add.text(x, y - 42, "+1 RARE BOUNCE", {
+      const label = this.add.text(x, y - 58, "+1 RARE BOUNCE", {
         fontFamily: "Arial",
         fontSize: "28px",
         color: "#d97cff",
@@ -888,6 +1012,43 @@
           ease: "Sine.out"
         });
       }
+    }
+
+    animateMultiplierFail() {
+      if (!this.multiplierText) return;
+      this.applyMultiplierTheme("fail");
+      this.tweens.killTweensOf([this.multiplierText, this.multiplierGlow, this.multiplierPanel]);
+      const counter = { value: this.getDisplayedMultiplier() };
+      this.tweens.add({
+        targets: counter,
+        value: 0,
+        duration: 360,
+        ease: "Cubic.in",
+        onUpdate: () => {
+          const n = Math.max(0, counter.value);
+          this.multiplierText.setText(n <= 0.01 ? "0x" : n.toFixed(2) + "x");
+        }
+      });
+      this.tweens.add({
+        targets: this.multiplierText,
+        scaleX: 1.08,
+        scaleY: 1.08,
+        duration: 90,
+        yoyo: true,
+        repeat: 2,
+        ease: "Sine.inOut",
+        onComplete: () => {
+          this.multiplierText.setAngle(0).setScale(1).setText("0x");
+          this.tweens.add({
+            targets: this.multiplierPanel,
+            alpha: 0.72,
+            duration: 180,
+            yoyo: true,
+            ease: "Sine.inOut",
+            onComplete: () => this.applyMultiplierTheme("idle")
+          });
+        }
+      });
     }
 
     getDisplayedMultiplier() {

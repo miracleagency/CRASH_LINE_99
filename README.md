@@ -16,6 +16,10 @@ Open:
 http://127.0.0.1:8000/index.html
 ```
 
+Or double-click `START_LOCAL.bat`.
+
+Do not open `index.html` directly through `file:///...`: browsers block Phaser asset loading from local files with CORS, so PNG assets will appear as missing textures.
+
 `test.html` redirects to `index.html`.
 
 ## Current Base
@@ -30,7 +34,8 @@ http://127.0.0.1:8000/index.html
 - Pressing and holding the launch lever starts a round and subtracts the bet
 - Multiplier starts at `0.00x`, so the engine can break before `1.00x`
 - Multiplier grows from the current car speed: faster car means faster `x`
-- Multiplier growth has a softer progression and is capped at `1000x`
+- Multiplier growth has a softer, slower progression and is capped at `1000x`
+- The multiplier panel is gray when idle, green while driving, and rolls down red to `0x` after an engine loss
 - At `1000x`, the car auto-crashes as if it reached the wall
 - Speed starts at `0 KM/H` and has no hard cap
 - Road scroll uses the same speed system, but with a visual scale so the car feels fast from launch
@@ -38,11 +43,12 @@ http://127.0.0.1:8000/index.html
 - After `CRASH`, the camera follows the dummy as it flies right, hits asphalt, bounces, and settles
 - Dummy flight distance and bounce shape are fixed for readability; only bounce count changes
 - Dummy bounce count scales from the current multiplier: `2x` gives 1 bounce, `4x` gives 2, `8x` gives 3, etc.
-- The visible `BOUNCES` counter previews the current bounce count
-- During the drive, a rare purple proc can add `+1` extra bounce even before `2x`
+- The bounce counter uses `assets/images/icon_for_bounces.png`, appears only when at least one bounce is available, and counts down during dummy flight
+- During the drive, a more frequent rare purple proc can add `+1` extra bounce even before `2x`; the badge flashes through `assets/images/icon_for_bounces_extra.png` with a white number before returning to the normal icon
 - The KM/H counter is hidden; only gameplay-relevant counters remain visible
 - `SAFE` mode disables engine breaks for testing
 - Each bounce arc has 10 evenly spaced bonus spawn points after a short intro offset, so coins enter from the right instead of appearing beside the dummy
+- Later bounce arcs bias coin values upward, so long 8-10 bounce flights have a much better chance of strong bonuses
 - Bonus pickups add to the final multiplier instead of multiplying it: base `5x` plus five `1x` coins pays as `10x`
 - Bonus pickups can add: `0.1x`, `0.25x`, `0.5x`, `1x`, `2x`, `5x`, `10x`, `20x`, `100x`, `200x`, `500x`, `1000x`, `2000x`, `3000x`, `4000x`, `5000x`
 - `0.1x` and `0.25x` are the most common coins; `0.5x` and higher coins are less frequent
@@ -55,7 +61,7 @@ http://127.0.0.1:8000/index.html
 - Bonus coins use different colors by value tier
 - Final win is shown and paid only after the dummy stops
 - The next round starts from the parked car position, not from off-screen
-- The launch lever rests on the left; dragging it right smoothly increases turbo power up to 5x car acceleration, 5x multiplier growth, and 5x visual road motion at the far-right edge
+- The launch lever rests on the left; dragging it right smoothly increases turbo power up to 7x car acceleration, 7x multiplier growth, and 7x visual road motion at the far-right edge
 - A hidden engine-break threshold can stop the car and lose the bet
 - Engine break shows the loss after the car stops, then returns to a fresh car
 - Engine breaks are weighted more often before `1x` and before `2x`
