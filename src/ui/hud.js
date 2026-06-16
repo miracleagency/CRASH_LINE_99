@@ -32,6 +32,12 @@
         fontSize: "14px",
         color: "#93a4ad"
       }).setOrigin(0.5);
+      const gameVersion = this.scene.add.text(W / 2, 75, "GAME " + cfg.gameVersion + " / " + cfg.build, {
+        fontFamily: "Arial",
+        fontSize: "13px",
+        color: "#6f8088",
+        fontStyle: "bold"
+      }).setOrigin(0.5);
       this.resultText = this.scene.add.text(W / 2, 104, "LAST RESULT --", {
         fontFamily: "Arial",
         fontSize: "30px",
@@ -40,7 +46,7 @@
         stroke: "#000000",
         strokeThickness: 4
       }).setOrigin(0.5);
-      this.top.add([topBg, title, version, this.resultText]);
+      this.top.add([topBg, title, version, gameVersion, this.resultText]);
 
       this.balanceText = this.scene.add.text(18, H - 60, "", {
         fontFamily: "Arial",

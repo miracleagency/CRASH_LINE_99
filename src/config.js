@@ -3,7 +3,8 @@
   const assetRoot = new URL("./assets/", window.location.href).href;
 
   CT.Config = {
-    build: "2026-06-16-page-relative-assets",
+    build: "2026-06-16-game-version",
+    gameVersion: "v0.1.0",
     phaserVersion: "3.88.2",
     width: 720,
     height: 1280,
