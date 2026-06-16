@@ -3,8 +3,8 @@
   const assetRoot = new URL("./assets/", window.location.href).href;
 
   CT.Config = {
-    build: "2026-06-16-v0.1.5-play-button",
-    gameVersion: "v0.1.5",
+    build: "2026-06-16-v0.1.6-title",
+    gameVersion: "v0.1.6",
     phaserVersion: "3.88.2",
     width: 720,
     height: 1280,

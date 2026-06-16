@@ -21,7 +21,7 @@
       const topBg = this.scene.add.rectangle(W / 2, 0, W, 142, cfg.colors.panel, 0.94)
         .setOrigin(0.5, 0)
         .setStrokeStyle(2, cfg.colors.panelStroke, 0.2);
-      const title = this.scene.add.text(W / 2, 25, "CRASH TEST", {
+      const title = this.scene.add.text(W / 2, 25, "CRASHLINE 99", {
         fontFamily: "Arial",
         fontSize: "28px",
         color: cfg.colors.text,
