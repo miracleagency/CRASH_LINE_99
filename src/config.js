@@ -3,8 +3,8 @@
   const assetRoot = new URL("./assets/", window.location.href).href;
 
   CT.Config = {
-    build: "2026-06-16-v0.1.6-title",
-    gameVersion: "v0.1.6",
+    build: "2026-06-17-v0.1.8-crash-spread",
+    gameVersion: "v0.1.8",
     phaserVersion: "3.88.2",
     width: 720,
     height: 1280,
@@ -35,7 +35,8 @@
       worldWidth: 24000,
       minBounces: 0,
       maxBounces: 10,
-      bonusChance: 0.24,
+      bonusChance: 0.21,
+      doubleBounceBonusChance: 0.018,
       launchDistance: 1280,
       launchHeight: 310,
       launchDuration: 760,

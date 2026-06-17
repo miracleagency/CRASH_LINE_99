@@ -10,6 +10,7 @@
       const iconUrl = CT.asset("images/icon_for_bounces.png");
       const extraUrl = CT.asset("images/icon_for_bounces_extra.png");
       const playButtonUrl = CT.asset("images/play button.png");
+      const doubleBounceUrl = CT.asset("images/double_bounce_coin_bonus.png");
       const audio = {
         mainTrack: CT.asset("audio/main_track_loop.mp3"),
         bonusUp: CT.asset("audio/bonus up.mp3"),
@@ -24,6 +25,7 @@
       console.log("LOAD bounceIcon:", iconUrl);
       console.log("LOAD bounceIconExtra:", extraUrl);
       console.log("LOAD playButton:", playButtonUrl);
+      console.log("LOAD doubleBounceCoin:", doubleBounceUrl);
 
       this.load.on("filecomplete-image-bounceIcon", () => {
         console.log("LOADED bounceIcon", this.textures.exists("bounceIcon"));
@@ -40,6 +42,7 @@
       this.load.image("bounceIcon", iconUrl);
       this.load.image("bounceIconExtra", extraUrl);
       this.load.image("playButton", playButtonUrl);
+      this.load.image("doubleBounceCoin", doubleBounceUrl);
       Object.keys(audio).forEach((key) => {
         this.load.audio(key, audio[key]);
       });
@@ -49,7 +52,8 @@
       console.log("BOOT DONE:", {
         bounceIcon: this.textures.exists("bounceIcon"),
         bounceIconExtra: this.textures.exists("bounceIconExtra"),
-        playButton: this.textures.exists("playButton")
+        playButton: this.textures.exists("playButton"),
+        doubleBounceCoin: this.textures.exists("doubleBounceCoin")
       });
       this.scene.start("GameScene");
     }

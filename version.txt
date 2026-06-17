@@ -1,1 +1,1 @@
-GAME v0.1.6 / 2026-06-16-v0.1.6-title
+GAME v0.1.8 / 2026-06-17-v0.1.8-crash-spread

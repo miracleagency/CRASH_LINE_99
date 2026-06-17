@@ -28,6 +28,8 @@
       this.rareBounceCount = 0;
       this.nextRareBounceAt = 0;
       this.remainingBounces = null;
+      this.extraBounceAdder = null;
+      this.extraBounceBonusCount = 0;
       this.sfx = {};
       this.engineAudioToken = 0;
       this.engineLoopTimer = null;
@@ -433,15 +435,17 @@
 
     pickEngineBreakAt() {
       if (this.safeMode) return Number.POSITIVE_INFINITY;
-      if (this.round > 0 && this.round % 4 === 0 && Math.random() < 0.70) {
+      if (this.round > 0 && this.round % 8 === 0 && Math.random() < 0.70) {
         return Phaser.Math.FloatBetween(10.2, 24);
       }
 
       const roll = Math.random();
-      if (roll < 0.34) return Phaser.Math.FloatBetween(0.12, 0.95);
-      if (roll < 0.68) return Phaser.Math.FloatBetween(1.02, 1.95);
-      if (roll < 0.90) return Phaser.Math.FloatBetween(2.05, 6.5);
-      return Phaser.Math.FloatBetween(9, 18);
+      if (roll < 0.30) return Phaser.Math.FloatBetween(0.12, 0.98);
+      if (roll < 0.58) return Phaser.Math.FloatBetween(1.02, 2.2);
+      if (roll < 0.79) return Phaser.Math.FloatBetween(2.25, 5.8);
+      if (roll < 0.91) return Phaser.Math.FloatBetween(5.9, 10.5);
+      if (roll < 0.98) return Phaser.Math.FloatBetween(10.8, 22);
+      return Phaser.Math.FloatBetween(24, 42);
     }
 
     setTurboPower(power) {
@@ -597,11 +601,26 @@
       const hopDistance = cfg.gameplay.bounceDistance;
       const firstHeight = cfg.gameplay.bounceHeight;
       const plannedBounces = this.planBounceArcs(this.dummy.x, count, groundY, hopDistance, firstHeight);
+      let totalBounces = count;
       let index = 0;
+      this.extraBounceAdder = () => {
+        const maxExtraBounces = 3;
+        if (this.extraBounceBonusCount >= maxExtraBounces) return false;
+        const lastPlan = plannedBounces[plannedBounces.length - 1];
+        const startX = lastPlan ? lastPlan.endX : this.dummy.x;
+        const nextIndex = plannedBounces.length;
+        plannedBounces.push(this.createBouncePlan(startX, groundY, hopDistance, firstHeight, nextIndex));
+        totalBounces += 1;
+        this.extraBounceBonusCount += 1;
+        this.remainingBounces = Math.max(0, totalBounces - index);
+        this.updateBounceText();
+        return true;
+      };
 
       const next = () => {
-        if (index >= count) {
+        if (index >= totalBounces) {
           this.flightRoadSpeed = 0;
+          this.extraBounceAdder = null;
           this.settleDummy(payout);
           return;
         }
@@ -615,9 +634,8 @@
         const bonuses = plan.bonuses;
         const arc = { t: 0 };
         index++;
-        const isLastBounce = index >= count;
         const roadSpeedAtArcStart = this.flightRoadSpeed;
-        this.remainingBounces = Math.max(0, count - index);
+        this.remainingBounces = Math.max(0, totalBounces - index);
         this.updateBounceText();
 
         this.tweens.add({
@@ -630,7 +648,7 @@
             this.dummy.x = Phaser.Math.Linear(startX, endX, u);
             this.dummy.y = groundY - Math.sin(Math.PI * u) * height;
             this.dummy.angle = Phaser.Math.Linear(startAngle, endAngle, u);
-            if (isLastBounce) {
+            if (index >= totalBounces) {
               const brakeT = Phaser.Math.Clamp((u - 0.48) / 0.52, 0, 1);
               this.flightRoadSpeed = roadSpeedAtArcStart * Math.pow(1 - brakeT, 2.2);
             }
@@ -650,14 +668,19 @@
     planBounceArcs(firstStartX, count, groundY, hopDistance, firstHeight) {
       const plans = [];
       for (let i = 0; i < count; i++) {
-        const t = i / Math.max(1, count - 1);
-        const height = Math.max(120, firstHeight * (1 - t * 0.10));
         const startX = firstStartX + hopDistance * i;
-        const endX = startX + hopDistance;
-        const bonuses = this.createCurveBonuses(startX, endX, groundY, height, 10, i);
-        plans.push({ startX, endX, height, bonuses });
+        plans.push(this.createBouncePlan(startX, groundY, hopDistance, firstHeight, i));
       }
       return plans;
+    }
+
+    createBouncePlan(startX, groundY, hopDistance, firstHeight, bounceIndex) {
+      const cfg = CT.Config;
+      const t = Phaser.Math.Clamp(Number(bounceIndex || 0) / Math.max(1, cfg.gameplay.maxBounces - 1), 0, 1);
+      const height = Math.max(120, firstHeight * (1 - t * 0.10));
+      const endX = startX + hopDistance;
+      const bonuses = this.createCurveBonuses(startX, endX, groundY, height, 10, bounceIndex);
+      return { startX, endX, height, bonuses };
     }
 
     createCurveBonuses(startX, endX, groundY, height, slots, bounceIndex) {
@@ -665,14 +688,25 @@
       const bonuses = [];
       const baseTier = Phaser.Math.Clamp(Number(bounceIndex || 0) / Math.max(1, cfg.gameplay.maxBounces - 1), 0, 1);
       const tier = Math.pow(baseTier, 0.62);
-      const spawnChance = Phaser.Math.Clamp(cfg.gameplay.bonusChance - 0.05 + tier * 0.22, 0.14, 0.58);
+      const spawnChance = Phaser.Math.Clamp(cfg.gameplay.bonusChance - 0.05 + tier * 0.18, 0.12, 0.48);
+      const doubleBounceChance = Phaser.Math.Clamp(cfg.gameplay.doubleBounceBonusChance * (1 - tier * 0.18), 0.01, 0.026);
       const arcDistance = Math.max(1, endX - startX);
       const cameraAhead = CT.Config.width * 0.56;
       const introT = Phaser.Math.Clamp(cameraAhead / arcDistance, 0.34, 0.44);
       const outroT = 0.96;
+      let doubleBouncePlaced = false;
       for (let i = 0; i < slots; i++) {
         const slotT = slots <= 1 ? 0.5 : i / (slots - 1);
         const t = Phaser.Math.Linear(introT, outroT, slotT);
+        if (!doubleBouncePlaced && Math.random() < doubleBounceChance) {
+          const x = Phaser.Math.Linear(startX, endX, t);
+          const y = groundY - Math.sin(Math.PI * t) * height;
+          const bonus = this.createDoubleBounceCoin(x, y);
+          bonus.pathT = t;
+          bonuses.push(bonus);
+          doubleBouncePlaced = true;
+          continue;
+        }
         if (Math.random() > spawnChance) continue;
         const x = Phaser.Math.Linear(startX, endX, t);
         const y = groundY - Math.sin(Math.PI * t) * height;
@@ -681,6 +715,26 @@
         bonuses.push(bonus);
       }
       return bonuses;
+    }
+
+    createDoubleBounceCoin(x, y) {
+      const root = this.add.container(x, y).setDepth(15);
+      const glow = this.add.circle(0, 0, 44, 0x8d5cff, 0.22).setBlendMode(Phaser.BlendModes.ADD);
+      const icon = this.add.image(0, 0, "doubleBounceCoin").setScale(0.62);
+      root.add([glow, icon]);
+      root.bonusKind = "extraBounce";
+      this.bonusItems.push(root);
+      this.tweens.add({
+        targets: root,
+        scaleX: 1.12,
+        scaleY: 1.12,
+        angle: 8,
+        duration: 320,
+        ease: "Sine.inOut",
+        yoyo: true,
+        repeat: -1
+      });
+      return root;
     }
 
     createBonusCoin(x, y, value) {
@@ -717,19 +771,19 @@
         { value: 0.1, weight: 68 * lowBias + 2 },
         { value: 0.25, weight: 42 * lowBias + 3 },
         { value: 0.5, weight: 26 * lowBias + 5 },
-        { value: 1, weight: 8 + 13 * t },
-        { value: 2, weight: 2.5 + 18 * t },
-        { value: 5, weight: 0.65 + 19 * highBias },
-        { value: 10, weight: 0.16 + 15 * highBias },
-        { value: 20, weight: 0.04 + 11 * highBias },
-        { value: 100, weight: 0.008 + 5.8 * highBias },
-        { value: 200, weight: 0.003 + 3.6 * highBias },
-        { value: 500, weight: 0.0012 + 2.1 * highBias },
-        { value: 1000, weight: 0.0005 + 1.25 * highBias },
-        { value: 2000, weight: 0.0002 + 0.72 * highBias },
-        { value: 3000, weight: 0.0001 + 0.45 * highBias },
-        { value: 4000, weight: 0.00005 + 0.28 * highBias },
-        { value: 5000, weight: 0.00002 + 0.18 * highBias }
+        { value: 1, weight: 6 + 9 * t },
+        { value: 2, weight: 1.8 + 11 * t },
+        { value: 5, weight: 0.42 + 10 * highBias },
+        { value: 10, weight: 0.09 + 7.5 * highBias },
+        { value: 20, weight: 0.018 + 4.8 * highBias },
+        { value: 100, weight: 0.004 + 2.6 * highBias },
+        { value: 200, weight: 0.0015 + 1.55 * highBias },
+        { value: 500, weight: 0.0007 + 0.88 * highBias },
+        { value: 1000, weight: 0.00028 + 0.5 * highBias },
+        { value: 2000, weight: 0.0001 + 0.28 * highBias },
+        { value: 3000, weight: 0.00005 + 0.17 * highBias },
+        { value: 4000, weight: 0.00002 + 0.105 * highBias },
+        { value: 5000, weight: 0.00001 + 0.065 * highBias }
       ];
       const total = weights.reduce((sum, item) => sum + item.weight, 0);
       let roll = Math.random() * total;
@@ -769,6 +823,10 @@
 
     collectBonusCoin(bonus) {
       bonus.collected = true;
+      if (bonus.bonusKind === "extraBounce") {
+        this.collectExtraBounceCoin(bonus);
+        return;
+      }
       this.bonusAdd += bonus.bonusValue;
       this.hud.setMultiplier(this.getDisplayedMultiplier());
       this.playOneShot("bonusUp");
@@ -786,6 +844,48 @@
         onComplete: () => {
           bonus.destroy();
         }
+      });
+    }
+
+    collectExtraBounceCoin(bonus) {
+      const added = this.extraBounceAdder ? this.extraBounceAdder() : false;
+      this.playOneShot("bonusUp");
+      if (added) {
+        this.flightRoadSpeed = Math.max(this.flightRoadSpeed * 1.14, this.flightRoadSpeed + 80);
+        this.showExtraBouncePop(bonus.x, bonus.y);
+        this.cameras.main.shake(140, 0.005);
+        this.pauseForBonus(2);
+      }
+      this.tweens.killTweensOf(bonus);
+      this.tweens.add({
+        targets: bonus,
+        scaleX: added ? 2.05 : 1.35,
+        scaleY: added ? 2.05 : 1.35,
+        alpha: 0,
+        duration: 150,
+        ease: "Back.out",
+        onComplete: () => bonus.destroy()
+      });
+    }
+
+    showExtraBouncePop(x, y) {
+      const pop = this.add.text(x, y - 58, "+1 BOUNCE", {
+        fontFamily: "Arial",
+        fontSize: "42px",
+        color: "#c58cff",
+        fontStyle: "bold",
+        stroke: "#000000",
+        strokeThickness: 8
+      }).setOrigin(0.5).setDepth(18);
+      this.tweens.add({
+        targets: pop,
+        y: pop.y - 76,
+        scaleX: 1.22,
+        scaleY: 1.22,
+        alpha: 0,
+        duration: 760,
+        ease: "Cubic.out",
+        onComplete: () => pop.destroy()
       });
     }
 
@@ -1008,6 +1108,8 @@
       this.rareBounceCount = 0;
       this.nextRareBounceAt = 0;
       this.remainingBounces = null;
+      this.extraBounceAdder = null;
+      this.extraBounceBonusCount = 0;
       this.bonusPauseToken++;
       this.time.timeScale = 1;
       this.clearBonusItems();
