@@ -3,8 +3,8 @@
   const assetRoot = new URL("./assets/", window.location.href).href;
 
   CT.Config = {
-    build: "2026-06-17-v0.1.8-crash-spread",
-    gameVersion: "v0.1.8",
+    build: "2026-06-17-v0.1.9-real-crash-math",
+    gameVersion: "v0.1.9",
     phaserVersion: "3.88.2",
     width: 720,
     height: 1280,

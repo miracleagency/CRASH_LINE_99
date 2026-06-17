@@ -435,17 +435,20 @@
 
     pickEngineBreakAt() {
       if (this.safeMode) return Number.POSITIVE_INFINITY;
-      if (this.round > 0 && this.round % 8 === 0 && Math.random() < 0.70) {
-        return Phaser.Math.FloatBetween(10.2, 24);
+      const cfg = CT.Config;
+      const instantBustChance = 0.12;
+      if (Math.random() < instantBustChance) {
+        return Phaser.Math.FloatBetween(0.12, 0.98);
       }
 
-      const roll = Math.random();
-      if (roll < 0.30) return Phaser.Math.FloatBetween(0.12, 0.98);
-      if (roll < 0.58) return Phaser.Math.FloatBetween(1.02, 2.2);
-      if (roll < 0.79) return Phaser.Math.FloatBetween(2.25, 5.8);
-      if (roll < 0.91) return Phaser.Math.FloatBetween(5.9, 10.5);
-      if (roll < 0.98) return Phaser.Math.FloatBetween(10.8, 22);
-      return Phaser.Math.FloatBetween(24, 42);
+      const houseEdge = 0.88;
+      const raw = houseEdge / Math.max(0.001, 1 - Math.random());
+      if (raw < 1.03) {
+        return Phaser.Math.FloatBetween(1.01, 1.18);
+      }
+
+      const jitter = Phaser.Math.FloatBetween(0.96, 1.04);
+      return Phaser.Math.Clamp(raw * jitter, 1.01, cfg.gameplay.maxMultiplier);
     }
 
     setTurboPower(power) {
