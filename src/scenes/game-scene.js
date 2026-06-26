@@ -12,9 +12,9 @@
       this.speed = 0;
       this.turbo = false;
       this.turboPower = 0;
-      this.turboExhaustClock = 0;
       this.engineBreakAt = 0;
       this.roadOffset = 0;
+      this.fenceOffset = 0;
       this.visualSpeed = 0;
       this.flightRoadSpeed = 0;
       this.pendingPayout = 0;
@@ -34,16 +34,64 @@
       this.engineAudioToken = 0;
       this.engineLoopTimer = null;
       this.engineLoopIndex = 0;
-      this.startOverlay = null;
+      this.roadTiles = [];
+      this.fenceTiles = [];
+      this.loopObjectLayers = [];
+      this.crashDebrisActive = false;
+      this.fencePoleItems = [];
+      this.fencePoleLayer = null;
+      this.fenceOverlayItems = [];
+      this.fenceOverlayLayer = null;
+      this.fenceOverlayKeys = [];
+      this.roadArtY = 0;
+      this.roadArtScale = 1;
+      this.fenceArtY = 0;
+      this.fenceArtScale = 1;
+      this.fencePoleX = 0;
+      this.fencePoleY = 0;
+      this.fencePoleSpacing = 247;
+      this.fencePoleScale = 0.5;
+      this.fenceLightOffsetY = -29;
+      this.fenceLightScale = 0.4;
+      this.fenceLightIntensity = 0.79;
+      this.fenceLightDelay = 0.085;
+      this.fenceOverlayX = 0;
+      this.fenceOverlayY = 760;
+      this.fenceOverlayHeight = 64;
+      this.fenceOverlaySpacing = 420;
+      this.fenceOverlayJitterX = 110;
+      this.fenceOverlayCount = 24;
+      this.fenceOverlayChance = 0.36;
+      this.fenceOverlayScaleMin = 0.42;
+      this.fenceOverlayScaleMax = 0.62;
+      this.fenceOverlayAlpha = 0.96;
+      this.hitWallX = 570;
+      this.hitWallY = 888;
+      this.hitWallScale = 0.34;
+      this.hitWallAlpha = 1;
+      this.hitWallImage = null;
+      this.hitWallPreview = false;
+      this.carControlConfig = null;
+      this.carControlRoot = null;
+      this.carControlJson = null;
     }
 
     create() {
       console.log("GAME TEXTURES:", {
         bounceIcon: this.textures.exists("bounceIcon"),
-        bounceIconExtra: this.textures.exists("bounceIconExtra")
+        bounceIconExtra: this.textures.exists("bounceIconExtra"),
+        hitWall: this.textures.exists("hitWall"),
+        fencePole: this.textures.exists("fencePole"),
+        fenceLight: this.textures.exists("fenceLight"),
+        roadBgOverlay1: this.textures.exists("roadBgOverlay1"),
+        carBody: this.textures.exists("carBody"),
+        wheel1: this.textures.exists("wheel1"),
+        wheelShadow: this.textures.exists("wheelShadow"),
+        carGroundShadow: this.textures.exists("carGroundShadow"),
+        turboFire1: this.textures.exists("turboFire1")
       });
       this.wallet = new CT.Wallet();
-      this.cameras.main.setBounds(0, 0, CT.Config.gameplay.worldWidth, CT.Config.height);
+      this.cameras.main.setBounds(-1800, 0, CT.Config.gameplay.worldWidth + 1800, CT.Config.height);
       this.cameras.main.setScroll(0, 0);
       this.createBackground();
       this.createPlayfield();
@@ -56,7 +104,6 @@
       });
       this.createAudio();
       this.resetRunVisuals();
-      this.createStartAudioOverlay();
       this.hideBootLoader();
     }
 
@@ -155,53 +202,6 @@
       if (this.sfx && this.sfx.carEngineLoopB) this.sfx.carEngineLoopB.stop();
     }
 
-    createStartAudioOverlay() {
-      const W = CT.Config.width;
-      const H = CT.Config.height;
-      const overlay = this.add.container(0, 0).setDepth(1000).setScrollFactor(0);
-      const shade = this.add.rectangle(W / 2, H / 2, W, H, 0x9aa0a4, 0.34)
-        .setInteractive({ useHandCursor: true });
-      const button = this.add.image(W / 2, H / 2, "playButton")
-        .setInteractive({ useHandCursor: true });
-      const maxWidth = W * 0.42;
-      if (button.width > maxWidth) {
-        button.setScale(maxWidth / button.width);
-      }
-
-      overlay.add([shade, button]);
-      this.startOverlay = overlay;
-      shade.once("pointerdown", () => this.dismissStartAudioOverlay());
-      button.once("pointerdown", () => this.dismissStartAudioOverlay());
-      this.tweens.add({
-        targets: button,
-        scaleX: button.scaleX * 1.08,
-        scaleY: button.scaleY * 1.08,
-        duration: 680,
-        yoyo: true,
-        repeat: -1,
-        ease: "Sine.inOut"
-      });
-    }
-
-    dismissStartAudioOverlay() {
-      if (!this.startOverlay) return;
-      this.ensureBackgroundMusic();
-      if (this.sound.locked) {
-        this.sound.once("unlocked", () => this.ensureBackgroundMusic());
-      }
-
-      const overlay = this.startOverlay;
-      this.startOverlay = null;
-      this.tweens.killTweensOf(overlay.list);
-      this.tweens.add({
-        targets: overlay,
-        alpha: 0,
-        duration: 220,
-        ease: "Cubic.out",
-        onComplete: () => overlay.destroy()
-      });
-    }
-
     createBackground() {
       const cfg = CT.Config;
       const W = cfg.width;
@@ -225,27 +225,21 @@
       const cfg = CT.Config;
       const W = cfg.width;
       const H = cfg.height;
-      this.roadLines = [];
-      for (let i = 0; i < 8; i++) {
-        const line = this.add.rectangle(i * 128 - 40, cfg.gameplay.roadY + 24, 68, 10, 0xffcf30, 0.88)
-          .setOrigin(0.5)
-          .setDepth(1)
-          .setScrollFactor(0);
-        this.roadLines.push(line);
-      }
+      this.createCarControlConfig();
+      this.createRoadLoop();
 
-      this.barrier = this.add.container(cfg.gameplay.barrierX, cfg.gameplay.roadY - 36).setDepth(4).setVisible(false);
-      this.barrier.add([
-        this.add.rectangle(0, 0, 42, 132, 0xd7dde2, 1).setStrokeStyle(4, 0x6b747c, 1),
-        this.add.rectangle(0, -42, 64, 18, 0xe13f35, 1).setAngle(-18),
-        this.add.rectangle(0, 0, 64, 18, 0xe13f35, 1).setAngle(-18),
-        this.add.rectangle(0, 42, 64, 18, 0xe13f35, 1).setAngle(-18)
-      ]);
+      this.barrier = this.add.container(this.hitWallX, this.hitWallY).setDepth(6).setVisible(false);
+      this.hitWallImage = this.add.image(0, 0, "hitWall")
+          .setOrigin(0.5, 1)
+          .setScale(this.hitWallScale);
+      this.barrier.add(this.hitWallImage);
+      this.updateHitWallLayout();
 
       this.smokeLayer = this.add.container(0, 0).setDepth(8);
       this.car = this.createCar();
       this.dummy = this.createDummy();
       this.car.add(this.dummy);
+      this.dummy.setVisible(false);
       this.multiplierPanel = this.add.container(W / 2, cfg.gameplay.roadY - 345).setDepth(9);
       this.multiplierPanel.setScrollFactor(0);
       this.multiplierGlow = this.add.circle(0, 0, 178, 0xffcf30, 0.12).setBlendMode(Phaser.BlendModes.ADD);
@@ -276,7 +270,547 @@
       }).setOrigin(0.5);
       this.multiplierPanel.add([this.multiplierGlow, this.multiplierPanelBg, this.multiplierPanelInner, this.multiplierPanelLabel, this.multiplierText]);
       this.createBounceBadge();
+      this.createCarControlUI();
       this.applyMultiplierTheme("idle");
+    }
+
+    createRoadLoop() {
+      const cfg = CT.Config;
+      this.applyRoadArtDefaults();
+      this.roadTiles = [];
+      this.fenceTiles = [];
+      this.loopObjectLayers = [];
+      this.fencePoleItems = [];
+      this.fencePoleLayer = null;
+      this.fenceOverlayItems = [];
+      this.fenceOverlayLayer = null;
+
+      for (let i = 0; i < 8; i++) {
+        const fence = this.add.image(0, this.fenceArtY, "roadFence")
+          .setOrigin(0, 1)
+          .setDepth(0)
+          .setScrollFactor(0);
+        this.fenceTiles.push(fence);
+      }
+      this.createFenceOverlayLoop();
+      this.createFencePoleLoop();
+      const keys = ["roadLoop1", "roadLoop2", "roadLoop3"];
+      for (let i = 0; i < 10; i++) {
+        const tile = this.add.image(0, this.roadArtY, keys[i % keys.length])
+          .setOrigin(0, 0.5)
+          .setDepth(1)
+          .setScrollFactor(0);
+        this.roadTiles.push(tile);
+      }
+      this.updateRoadTilesLayout();
+    }
+
+    createFenceOverlayLoop() {
+      this.fenceOverlayItems = [];
+      this.fenceOverlayKeys = ["roadBgOverlay1", "roadBgOverlay2", "roadBgOverlay3", "roadBgOverlay4", "roadBgOverlay5"]
+        .filter((key) => this.textures.exists(key));
+      if (!this.fenceOverlayKeys.length) return;
+
+      this.fenceOverlayLayer = this.createLoopObjectLayer({
+        id: "fenceOverlays",
+        count: 48,
+        depth: 1.6,
+        getLayout: () => ({
+          x: this.fenceOverlayX,
+          y: this.fenceOverlayY,
+          spacing: this.fenceOverlaySpacing
+        }),
+        createItem: () => {
+          const image = this.add.image(0, 0, this.fenceOverlayKeys[0])
+            .setOrigin(0.5, 1);
+          const item = this.add.container(0, this.fenceOverlayY, [image]);
+
+          item.image = image;
+          item.overlayKey = this.fenceOverlayKeys[0];
+          return item;
+        },
+        onLayout: (item) => this.layoutFenceOverlayItem(item)
+      });
+      this.fenceOverlayItems = this.fenceOverlayLayer.items;
+    }
+
+    createFencePoleLoop() {
+      this.fencePoleItems = [];
+      if (!this.textures.exists("fencePole") || !this.textures.exists("fenceLight")) return;
+
+      this.fencePoleLayer = this.createLoopObjectLayer({
+        id: "fencePoles",
+        count: 32,
+        depth: 2,
+        getLayout: () => ({
+          x: this.fencePoleX,
+          y: this.fencePoleY,
+          spacing: this.fencePoleSpacing
+        }),
+        createItem: (i) => {
+          const pole = this.add.image(0, 0, "fencePole")
+            .setOrigin(0.5, 1);
+          const light = this.add.image(0, this.fenceLightOffsetY, "fenceLight")
+            .setOrigin(0.5)
+            .setBlendMode(Phaser.BlendModes.ADD);
+          const item = this.add.container(0, this.fencePoleY, [pole, light]);
+
+          item.pole = pole;
+          item.light = light;
+          item.lightPhase = i * 0.47;
+          return item;
+        },
+        onLayout: (item) => {
+          item.pole.setScale(this.fencePoleScale);
+          item.light.setPosition(0, this.fenceLightOffsetY);
+          item.light.baseScale = this.fenceLightScale;
+        }
+      });
+      this.fencePoleItems = this.fencePoleLayer.items;
+    }
+
+    layoutFenceOverlayItem(item) {
+      const activeCount = Math.round(Phaser.Math.Clamp(this.fenceOverlayCount, 0, 48));
+      if (item.loopIndex >= activeCount) {
+        item.setVisible(false);
+        return;
+      }
+
+      const logicalIndex = item.logicalIndex || 0;
+      const chanceRoll = this.seededUnit(logicalIndex, 11);
+      if (chanceRoll > this.fenceOverlayChance) {
+        item.setVisible(false);
+        return;
+      }
+
+      const keyIndex = Math.floor(this.seededUnit(logicalIndex, 23) * this.fenceOverlayKeys.length) % this.fenceOverlayKeys.length;
+      const key = this.fenceOverlayKeys[keyIndex];
+      if (item.overlayKey !== key) {
+        item.overlayKey = key;
+        item.image.setTexture(key);
+      }
+
+      const yOffset = this.seededUnit(logicalIndex, 37) * this.fenceOverlayHeight;
+      const xJitter = (this.seededUnit(logicalIndex, 41) * 2 - 1) * this.fenceOverlayJitterX;
+      const scaleLow = Math.min(this.fenceOverlayScaleMin, this.fenceOverlayScaleMax);
+      const scaleHigh = Math.max(this.fenceOverlayScaleMin, this.fenceOverlayScaleMax);
+      const scale = Phaser.Math.Linear(scaleLow, scaleHigh, this.seededUnit(logicalIndex, 53));
+
+      item.setVisible(true);
+      item.x += xJitter;
+      item.y = this.fenceOverlayY + yOffset;
+      item.image.setScale(scale);
+      item.image.setAlpha(this.fenceOverlayAlpha);
+    }
+
+    seededUnit(index, salt) {
+      const raw = Math.sin((index + 1) * 127.1 + salt * 311.7) * 43758.5453123;
+      return raw - Math.floor(raw);
+    }
+
+    createLoopObjectLayer(options) {
+      const layer = {
+        id: options.id,
+        items: [],
+        count: options.count || 16,
+        depth: options.depth || 0,
+        travel: 0,
+        offset: 0,
+        getLayout: options.getLayout,
+        createItem: options.createItem,
+        onLayout: options.onLayout,
+        active: true
+      };
+
+      for (let i = 0; i < layer.count; i++) {
+        const item = layer.createItem(i);
+        item.loopIndex = i;
+        item.logicalIndex = i;
+        item.setDepth(layer.depth);
+        item.setScrollFactor(0);
+        layer.items.push(item);
+      }
+
+      this.loopObjectLayers.push(layer);
+      this.layoutLoopObjectLayer(layer);
+      return layer;
+    }
+
+    layoutLoopObjectLayer(layer) {
+      if (!layer || !layer.items.length) return;
+      const layout = layer.getLayout ? layer.getLayout() : {};
+      const spacing = Math.max(24, Number(layout.spacing) || 24);
+      layer.offset = Phaser.Math.Wrap(layer.travel, 0, spacing);
+      const baseIndex = Math.floor(layer.travel / spacing);
+
+      layer.items.forEach((item, i) => {
+        item.x = (Number(layout.x) || 0) + i * spacing - spacing - layer.offset;
+        item.y = Number.isFinite(Number(layout.y)) ? Number(layout.y) : 0;
+        item.logicalIndex = baseIndex + i - 1;
+        if (layer.onLayout) layer.onLayout(item, i, layer, layout);
+      });
+    }
+
+    updateLoopObjectLayersLayout() {
+      if (!this.loopObjectLayers || !this.loopObjectLayers.length) return;
+      this.loopObjectLayers.forEach((layer) => this.layoutLoopObjectLayer(layer));
+    }
+
+    advanceLoopObjectLayers(dx) {
+      if (!this.loopObjectLayers || !this.loopObjectLayers.length) return;
+      this.loopObjectLayers.forEach((layer) => {
+        if (layer.active) layer.travel += dx;
+      });
+    }
+
+    applyRoadArtDefaults() {
+      const gp = CT.Config.gameplay;
+      this.roadArtY = gp.roadArtY;
+      this.roadArtScale = gp.roadArtScale;
+      this.fenceArtY = gp.fenceArtY;
+      this.fenceArtScale = gp.fenceArtScale;
+      this.fencePoleX = gp.fencePoleX;
+      this.fencePoleY = gp.fencePoleY;
+      this.fencePoleSpacing = gp.fencePoleSpacing;
+      this.fencePoleScale = gp.fencePoleScale;
+      this.fenceLightOffsetY = gp.fenceLightOffsetY;
+      this.fenceLightScale = gp.fenceLightScale;
+      this.fenceLightIntensity = gp.fenceLightIntensity;
+      this.fenceLightDelay = gp.fenceLightDelay;
+      this.fenceOverlayX = gp.fenceOverlayX;
+      this.fenceOverlayY = gp.fenceOverlayY;
+      this.fenceOverlayHeight = gp.fenceOverlayHeight;
+      this.fenceOverlaySpacing = gp.fenceOverlaySpacing;
+      this.fenceOverlayJitterX = gp.fenceOverlayJitterX;
+      this.fenceOverlayCount = gp.fenceOverlayCount;
+      this.fenceOverlayChance = gp.fenceOverlayChance;
+      this.fenceOverlayScaleMin = gp.fenceOverlayScaleMin;
+      this.fenceOverlayScaleMax = gp.fenceOverlayScaleMax;
+      this.fenceOverlayAlpha = gp.fenceOverlayAlpha;
+      this.hitWallX = gp.hitWallX;
+      this.hitWallY = gp.hitWallY;
+      this.hitWallScale = gp.hitWallScale;
+      this.hitWallAlpha = gp.hitWallAlpha;
+    }
+
+    updateHitWallLayout() {
+      if (!this.barrier) return;
+      this.barrier.setPosition(this.hitWallX, this.hitWallY).setAlpha(this.hitWallAlpha);
+      if (this.hitWallImage) this.hitWallImage.setScale(this.hitWallScale);
+      if (this.hitWallPreview && this.state === "ready") this.barrier.setVisible(true);
+    }
+
+    setHitWallPreview(enabled) {
+      this.hitWallPreview = !!enabled;
+      if (!this.barrier) return;
+      if (this.hitWallPreview && this.state === "ready") {
+        this.updateHitWallLayout();
+        this.barrier.setVisible(true);
+      } else if (this.state !== "crashing" && this.state !== "dummyFlight") {
+        this.barrier.setVisible(false);
+      }
+    }
+
+    getRoadTileWidth() {
+      const tile = this.roadTiles && this.roadTiles[0];
+      if (!tile) return 1;
+      return Math.max(1, tile.width * this.roadArtScale);
+    }
+
+    getFenceTileWidth() {
+      const tile = this.fenceTiles && this.fenceTiles[0];
+      if (!tile) return 1;
+      return Math.max(1, tile.width * this.fenceArtScale);
+    }
+
+    updateRoadTilesLayout() {
+      if (!this.roadTiles || !this.roadTiles.length) return;
+      const tileWidth = this.getRoadTileWidth();
+      const patternWidth = tileWidth * 3;
+      this.roadOffset = Phaser.Math.Wrap(this.roadOffset, 0, patternWidth);
+      this.roadTiles.forEach((tile, i) => {
+        tile.setScale(this.roadArtScale);
+        tile.y = this.roadArtY;
+        tile.x = i * tileWidth - tileWidth - this.roadOffset;
+      });
+      if (this.fenceTiles && this.fenceTiles.length) {
+        const fenceWidth = this.getFenceTileWidth();
+        this.fenceOffset = Phaser.Math.Wrap(this.fenceOffset, 0, fenceWidth);
+        this.fenceTiles.forEach((tile, i) => {
+          tile.setScale(this.fenceArtScale);
+          tile.y = this.fenceArtY;
+          tile.x = i * fenceWidth - fenceWidth - this.fenceOffset;
+        });
+      }
+      this.updateLoopObjectLayersLayout();
+    }
+
+    updateFenceLights(time) {
+      if (!this.fencePoleItems || !this.fencePoleItems.length) return;
+      const intensity = Phaser.Math.Clamp(this.fenceLightIntensity, 0, 1.5);
+      const peakAlpha = Phaser.Math.Clamp(0.22 + intensity * 0.78, 0.22, 1);
+      const delayStep = this.fenceLightDelay || 0;
+      this.fencePoleItems.forEach((item) => {
+        const logicalIndex = item.logicalIndex || 0;
+        const cycle = Phaser.Math.Wrap(time * 0.00062 + logicalIndex * delayStep, 0, 1);
+        const darkHold = 0.58;
+        const active = cycle <= darkHold ? 0 : (cycle - darkHold) / (1 - darkHold);
+        const pulse = active > 0 ? Math.pow(Math.sin(active * Math.PI), 1.45) : 0;
+        const alpha = pulse <= 0 ? 0 : peakAlpha * pulse;
+        const pulseScale = 1 + pulse * intensity * 0.13;
+        item.light.setAlpha(alpha);
+        item.light.setScale(this.fenceLightScale * pulseScale);
+      });
+    }
+
+    createCarControlConfig() {
+      const defaults = JSON.parse(JSON.stringify(CT.Config.gameplay.carArt || {}));
+      let saved = null;
+      try {
+        saved = JSON.parse(localStorage.getItem("crashTestCarArtV3") || "null");
+      } catch (e) {
+        saved = null;
+      }
+      this.carControlConfig = this.mergeCarControlConfig(defaults, saved);
+    }
+
+    mergeCarControlConfig(defaults, saved) {
+      const result = JSON.parse(JSON.stringify(defaults));
+      if (!saved || typeof saved !== "object") return result;
+      Object.keys(result).forEach((groupKey) => {
+        const group = saved[groupKey];
+        if (!group || typeof group !== "object") return;
+        Object.keys(result[groupKey]).forEach((key) => {
+          const fallback = result[groupKey][key];
+          if (typeof fallback === "number") {
+            const value = Number(group[key]);
+            if (Number.isFinite(value)) result[groupKey][key] = value;
+          } else if (typeof fallback === "string") {
+            result[groupKey][key] = this.normalizeHexColor(group[key], fallback);
+          }
+        });
+      });
+      return result;
+    }
+
+    applyCarControlConfig(save) {
+      if (!this.carControlConfig) return;
+      const cfg = this.carControlConfig;
+      const normalize = (group, fallback) => {
+        Object.keys(fallback).forEach((key) => {
+          group[key] = Number(group[key]);
+          if (!Number.isFinite(group[key])) group[key] = fallback[key];
+        });
+      };
+
+      normalize(cfg.root, CT.Config.gameplay.carArt.root);
+      normalize(cfg.body, CT.Config.gameplay.carArt.body);
+      normalize(cfg.rearWheel, CT.Config.gameplay.carArt.rearWheel);
+      normalize(cfg.frontWheel, CT.Config.gameplay.carArt.frontWheel);
+      normalize(cfg.wheelShadow, CT.Config.gameplay.carArt.wheelShadow);
+      normalize(cfg.turboFire, CT.Config.gameplay.carArt.turboFire);
+      if (!cfg.turboFireTint || typeof cfg.turboFireTint !== "object") {
+        cfg.turboFireTint = JSON.parse(JSON.stringify(CT.Config.gameplay.carArt.turboFireTint));
+      }
+
+      cfg.root.scale = Math.max(0.01, cfg.root.scale);
+      cfg.body.scale = Math.max(0.01, cfg.body.scale);
+      cfg.rearWheel.scale = Math.max(0.01, cfg.rearWheel.scale);
+      cfg.frontWheel.scale = Math.max(0.01, cfg.frontWheel.scale);
+      cfg.wheelShadow.scale = Math.max(0.01, cfg.wheelShadow.scale);
+      cfg.wheelShadow.alpha = Phaser.Math.Clamp(cfg.wheelShadow.alpha, 0, 1);
+      cfg.turboFire.scale = Math.max(0.01, cfg.turboFire.scale);
+      cfg.turboFire.alpha = Phaser.Math.Clamp(cfg.turboFire.alpha, 0, 1);
+      cfg.turboFireTint.preview = Phaser.Math.Clamp(Number(cfg.turboFireTint.preview) || 0, 0, 1);
+      ["orange", "yellow", "green", "blue", "purple"].forEach((key) => {
+        cfg.turboFireTint[key] = this.normalizeHexColor(cfg.turboFireTint[key], CT.Config.gameplay.carArt.turboFireTint[key]);
+      });
+
+      if (this.car) {
+        if (this.car.visualRoot) this.car.visualRoot.setPosition(cfg.root.x, cfg.root.y).setScale(cfg.root.scale);
+        if (this.car.bodyRig) {
+          this.car.bodyBaseY = cfg.body.y;
+          this.car.bodyRig.setPosition(cfg.body.x, cfg.body.y).setAngle(0);
+        }
+        if (this.car.bodyImage) this.car.bodyImage.setScale(cfg.body.scale);
+        if (this.car.rearWheel) this.car.rearWheel.setPosition(cfg.rearWheel.x, cfg.rearWheel.y).setScale(cfg.rearWheel.scale);
+        if (this.car.frontWheel) this.car.frontWheel.setPosition(cfg.frontWheel.x, cfg.frontWheel.y).setScale(cfg.frontWheel.scale);
+        if (this.car.wheelShadow) {
+          this.car.wheelShadow
+            .setPosition(cfg.wheelShadow.x, cfg.wheelShadow.y)
+            .setScale(cfg.wheelShadow.scale)
+            .setAlpha(cfg.wheelShadow.alpha);
+        }
+        if (this.car.carGroundShadow) {
+          this.updateCarGroundShadow();
+        }
+        if (this.car.turboFire) this.car.turboFire.setPosition(cfg.turboFire.x, cfg.turboFire.y);
+        this.updateCarFlame();
+      }
+
+      if (save) {
+        localStorage.setItem("crashTestCarArtV3", JSON.stringify(cfg));
+      }
+      this.updateCarControlJson();
+    }
+
+    createCarControlUI() {
+      const root = document.getElementById("control-ui");
+      if (!root || !this.carControlConfig) return;
+      this.carControlRoot = root;
+      root.innerHTML = "";
+
+      root.appendChild(this.makeCarControlTitle("Whole car"));
+      root.appendChild(this.makeCarSlider("x", this.carControlConfig.root, "x", -360, 360, 1));
+      root.appendChild(this.makeCarSlider("y", this.carControlConfig.root, "y", -260, 260, 1));
+      root.appendChild(this.makeCarSlider("scale", this.carControlConfig.root, "scale", 0.05, 2.5, 0.01));
+      root.appendChild(this.makeCarControlTitle("Car body"));
+      root.appendChild(this.makeCarSlider("x", this.carControlConfig.body, "x", -360, 360, 1));
+      root.appendChild(this.makeCarSlider("y", this.carControlConfig.body, "y", -260, 260, 1));
+      root.appendChild(this.makeCarSlider("scale", this.carControlConfig.body, "scale", 0.01, 1.5, 0.01));
+      root.appendChild(this.makeCarControlTitle("Rear wheel"));
+      root.appendChild(this.makeCarSlider("x", this.carControlConfig.rearWheel, "x", -360, 360, 1));
+      root.appendChild(this.makeCarSlider("y", this.carControlConfig.rearWheel, "y", -260, 260, 1));
+      root.appendChild(this.makeCarSlider("scale", this.carControlConfig.rearWheel, "scale", 0.01, 1.5, 0.01));
+      root.appendChild(this.makeCarControlTitle("Front wheel"));
+      root.appendChild(this.makeCarSlider("x", this.carControlConfig.frontWheel, "x", -360, 360, 1));
+      root.appendChild(this.makeCarSlider("y", this.carControlConfig.frontWheel, "y", -260, 260, 1));
+      root.appendChild(this.makeCarSlider("scale", this.carControlConfig.frontWheel, "scale", 0.01, 1.5, 0.01));
+      root.appendChild(this.makeCarControlTitle("Wheel shadow"));
+      root.appendChild(this.makeCarSlider("x", this.carControlConfig.wheelShadow, "x", -360, 360, 1));
+      root.appendChild(this.makeCarSlider("y", this.carControlConfig.wheelShadow, "y", -260, 260, 1));
+      root.appendChild(this.makeCarSlider("scale", this.carControlConfig.wheelShadow, "scale", 0.01, 1.5, 0.01));
+      root.appendChild(this.makeCarSlider("alpha", this.carControlConfig.wheelShadow, "alpha", 0, 1, 0.01));
+      root.appendChild(this.makeCarControlTitle("Turbo fire"));
+      root.appendChild(this.makeCarSlider("x", this.carControlConfig.turboFire, "x", -420, 260, 1));
+      root.appendChild(this.makeCarSlider("y", this.carControlConfig.turboFire, "y", -220, 220, 1));
+      root.appendChild(this.makeCarSlider("scale", this.carControlConfig.turboFire, "scale", 0.01, 1.5, 0.01));
+      root.appendChild(this.makeCarSlider("alpha", this.carControlConfig.turboFire, "alpha", 0, 1, 0.01));
+      root.appendChild(this.makeCarControlTitle("Turbo tint"));
+      root.appendChild(this.makeCarSlider("phase", this.carControlConfig.turboFireTint, "preview", 0, 1, 0.01));
+      root.appendChild(this.makeCarColor("orange", this.carControlConfig.turboFireTint, "orange"));
+      root.appendChild(this.makeCarColor("yellow", this.carControlConfig.turboFireTint, "yellow"));
+      root.appendChild(this.makeCarColor("green", this.carControlConfig.turboFireTint, "green"));
+      root.appendChild(this.makeCarColor("blue", this.carControlConfig.turboFireTint, "blue"));
+      root.appendChild(this.makeCarColor("purple", this.carControlConfig.turboFireTint, "purple"));
+
+      const actions = document.createElement("div");
+      actions.className = "control-ui__actions";
+
+      const copy = document.createElement("button");
+      copy.type = "button";
+      copy.textContent = "Copy JSON";
+      copy.onclick = async () => {
+        const text = JSON.stringify(this.carControlConfig, null, 2);
+        try {
+          await navigator.clipboard.writeText(text);
+          copy.textContent = "Copied!";
+          window.setTimeout(() => { copy.textContent = "Copy JSON"; }, 700);
+        } catch (e) {
+          copy.textContent = "Copy failed";
+          window.setTimeout(() => { copy.textContent = "Copy JSON"; }, 900);
+        }
+      };
+
+      const reset = document.createElement("button");
+      reset.type = "button";
+      reset.textContent = "Reset";
+      reset.onclick = () => this.resetCarArt();
+
+      actions.appendChild(copy);
+      actions.appendChild(reset);
+      root.appendChild(actions);
+
+      this.carControlJson = document.createElement("pre");
+      root.appendChild(this.carControlJson);
+      this.updateCarControlJson();
+    }
+
+    resetCarArt() {
+      this.carControlConfig = JSON.parse(JSON.stringify(CT.Config.gameplay.carArt || {}));
+      localStorage.removeItem("crashTestCarArtV3");
+      this.applyCarControlConfig(false);
+      this.createCarControlUI();
+    }
+
+    makeCarControlTitle(text) {
+      const title = document.createElement("div");
+      title.className = "control-ui__title";
+      title.textContent = text;
+      return title;
+    }
+
+    makeCarSlider(labelText, target, key, min, max, step) {
+      const label = document.createElement("label");
+      label.className = "control-ui__row";
+
+      const name = document.createElement("span");
+      name.textContent = labelText;
+
+      const range = document.createElement("input");
+      range.type = "range";
+      range.min = min;
+      range.max = max;
+      range.step = step;
+      range.value = target[key];
+
+      const value = document.createElement("input");
+      value.type = "number";
+      value.min = min;
+      value.max = max;
+      value.step = step;
+      value.value = target[key];
+
+      const sync = (next) => {
+        target[key] = Number(next);
+        this.applyCarControlConfig(true);
+        range.value = target[key];
+        value.value = target[key];
+      };
+
+      range.oninput = () => sync(range.value);
+      value.oninput = () => sync(value.value);
+
+      label.appendChild(name);
+      label.appendChild(range);
+      label.appendChild(value);
+      return label;
+    }
+
+    makeCarColor(labelText, target, key) {
+      const label = document.createElement("label");
+      label.className = "control-ui__row control-ui__row--color";
+
+      const name = document.createElement("span");
+      name.textContent = labelText;
+
+      const color = document.createElement("input");
+      color.type = "color";
+      color.value = this.normalizeHexColor(target[key], CT.Config.gameplay.carArt.turboFireTint[key]);
+
+      const value = document.createElement("input");
+      value.type = "text";
+      value.value = color.value;
+
+      const sync = (next) => {
+        target[key] = this.normalizeHexColor(next, target[key]);
+        color.value = target[key];
+        value.value = target[key];
+        this.applyCarControlConfig(true);
+      };
+
+      color.oninput = () => sync(color.value);
+      value.onchange = () => sync(value.value);
+
+      label.appendChild(name);
+      label.appendChild(color);
+      label.appendChild(value);
+      return label;
+    }
+
+    updateCarControlJson() {
+      if (!this.carControlJson || !this.carControlConfig) return;
+      this.carControlJson.textContent = JSON.stringify(this.carControlConfig, null, 2);
     }
 
     createBounceBadge() {
@@ -364,19 +898,42 @@
 
     createCar() {
       const car = this.add.container(CT.Config.gameplay.carStartX, CT.Config.gameplay.roadY - 54).setDepth(5);
-      const shadow = this.add.ellipse(4, 62, 224, 34, 0x000000, 0.32);
-      const body = this.add.rectangle(0, 8, 220, 72, 0xb72420, 1).setStrokeStyle(5, 0x3b0d0b, 1);
-      const hood = this.add.rectangle(68, -22, 84, 46, 0xd63d2d, 1).setStrokeStyle(4, 0x3b0d0b, 1);
-      const stripe = this.add.rectangle(-40, 10, 124, 12, 0xffcf30, 1);
-      const bumper = this.add.rectangle(124, 20, 18, 58, 0xbec8cf, 1);
-      const wheelBack = this.add.circle(-70, 46, 30, 0x111111, 1).setStrokeStyle(7, 0x555555, 1);
-      const wheelFront = this.add.circle(72, 46, 30, 0x111111, 1).setStrokeStyle(7, 0x555555, 1);
-      const hubBack = this.add.circle(-70, 46, 12, 0xd7dde2, 1);
-      const hubFront = this.add.circle(72, 46, 12, 0xd7dde2, 1);
-      const engineGlow = this.add.circle(120, -4, 12, 0xff8a2a, 0.92).setBlendMode(Phaser.BlendModes.ADD);
-      car.add([shadow, body, hood, stripe, bumper, wheelBack, wheelFront, hubBack, hubFront, engineGlow]);
-      car.wheels = [wheelBack, wheelFront, hubBack, hubFront];
-      car.engineGlow = engineGlow;
+      const carGroundShadow = this.add.image(0, 0, "carGroundShadow")
+        .setOrigin(0.5)
+        .setDepth(4.5);
+      const visualRoot = this.add.container(0, 0);
+      const wheelRig = this.add.container(0, 0);
+      const rearWheel = this.add.sprite(0, 0, "wheel1").setOrigin(0.5);
+      const frontWheel = this.add.sprite(0, 0, "wheel1").setOrigin(0.5);
+      const wheelShadow = this.add.image(0, 0, "wheelShadow").setOrigin(0.5);
+      const turboFire = this.add.sprite(0, 0, "turboFire1")
+        .setOrigin(1, 0.5)
+        .setBlendMode(Phaser.BlendModes.ADD);
+      const bodyRig = this.add.container(0, 0);
+      const bodyImage = this.add.image(0, 0, "carBody").setOrigin(0.5);
+
+      wheelRig.add([rearWheel, frontWheel, wheelShadow]);
+      bodyRig.add([bodyImage, turboFire]);
+      visualRoot.add([wheelRig, bodyRig]);
+      car.add(visualRoot);
+
+      car.visualRoot = visualRoot;
+      car.wheelRig = wheelRig;
+      car.bodyRig = bodyRig;
+      car.bodyImage = bodyImage;
+      car.rearWheel = rearWheel;
+      car.frontWheel = frontWheel;
+      car.wheelShadow = wheelShadow;
+      car.carGroundShadow = carGroundShadow;
+      car.turboFire = turboFire;
+      car.wheels = [rearWheel, frontWheel];
+      car.bodyBaseY = 0;
+      car.bodyBouncePhase = Math.random() * Math.PI * 2;
+      car.bodyPitchPhase = Math.random() * Math.PI * 2;
+      this.car = car;
+      this.applyCarControlConfig(false);
+      this.setWheelPlayback(false);
+      this.updateCarFlame();
       return car;
     }
 
@@ -389,6 +946,150 @@
       const arm = this.add.rectangle(20, 5, 35, 8, 0xf3c479, 1).setAngle(-14);
       dummy.add([head, body, markH, markV, arm]);
       return dummy;
+    }
+
+    setWheelPlayback(active, rate) {
+      if (!this.car || !this.car.wheels) return;
+      this.car.wheels.forEach((wheel) => {
+        if (!wheel || !wheel.anims) return;
+        if (active) {
+          if (!wheel.anims.isPlaying) wheel.play("wheelSpin");
+          else if (wheel.anims.isPaused) wheel.anims.resume();
+          wheel.anims.timeScale = Phaser.Math.Clamp(rate || 1, 0.2, 2.4);
+        } else if (wheel.anims.isPlaying) {
+          wheel.anims.pause();
+        }
+      });
+    }
+
+    updateCarFlame() {
+      if (!this.car || !this.car.turboFire || !this.carControlConfig) return;
+      const fireCfg = this.carControlConfig.turboFire;
+      if (!this.car.turboFire.anims.isPlaying) this.car.turboFire.play("turboFireLoop");
+      const running = this.state === "running";
+      const preview = this.state === "ready";
+      const power = running ? Phaser.Math.Clamp(this.turboPower, 0, 1) : 0;
+      const tintPhase = running ? power : Phaser.Math.Clamp(Number(this.carControlConfig.turboFireTint.preview) || 0, 0, 1);
+      const scalePower = running ? 0.2 + power * 0.8 : 0.2;
+      const alphaPower = running ? 0.62 + power * 0.38 : (preview ? 0.34 : 0);
+      this.car.turboFire
+        .setTint(this.getTurboFireTint(tintPhase))
+        .setScale(fireCfg.scale * scalePower)
+        .setAlpha(fireCfg.alpha * alphaPower);
+      this.car.turboFire.anims.timeScale = running ? Phaser.Math.Linear(0.75, 2.1, power) : 0.5;
+    }
+
+    normalizeHexColor(value, fallback) {
+      const text = String(value || "").trim();
+      const match = text.match(/^#?([0-9a-f]{6})$/i);
+      return match ? "#" + match[1].toLowerCase() : String(fallback || "#ffffff").toLowerCase();
+    }
+
+    getTurboFireTint(phase) {
+      const tint = this.carControlConfig && this.carControlConfig.turboFireTint
+        ? this.carControlConfig.turboFireTint
+        : CT.Config.gameplay.carArt.turboFireTint;
+      const stops = [tint.orange, tint.yellow, tint.green, tint.blue, tint.purple]
+        .map((color) => this.hexToRgb(color));
+      const t = Phaser.Math.Clamp(Number(phase) || 0, 0, 1) * (stops.length - 1);
+      const index = Math.min(stops.length - 2, Math.floor(t));
+      const local = t - index;
+      const from = stops[index];
+      const to = stops[index + 1];
+      const r = Phaser.Math.Linear(from.r, to.r, local);
+      const g = Phaser.Math.Linear(from.g, to.g, local);
+      const b = Phaser.Math.Linear(from.b, to.b, local);
+      return Phaser.Display.Color.GetColor(Math.round(r), Math.round(g), Math.round(b));
+    }
+
+    hexToRgb(color) {
+      const hex = this.normalizeHexColor(color, "#ffffff").slice(1);
+      return {
+        r: parseInt(hex.slice(0, 2), 16),
+        g: parseInt(hex.slice(2, 4), 16),
+        b: parseInt(hex.slice(4, 6), 16)
+      };
+    }
+
+    updateCarBodyBounce(time) {
+      if (!this.car || !this.car.bodyRig) return;
+      if (this.state !== "running") {
+        this.car.bodyRig.y = this.car.bodyBaseY || 0;
+        this.car.bodyRig.angle = 0;
+        return;
+      }
+      const power = Phaser.Math.Clamp(this.turboPower, 0, 1);
+      const amplitude = 1.2 + power * 0.95;
+      const phase = this.car.bodyBouncePhase || 0;
+      const pitchPhase = this.car.bodyPitchPhase || 0;
+      const roadT = time * 0.001;
+      const sharedHop =
+        Math.sin(roadT * 27 + phase) * 0.58 +
+        Math.sin(roadT * 43 + phase * 1.73) * 0.28 +
+        Math.sin(roadT * 71 + phase * 0.41) * 0.14;
+      const frontRear =
+        Math.sin(roadT * 19 + pitchPhase) * 0.62 +
+        Math.sin(roadT * 47 + pitchPhase * 0.77) * 0.28 +
+        Math.sin(roadT * 83 + pitchPhase * 1.31) * 0.10;
+      const sharpKick = Math.pow(Math.abs(Math.sin(roadT * 12.5 + phase * 0.37)), 7);
+      this.car.bodyRig.y = (this.car.bodyBaseY || 0) + sharedHop * amplitude - sharpKick * (0.7 + power * 0.45);
+      this.car.bodyRig.angle = frontRear * (0.42 + power * 0.22);
+    }
+
+    updateCarGroundShadow() {
+      if (!this.car || !this.car.carGroundShadow || !this.carControlConfig) return;
+      const cfg = this.carControlConfig;
+      const root = cfg.root || CT.Config.gameplay.carArt.root;
+      const wheelShadow = cfg.wheelShadow || CT.Config.gameplay.carArt.wheelShadow;
+      const rootScale = Math.max(0.01, Number(root.scale) || 1);
+      const baseCarY = CT.Config.gameplay.roadY - 54;
+      const alpha = Phaser.Math.Clamp(Number(wheelShadow.alpha), 0, 1) * Phaser.Math.Clamp(this.car.alpha, 0, 1);
+      this.car.carGroundShadow
+        .setScrollFactor(this.car.scrollFactorX, this.car.scrollFactorY)
+        .setPosition(
+          this.car.x + (Number(root.x) || 0) + (Number(wheelShadow.x) || 0) * rootScale,
+          baseCarY + (Number(root.y) || 0) + (Number(wheelShadow.y) || 0) * rootScale
+        )
+        .setScale(Math.max(0.01, Number(wheelShadow.scale) || 1) * rootScale)
+        .setAlpha(alpha)
+        .setAngle(0)
+        .setVisible(this.car.visible !== false && alpha > 0);
+    }
+
+    recycleFailedCarToStart(animate, onComplete, cameraScrollX) {
+      const cfg = CT.Config;
+      this.stopCrashDebrisRoadLock();
+      const viewScrollX = Number.isFinite(cameraScrollX) ? cameraScrollX : 0;
+      this.car.setPosition(viewScrollX + cfg.gameplay.carStartX, cfg.gameplay.roadY - 54).setAngle(0).setAlpha(1);
+      this.car.setDepth(5);
+      if (this.car.bodyRig) this.car.bodyRig.y = this.car.bodyBaseY || 0;
+      if (this.car.bodyRig) this.car.bodyRig.angle = 0;
+      this.setWheelPlayback(false);
+      this.updateCarFlame();
+      this.updateCarGroundShadow();
+      this.dummy.setPosition(-22, -45).setAngle(0).setScale(1).setDepth(0);
+      if (this.dummy.parentContainer !== this.car) {
+        this.car.add(this.dummy);
+      }
+      this.dummy.setVisible(false);
+      if (!animate) {
+        if (onComplete) onComplete();
+        return this.car;
+      }
+      this.setWheelPlayback(true, 1.05);
+      this.tweens.add({
+        targets: this.car,
+        x: viewScrollX + cfg.gameplay.carReadyX,
+        duration: 620,
+        ease: "Cubic.out",
+        onUpdate: () => this.updateCarGroundShadow(),
+        onComplete: () => {
+          this.setWheelPlayback(false);
+          this.updateCarGroundShadow();
+          if (onComplete) onComplete();
+        }
+      });
+      return this.car;
     }
 
     startRun() {
@@ -426,11 +1127,11 @@
     }
 
     handleLeverRelease() {
-      this.setTurboPower(0);
       if (this.state === "running") {
         this.cashOutCrash();
         return;
       }
+      this.setTurboPower(0);
     }
 
     pickEngineBreakAt() {
@@ -458,7 +1159,7 @@
       this.turboPower = nextPower;
       this.turbo = nextTurbo;
       this.hud.setTurbo(this.turbo);
-      this.car.engineGlow.setScale(1 + this.turboPower * 0.85);
+      this.updateCarFlame();
     }
 
     toggleSafeMode() {
@@ -470,20 +1171,28 @@
 
     cashOutCrash() {
       if (this.state !== "running") return;
+      const releaseTurboPower = this.turboPower;
+      const releaseFactor = 1 + (CT.Config.gameplay.turboFactor - 1) * releaseTurboPower;
+      const releaseRoadSpeed = Math.max(460, (this.visualSpeed || 340) * releaseFactor);
       this.setTurboPower(0);
       this.stopEngineAudio();
       this.playOneShot("carCrash");
       this.state = "crashing";
-      const cfg = CT.Config;
-      const W = CT.Config.width;
+      this.updateCarFlame();
       const payout = this.wallet.currentBet * this.multiplier;
+      const crashRoadTravel = 820;
+      const crashApproachDuration = Phaser.Math.Clamp((crashRoadTravel / releaseRoadSpeed) * 1000 * 0.48, 240, 390);
+      const impactCarX = CT.Config.width * 0.57;
+      const impactWallX = impactCarX + 142;
+      const wallStartX = impactWallX + crashRoadTravel;
       this.pendingPayout = payout;
       this.bonusAdd = 0;
       this.clearBonusItems();
       this.hud.setLocked(true);
       this.hud.setResult(this.autoCrash ? "WALL HIT!" : "CRASH!", "#ffffff");
       this.barrier.setVisible(true);
-      this.barrier.setPosition(W + 92, cfg.gameplay.roadY - 36).setAlpha(1).setScale(1);
+      this.barrier.setPosition(wallStartX, this.hitWallY).setAlpha(this.hitWallAlpha).setScale(1);
+      const carStartX = this.car.x;
       this.tweens.killTweensOf(this.car);
       this.tweens.killTweensOf(this.barrier);
       this.cameras.main.shake(360, 0.004);
@@ -493,74 +1202,98 @@
       this.tweens.add({
         targets: roadMotion,
         t: 1,
-        duration: 430,
-        ease: "Cubic.in",
+        duration: crashApproachDuration,
+        ease: "Linear",
         onUpdate: () => {
-          const diff = roadMotion.t - lastRoadT;
-          lastRoadT = roadMotion.t;
-          this.advanceRoad(diff * 820);
+          const motionT = roadMotion.t * 0.26 + Phaser.Math.Easing.Sine.Out(roadMotion.t) * 0.74;
+          const diff = motionT - lastRoadT;
+          lastRoadT = motionT;
+          this.advanceRoad(diff * crashRoadTravel);
+          this.barrier.x = wallStartX - motionT * crashRoadTravel;
+          this.car.x = Phaser.Math.Linear(carStartX, impactCarX, motionT);
+          this.updateCarGroundShadow();
+        },
+        onComplete: () => {
+          this.barrier.x = impactWallX;
+          this.car.x = impactCarX;
+          this.updateCarGroundShadow();
+          this.playCrashImpact(payout);
         }
-      });
-      this.tweens.add({
-        targets: this.barrier,
-        x: cfg.gameplay.barrierX,
-        duration: 430,
-        ease: "Cubic.in",
-        onComplete: () => this.playCrashImpact(payout)
-      });
-      this.tweens.add({
-        targets: this.car,
-        x: cfg.gameplay.barrierX - 126,
-        duration: 430,
-        ease: "Sine.in"
       });
     }
 
     playCrashImpact(payout) {
-      this.cameras.main.shake(420, 0.022);
-      this.impactFlash();
-      this.spawnSmoke(this.car.x + 96, this.car.y - 10, 14, 0xffcf30);
+      this.cameras.main.shake(420, 0.018);
+      this.spawnSmoke(this.car.x + 96, this.car.y - 10, 20, 0xffcf30);
+      this.tweens.killTweensOf(this.car);
+      this.tweens.killTweensOf(this.dummy);
+      this.setWheelPlayback(false);
       this.tweens.add({
         targets: this.car,
-        x: this.car.x - 22,
-        angle: -11,
-        duration: 150,
-        yoyo: true,
+        angle: -6,
+        duration: 55,
         ease: "Quad.out"
       });
+      this.launchDummyAfterImpact(payout);
+    }
 
+    launchDummyAfterImpact(payout) {
+      if (this.state !== "crashing") return;
+      const dummyWorldX = this.car.x + this.dummy.x;
+      const dummyWorldY = this.car.y + this.dummy.y;
+      const dummyWorldAngle = this.car.angle + this.dummy.angle;
       this.car.remove(this.dummy, false);
       this.children.add(this.dummy);
-      this.dummy.setPosition(this.car.x - 22, this.car.y - 45).setDepth(9).setScale(1);
+      this.dummy.setPosition(dummyWorldX, dummyWorldY).setDepth(9).setScale(1).setAngle(dummyWorldAngle).setVisible(true);
+      this.startCrashDebrisRoadLock();
       this.tweens.add({
         targets: this.dummy,
-        scaleX: 1.12,
-        scaleY: 0.92,
-        duration: 70,
-        ease: "Quad.out",
+        scaleX: 1.1,
+        scaleY: 0.94,
+        duration: 90,
+        ease: "Sine.out",
         yoyo: true
       });
       this.state = "dummyFlight";
-      this.flightRoadSpeed = Math.max(620, (this.visualSpeed || 280) * 1.18);
+      const targetFlightSpeed = Math.max(680, (this.visualSpeed || 340) * 1.12);
+      this.flightRoadSpeed = targetFlightSpeed * 0.98;
+      this.tweens.add({
+        targets: this,
+        flightRoadSpeed: targetFlightSpeed,
+        duration: 110,
+        ease: "Cubic.out"
+      });
       this.playDummyFlight(payout);
     }
 
-    impactFlash() {
-      const flash = this.add.rectangle(
-        this.cameras.main.scrollX + CT.Config.width / 2,
-        CT.Config.height / 2,
-        CT.Config.width,
-        CT.Config.height,
-        0xffffff,
-        0.22
-      ).setDepth(50);
-      this.tweens.add({
-        targets: flash,
-        alpha: 0,
-        duration: 170,
-        ease: "Quad.out",
-        onComplete: () => flash.destroy()
+    startCrashDebrisRoadLock() {
+      const cameraX = this.cameras.main.scrollX;
+      [this.car, this.barrier, this.car && this.car.carGroundShadow].forEach((obj) => {
+        if (!obj) return;
+        if (obj.scrollFactorX !== 0) obj.x -= cameraX;
+        obj.setScrollFactor(0);
       });
+      this.updateCarGroundShadow();
+      this.crashDebrisActive = true;
+    }
+
+    stopCrashDebrisRoadLock() {
+      this.crashDebrisActive = false;
+      [this.car, this.barrier, this.car && this.car.carGroundShadow].forEach((obj) => {
+        if (!obj) return;
+        obj.setScrollFactor(1);
+      });
+      this.updateCarGroundShadow();
+    }
+
+    advanceCrashDebris(dx) {
+      if (!this.crashDebrisActive) return;
+      this.car.x -= dx;
+      this.barrier.x -= dx;
+      this.updateCarGroundShadow();
+      if (this.car.x < -360 && this.barrier.x < -260) {
+        this.crashDebrisActive = false;
+      }
     }
 
     playDummyFlight(payout) {
@@ -582,9 +1315,9 @@
         targets: flight,
         t: 1,
         duration: flyMs,
-        ease: "Sine.out",
+        ease: "Linear",
         onUpdate: () => {
-          const t = flight.t;
+          const t = flight.t * 0.32 + Phaser.Math.Easing.Sine.Out(flight.t) * 0.68;
           this.dummy.x = Phaser.Math.Linear(startX, impactX, t);
           this.dummy.y = Phaser.Math.Linear(startY, groundY, t) - Math.sin(Math.PI * t) * arc;
           this.dummy.angle = Phaser.Math.Linear(spinStart, spinEnd, t);
@@ -652,8 +1385,9 @@
             this.dummy.y = groundY - Math.sin(Math.PI * u) * height;
             this.dummy.angle = Phaser.Math.Linear(startAngle, endAngle, u);
             if (index >= totalBounces) {
-              const brakeT = Phaser.Math.Clamp((u - 0.48) / 0.52, 0, 1);
-              this.flightRoadSpeed = roadSpeedAtArcStart * Math.pow(1 - brakeT, 2.2);
+              const brakeT = Phaser.Math.Clamp((u - 0.28) / 0.72, 0, 1);
+              const brakeEase = Phaser.Math.Easing.Sine.InOut(brakeT);
+              this.flightRoadSpeed = roadSpeedAtArcStart * Math.pow(1 - brakeEase, 0.55);
             }
             this.collectBonusesOnCurve(bonuses, u);
           },
@@ -942,9 +1676,9 @@
         targets: this.dummy,
         y: groundY + 5,
         angle: this.dummy.angle + 18,
-        duration: 120,
+        duration: 80,
         yoyo: true,
-        repeat: 2,
+        repeat: 1,
         ease: "Sine.inOut",
         onComplete: () => this.showCrashFinal(payout)
       });
@@ -957,7 +1691,7 @@
       this.hud.update();
       this.hud.setResult("LAST WIN +$" + this.wallet.format(finalPayout), CT.Config.colors.ok);
       this.showFinalWinCounter(finalPayout, () => {
-        this.time.delayedCall(420, () => this.returnCameraToStart());
+        this.time.delayedCall(120, () => this.returnCameraToStart(true));
       });
     }
 
@@ -998,7 +1732,7 @@
       this.tweens.add({
         targets: counter,
         value: finalPayout,
-        duration: 950,
+        duration: 650,
         ease: "Cubic.out",
         onUpdate: () => {
           valueText.setText("$" + this.wallet.format(counter.value));
@@ -1013,13 +1747,13 @@
             yoyo: true,
             ease: "Sine.inOut",
             onComplete: () => {
-              this.time.delayedCall(480, () => {
+              this.time.delayedCall(160, () => {
                 this.tweens.add({
                   targets: box,
                   alpha: 0,
                   scaleX: 0.86,
                   scaleY: 0.86,
-                  duration: 220,
+                  duration: 150,
                   ease: "Cubic.in",
                   onComplete: () => {
                     box.destroy();
@@ -1039,13 +1773,14 @@
       this.state = "failed";
       this.turbo = false;
       this.turboPower = 0;
-      this.turboExhaustClock = 0;
       this.stopEngineAudio();
       this.playOneShot("carEngineFail");
       this.hud.setTurbo(false);
       this.hud.setLocked(true);
       this.setPageControlsDimmed(false);
       this.tweens.killTweensOf(this.car);
+      this.setWheelPlayback(false);
+      this.updateCarFlame();
       this.cameras.main.shake(180, 0.006);
       this.spawnSmoke(this.car.x + 94, this.car.y - 8, 22, 0x3e454a);
       this.hud.setResult("ENGINE BROKE!", "#ffffff");
@@ -1058,33 +1793,81 @@
         x: this.car.x + 42,
         y: baseCarY,
         angle: 3,
-        duration: 360,
+        duration: 260,
         ease: "Cubic.out",
+        onUpdate: () => this.updateCarGroundShadow(),
         onComplete: () => {
+          this.updateCarGroundShadow();
           this.hud.setResult("LAST LOSS -$" + this.wallet.format(this.wallet.currentBet), CT.Config.colors.danger);
           this.hud.floatText(CT.Config.width / 2, 350, "-$" + this.wallet.format(this.wallet.currentBet), CT.Config.colors.danger, 42);
-          this.time.delayedCall(820, () => this.returnCameraToStart());
+          this.time.delayedCall(140, () => this.returnCameraToStart(true));
         }
       });
     }
 
-    returnCameraToStart() {
+    returnCameraToStart(spawnNewCar) {
       this.state = "returning";
       this.turbo = false;
       this.turboPower = 0;
-      this.turboExhaustClock = 0;
       this.stopEngineAudio();
       this.setPageControlsDimmed(false);
       this.hud.setTurbo(false);
-      this.resetRunVisuals(false);
+      if (spawnNewCar) {
+        const carVisibleInView = this.car.x > this.cameras.main.scrollX - 220 && this.car.x < this.cameras.main.scrollX + CT.Config.width + 220;
+        this.car.setAlpha(carVisibleInView ? 0.82 : 0);
+        if (this.car.turboFire) this.car.turboFire.setAlpha(0);
+        this.updateCarGroundShadow();
+        const cfg = CT.Config;
+        const awayScrollX = -Phaser.Math.Clamp(cfg.width * 1.85, 980, 1580);
+        const awayMotion = { scrollX: this.cameras.main.scrollX };
+        let lastAwayScrollX = awayMotion.scrollX;
+        const launchCar = () => {
+          this.resetRunStateOnly();
+          this.car.setAlpha(0);
+          this.updateCarGroundShadow();
+          this.recycleFailedCarToStart(false, null, 0);
+          this.dummy.setPosition(-22, -45).setAngle(0).setScale(1).setDepth(0);
+          if (this.dummy.parentContainer !== this.car) {
+            this.car.add(this.dummy);
+          }
+          this.dummy.setVisible(false);
+          this.cameras.main.scrollX = 0;
+          this.car.setAlpha(1);
+          this.updateCarGroundShadow();
+          this.recycleFailedCarToStart(true, () => {
+            this.state = "ready";
+            this.hud.setRunning(false);
+            this.updateCarFlame();
+          }, 0);
+        };
+        this.tweens.add({
+          targets: awayMotion,
+          scrollX: awayScrollX,
+          duration: 380,
+          ease: "Cubic.inOut",
+          onUpdate: () => {
+            const diff = awayMotion.scrollX - lastAwayScrollX;
+            lastAwayScrollX = awayMotion.scrollX;
+            this.cameras.main.scrollX = awayMotion.scrollX;
+            this.advanceRoad(diff);
+          },
+          onComplete: () => {
+            launchCar();
+          }
+        });
+        return;
+      } else {
+        this.resetRunVisuals(false);
+      }
       this.tweens.add({
         targets: this.cameras.main,
         scrollX: 0,
-        duration: Math.max(420, Math.min(1050, this.cameras.main.scrollX * 0.9)),
+        duration: Math.max(280, Math.min(720, this.cameras.main.scrollX * 0.62)),
         ease: "Cubic.inOut",
         onComplete: () => {
           this.state = "ready";
           this.hud.setRunning(false);
+          this.updateCarFlame();
         }
       });
     }
@@ -1092,19 +1875,21 @@
     resetRunVisuals(launchPosition) {
       const cfg = CT.Config;
       this.tweens.killTweensOf([this.car, this.dummy]);
+      this.stopCrashDebrisRoadLock();
       this.barrier.setVisible(false);
-      this.barrier.setAlpha(1).setScale(1);
+      this.barrier.setAlpha(this.hitWallAlpha).setScale(1);
+      this.updateHitWallLayout();
       this.car.setPosition(launchPosition ? cfg.gameplay.carStartX : cfg.gameplay.carReadyX, cfg.gameplay.roadY - 54).setAngle(0).setAlpha(1);
       this.dummy.setPosition(-22, -45).setAngle(0).setScale(1).setDepth(0);
       if (this.dummy.parentContainer !== this.car) {
         this.car.add(this.dummy);
       }
+      this.dummy.setVisible(false);
       this.multiplier = cfg.gameplay.startMultiplier;
       this.speed = 0;
       this.visualSpeed = 0;
       this.turbo = false;
       this.turboPower = 0;
-      this.turboExhaustClock = 0;
       this.stopEngineAudio();
       this.autoCrash = false;
       this.bonusAdd = 0;
@@ -1120,7 +1905,47 @@
         this.hud.setMultiplier(this.multiplier);
         this.hud.setTurbo(false);
       }
-      if (this.car && this.car.engineGlow) this.car.engineGlow.setScale(1);
+      if (this.car && this.car.bodyRig) this.car.bodyRig.y = this.car.bodyBaseY || 0;
+      if (this.car && this.car.bodyRig) this.car.bodyRig.angle = 0;
+      this.setWheelPlayback(false);
+      this.updateCarFlame();
+      this.updateCarGroundShadow();
+      this.applyMultiplierTheme("idle");
+      this.updateBounceText();
+      this.smokeLayer.removeAll(true);
+    }
+
+    resetRunStateOnly() {
+      const cfg = CT.Config;
+      this.stopCrashDebrisRoadLock();
+      this.barrier.setVisible(false);
+      this.barrier.setAlpha(this.hitWallAlpha).setScale(1);
+      this.updateHitWallLayout();
+      this.multiplier = cfg.gameplay.startMultiplier;
+      this.speed = 0;
+      this.visualSpeed = 0;
+      this.turbo = false;
+      this.turboPower = 0;
+      this.stopEngineAudio();
+      this.autoCrash = false;
+      this.bonusAdd = 0;
+      this.rareBounceCount = 0;
+      this.nextRareBounceAt = 0;
+      this.remainingBounces = null;
+      this.extraBounceAdder = null;
+      this.extraBounceBonusCount = 0;
+      this.bonusPauseToken++;
+      this.time.timeScale = 1;
+      this.clearBonusItems();
+      if (this.hud) {
+        this.hud.setMultiplier(this.multiplier);
+        this.hud.setTurbo(false);
+      }
+      if (this.car && this.car.bodyRig) this.car.bodyRig.y = this.car.bodyBaseY || 0;
+      if (this.car && this.car.bodyRig) this.car.bodyRig.angle = 0;
+      this.setWheelPlayback(false);
+      this.updateCarFlame();
+      this.updateCarGroundShadow();
       this.applyMultiplierTheme("idle");
       this.updateBounceText();
       this.smokeLayer.removeAll(true);
@@ -1145,73 +1970,20 @@
       }
     }
 
-    spawnTurboExhaust(count) {
-      const leverPower = Phaser.Math.Clamp(this.turboPower, 0, 1);
-      const speedHeat = Phaser.Math.Clamp(this.speed / 42, 0, 1);
-      const emitPower = Phaser.Math.Clamp(0.14 + leverPower * 0.56 + speedHeat * 0.44, 0.14, 1);
-      const turboCurve = Phaser.Math.Easing.Cubic.Out(emitPower);
-      const colors = this.getTurboParticleColors(leverPower);
-      const travel = 42 + turboCurve * 470;
-      const spread = 4 + turboCurve * 28;
-      const amount = Phaser.Math.Clamp(Math.floor(count || 1), 1, 5);
-      for (let i = 0; i < amount; i++) {
-        const color = colors[Phaser.Math.Between(0, colors.length - 1)];
-        const puff = this.add.circle(
-          this.car.x - 118 + Phaser.Math.Between(-6, 8),
-          this.car.y + 10 + Phaser.Math.Between(-8, 14),
-          Phaser.Math.Between(4, 8 + Math.round(turboCurve * 9)),
-          color,
-          0.14 + turboCurve * 0.22
-        ).setDepth(8).setBlendMode(leverPower >= 0.7 ? Phaser.BlendModes.ADD : Phaser.BlendModes.NORMAL);
-        this.smokeLayer.add(puff);
-        this.tweens.add({
-          targets: puff,
-          x: puff.x - Phaser.Math.Between(Math.round(travel * 0.82), Math.round(travel * 1.25)),
-          y: puff.y + Phaser.Math.Between(-Math.round(spread), Math.round(spread * 0.55)),
-          scaleX: Phaser.Math.FloatBetween(1.3, 1.9 + turboCurve * 3.8),
-          scaleY: Phaser.Math.FloatBetween(0.72, 1.08 + turboCurve * 0.9),
-          alpha: 0,
-          duration: Phaser.Math.Between(Math.round(500 - turboCurve * 110), Math.round(760 - turboCurve * 150)),
-          ease: "Cubic.out",
-          onComplete: () => puff.destroy()
-        });
-      }
-    }
-
-    getTurboParticleColors(power) {
-      if (power >= 0.995) return [0xa05cff, 0xc874ff, 0xecb6ff];
-      if (power >= 0.70) return [0x3ed7ff, 0x75edff, 0xb5f7ff];
-      if (power >= 0.50) return [0xff5533, 0xff7a4a, 0xffcf30];
-      if (power >= 0.20) return [0xffcf30, 0xffe06c, 0xffefac];
-      return [0x8e9499, 0xb1b8bd, 0xd0d6db];
-    }
-
-    updateTurboExhaust(delta) {
-      const speedHeat = Phaser.Math.Clamp(this.speed / 42, 0, 1);
-      const emitPower = Phaser.Math.Clamp(0.14 + this.turboPower * 0.56 + speedHeat * 0.44, 0.14, 1);
-      const turboCurve = Phaser.Math.Easing.Cubic.Out(emitPower);
-      const interval = Phaser.Math.Linear(165, 28, turboCurve);
-      const particlesPerBurst = turboCurve >= 0.97 ? 5 : turboCurve >= 0.86 ? 4 : turboCurve >= 0.68 ? 3 : turboCurve >= 0.38 ? 2 : 1;
-      this.turboExhaustClock += delta;
-      let spawned = 0;
-      while (this.turboExhaustClock >= interval && spawned < 4) {
-        this.turboExhaustClock -= interval;
-        this.spawnTurboExhaust(particlesPerBurst);
-        spawned += 1;
-      }
-      if (spawned >= 4) this.turboExhaustClock = 0;
-    }
-
     update(_time, delta) {
       const cfg = CT.Config;
       const dt = delta / 1000;
+      this.updateFenceLights(_time);
       if (this.state === "dummyFlight") {
+        let roadDx = 0;
         if (this.flightRoadSpeed > 0.5) {
-          this.flightRoadSpeed *= Math.pow(0.996, delta / 16.6667);
-          this.advanceRoad(this.flightRoadSpeed * 1.35 * dt);
+          this.flightRoadSpeed *= Math.pow(0.9993, delta / 16.6667);
+          roadDx = this.flightRoadSpeed * 1.45 * dt;
+          this.advanceRoad(roadDx);
         } else {
           this.flightRoadSpeed = 0;
         }
+        this.advanceCrashDebris(roadDx);
         this.updateDummyCamera();
         return;
       }
@@ -1233,12 +2005,14 @@
         this.car.x = Math.min(cfg.gameplay.carCruiseX, this.car.x + dx);
       }
       const leverLift = Phaser.Math.Easing.Cubic.Out(this.turboPower);
-      const lift = leverLift * 24;
-      this.car.y = cfg.gameplay.roadY - 54 - lift + Math.sin(this.time.now * 0.035) * (2.2 + this.turboPower * 1.9);
-      this.car.angle = this.turboPower > 0.03 ? -Phaser.Math.Linear(1.2, 17, leverLift) : 0;
-      this.car.wheels.forEach((wheel) => { wheel.angle += dx * 2.65; });
+      const lift = leverLift * 5.04;
+      this.car.y = cfg.gameplay.roadY - 54 - lift;
+      this.car.angle = this.turboPower > 0.03 ? -Phaser.Math.Linear(0.25, 3.57, leverLift) : 0;
+      this.updateCarBodyBounce(this.time.now);
+      this.setWheelPlayback(true, Phaser.Math.Linear(0.38, 1.65, Phaser.Math.Clamp(roadSpeed / 980, 0, 1)));
+      this.updateCarFlame();
+      this.updateCarGroundShadow();
       this.advanceRoad(dx);
-      this.updateTurboExhaust(delta);
       if (this.multiplier >= this.engineBreakAt) {
         this.engineFail();
         return;
@@ -1251,11 +2025,15 @@
     }
 
     advanceRoad(dx) {
-      this.roadOffset = (this.roadOffset + dx) % 128;
-      this.roadLines.forEach((line, i) => {
-        line.x = i * 128 - 40 - this.roadOffset;
-        if (line.x < -80) line.x += 1024;
-      });
+      if (!this.roadTiles || !this.roadTiles.length) return;
+      const patternWidth = this.getRoadTileWidth() * 3;
+      this.roadOffset = Phaser.Math.Wrap(this.roadOffset + dx, 0, patternWidth);
+      if (this.fenceTiles && this.fenceTiles.length) {
+        const fenceWidth = this.getFenceTileWidth();
+        this.fenceOffset = Phaser.Math.Wrap(this.fenceOffset + dx, 0, fenceWidth);
+      }
+      this.advanceLoopObjectLayers(dx);
+      this.updateRoadTilesLayout();
     }
 
     updateDummyCamera() {
