@@ -61,6 +61,13 @@ canvas {
   opacity: 1;
 }
 
+.page-btn.is-active {
+  border-color: rgba(55, 229, 255, 0.9);
+  color: #071012;
+  background: rgba(55, 229, 255, 0.86);
+  opacity: 1;
+}
+
 .page-btn.is-hidden {
   display: none;
 }
@@ -77,6 +84,10 @@ body.controls-dimmed .page-btn:not(.is-hidden) {
 
 .sound-btn {
   right: calc(max(12px, env(safe-area-inset-right)) + 59px);
+}
+
+.control-btn {
+  right: calc(max(12px, env(safe-area-inset-right)) + 108px);
 }
 
 .boot-loader {
@@ -129,6 +140,10 @@ body.controls-dimmed .page-btn:not(.is-hidden) {
 }
 
 .control-ui:empty {
+  display: none;
+}
+
+.control-ui.is-hidden {
   display: none;
 }
 

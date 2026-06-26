@@ -3,8 +3,8 @@
   const assetRoot = new URL("./assets/", window.location.href).href;
 
   CT.Config = {
-    build: "2026-06-26-v0.1.60-car-json-tune",
-    gameVersion: "v0.1.60",
+    build: "2026-06-26-v0.1.61-control-panel-toggle",
+    gameVersion: "v0.1.61",
     phaserVersion: "3.88.2",
     width: 720,
     height: 1280,
