@@ -3,8 +3,8 @@
   const assetRoot = new URL("./assets/", window.location.href).href;
 
   CT.Config = {
-    build: "2026-06-26-v0.1.59-turbo-fire-tint-controls",
-    gameVersion: "v0.1.59",
+    build: "2026-06-26-v0.1.60-car-json-tune",
+    gameVersion: "v0.1.60",
     phaserVersion: "3.88.2",
     width: 720,
     height: 1280,
@@ -59,12 +59,12 @@
       hitWallScale: 0.48,
       hitWallAlpha: 1,
       carArt: {
-        root: { x: 0, y: 0, scale: 1 },
+        root: { x: -28, y: 14, scale: 0.94 },
         body: { x: 27, y: -34, scale: 0.64 },
         rearWheel: { x: -87, y: 44, scale: 0.64 },
         frontWheel: { x: 170, y: 44, scale: 0.64 },
         wheelShadow: { x: 27, y: -34, scale: 0.64, alpha: 1 },
-        turboFire: { x: -220, y: 8, scale: 0.74, alpha: 1 },
+        turboFire: { x: -226, y: 32, scale: 0.8, alpha: 1 },
         turboFireTint: {
           preview: 0,
           orange: "#ff6a00",

@@ -567,7 +567,7 @@
       const defaults = JSON.parse(JSON.stringify(CT.Config.gameplay.carArt || {}));
       let saved = null;
       try {
-        saved = JSON.parse(localStorage.getItem("crashTestCarArtV3") || "null");
+        saved = JSON.parse(localStorage.getItem("crashTestCarArtV4") || "null");
       } catch (e) {
         saved = null;
       }
@@ -649,7 +649,7 @@
       }
 
       if (save) {
-        localStorage.setItem("crashTestCarArtV3", JSON.stringify(cfg));
+        localStorage.setItem("crashTestCarArtV4", JSON.stringify(cfg));
       }
       this.updateCarControlJson();
     }
@@ -728,7 +728,7 @@
 
     resetCarArt() {
       this.carControlConfig = JSON.parse(JSON.stringify(CT.Config.gameplay.carArt || {}));
-      localStorage.removeItem("crashTestCarArtV3");
+      localStorage.removeItem("crashTestCarArtV4");
       this.applyCarControlConfig(false);
       this.createCarControlUI();
     }
