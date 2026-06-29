@@ -3,8 +3,8 @@
   const assetRoot = new URL("./assets/", window.location.href).href;
 
   CT.Config = {
-    build: "2026-06-26-v0.1.61-control-panel-toggle",
-    gameVersion: "v0.1.61",
+    build: "2026-06-29-v0.1.62-car-ready-centered",
+    gameVersion: "v0.1.62",
     phaserVersion: "3.88.2",
     width: 720,
     height: 1280,
@@ -28,7 +28,7 @@
       roadBaseSpeed: 430,
       roadSpeedScale: 0.24,
       carStartX: -150,
-      carReadyX: 210,
+      carReadyX: 345,
       carCruiseX: 345,
       roadY: 858,
       roadArtY: 875,
