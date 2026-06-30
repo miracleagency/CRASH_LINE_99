@@ -1,1 +1,1 @@
-GAME v0.1.74 / 2026-06-30-v0.1.74-light-sweep-alpha-05
+GAME v0.1.76 / 2026-06-30-v0.1.76-softer-idle-shake

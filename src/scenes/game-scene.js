@@ -943,6 +943,8 @@
       car.bodyBaseY = 0;
       car.bodyBouncePhase = Math.random() * Math.PI * 2;
       car.bodyPitchPhase = Math.random() * Math.PI * 2;
+      car.idleShakePhase = Math.random() * Math.PI * 2;
+      car.idleShakeActive = false;
       lightSweep.on("animationcomplete", (animation) => {
         if (animation && animation.key === "carLightSweep") {
           lightSweep.setVisible(false).setAlpha(0);
@@ -1119,6 +1121,33 @@
       const sharpKick = Math.pow(Math.abs(Math.sin(roadT * 12.5 + phase * 0.37)), 7);
       this.car.bodyRig.y = (this.car.bodyBaseY || 0) + sharedHop * amplitude - sharpKick * (0.7 + power * 0.45);
       this.car.bodyRig.angle = frontRear * (0.42 + power * 0.22);
+    }
+
+    updateCarIdleShake(time) {
+      if (!this.car || !this.car.bodyRig) return;
+      const ready = this.state === "ready" && (!this.car.crashBody || !this.car.crashBody.visible);
+      if (!ready) {
+        if (this.car.idleShakeActive) {
+          this.car.bodyRig.y = this.car.bodyBaseY || 0;
+          this.car.bodyRig.angle = 0;
+          this.car.idleShakeActive = false;
+        }
+        return;
+      }
+
+      const phase = this.car.idleShakePhase || 0;
+      const t = time * 0.001;
+      const rumble =
+        Math.sin(t * 38 + phase) * 0.29 +
+        Math.sin(t * 71 + phase * 1.53) * 0.12 +
+        Math.sin(t * 117 + phase * 0.37) * 0.05;
+      const pitch =
+        Math.sin(t * 31 + phase * 0.72) * 0.055 +
+        Math.sin(t * 64 + phase * 1.28) * 0.025;
+
+      this.car.bodyRig.y = (this.car.bodyBaseY || 0) + rumble;
+      this.car.bodyRig.angle = pitch;
+      this.car.idleShakeActive = true;
     }
 
     updateCarGroundShadow() {
@@ -2075,6 +2104,7 @@
       const cfg = CT.Config;
       const dt = delta / 1000;
       this.updateFenceLights(_time);
+      this.updateCarIdleShake(_time);
       if (this.state === "dummyFlight") {
         let roadDx = 0;
         if (this.flightRoadSpeed > 0.5) {
