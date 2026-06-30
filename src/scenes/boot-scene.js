@@ -20,6 +20,15 @@
       const fencePoleUrl = CT.asset("images/stolb_lamp_1.png");
       const fenceLightUrl = CT.asset("images/yelow_light_1.png");
       const carBodyUrl = CT.asset("images/car_body.png");
+      const carCrashBodyFrames = 9;
+      const carCrashBodyUrls = Array.from({ length: carCrashBodyFrames }, (_, index) => {
+        const frame = String(index + 1).padStart(2, "0");
+        return CT.asset("images/CAR_BODY_CRASH_SEQ/CAR_CRASH_" + frame + ".png");
+      });
+      const carLightSweepFrames = 5;
+      const carLightSweepUrls = Array.from({ length: carLightSweepFrames }, (_, index) => {
+        return CT.asset("images/light_sweep_car_seq/light_sweep_" + (index + 1) + ".png");
+      });
       const wheelShadowUrl = CT.asset("images/shadow_for_wheels.png");
       const carGroundShadowUrl = CT.asset("images/shadow_under_car_wheels.png");
       const wheelUrls = [1, 2, 3, 4, 5].map((index) => CT.asset("images/wheel_seq/wheel_" + index + ".png"));
@@ -51,6 +60,8 @@
       console.log("LOAD fencePole:", fencePoleUrl);
       console.log("LOAD fenceLight:", fenceLightUrl);
       console.log("LOAD carBody:", carBodyUrl);
+      console.log("LOAD carCrashBody:", carCrashBodyUrls);
+      console.log("LOAD carLightSweep:", carLightSweepUrls);
       console.log("LOAD wheelShadow:", wheelShadowUrl);
       console.log("LOAD carGroundShadow:", carGroundShadowUrl);
       console.log("LOAD wheels:", wheelUrls);
@@ -80,6 +91,12 @@
       this.load.image("fencePole", fencePoleUrl);
       this.load.image("fenceLight", fenceLightUrl);
       this.load.image("carBody", carBodyUrl);
+      carCrashBodyUrls.forEach((url, index) => {
+        this.load.image("carCrashBody" + (index + 1), url);
+      });
+      carLightSweepUrls.forEach((url, index) => {
+        this.load.image("carLightSweep" + (index + 1), url);
+      });
       this.load.image("wheelShadow", wheelShadowUrl);
       this.load.image("carGroundShadow", carGroundShadowUrl);
       wheelUrls.forEach((url, index) => {
@@ -109,6 +126,10 @@
         fencePole: this.textures.exists("fencePole"),
         fenceLight: this.textures.exists("fenceLight"),
         carBody: this.textures.exists("carBody"),
+        carCrashBody1: this.textures.exists("carCrashBody1"),
+        carCrashBody9: this.textures.exists("carCrashBody9"),
+        carLightSweep1: this.textures.exists("carLightSweep1"),
+        carLightSweep5: this.textures.exists("carLightSweep5"),
         wheelShadow: this.textures.exists("wheelShadow"),
         carGroundShadow: this.textures.exists("carGroundShadow"),
         wheel1: this.textures.exists("wheel1"),
@@ -133,6 +154,22 @@
           frames: [1, 2, 3, 4, 5, 6, 7, 8].map((index) => ({ key: "turboFire" + index })),
           frameRate: 18,
           repeat: -1
+        });
+      }
+      if (!this.anims.exists("carBodyCrash")) {
+        this.anims.create({
+          key: "carBodyCrash",
+          frames: Array.from({ length: 9 }, (_, index) => ({ key: "carCrashBody" + (index + 1) })),
+          frameRate: 24,
+          repeat: 0
+        });
+      }
+      if (!this.anims.exists("carLightSweep")) {
+        this.anims.create({
+          key: "carLightSweep",
+          frames: Array.from({ length: 5 }, (_, index) => ({ key: "carLightSweep" + (index + 1) })),
+          frameRate: 24,
+          repeat: 0
         });
       }
       this.scene.start("GameScene");

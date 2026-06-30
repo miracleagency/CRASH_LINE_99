@@ -3,8 +3,8 @@
   const assetRoot = new URL("./assets/", window.location.href).href;
 
   CT.Config = {
-    build: "2026-06-29-v0.1.62-car-ready-centered",
-    gameVersion: "v0.1.62",
+    build: "2026-06-30-v0.1.72-crash-seq-24fps",
+    gameVersion: "v0.1.72",
     phaserVersion: "3.88.2",
     width: 720,
     height: 1280,

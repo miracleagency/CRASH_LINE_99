@@ -1,1 +1,1 @@
-GAME v0.1.62 / 2026-06-29-v0.1.62-car-ready-centered
+GAME v0.1.72 / 2026-06-30-v0.1.72-crash-seq-24fps

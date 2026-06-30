@@ -74,6 +74,7 @@
       this.carControlConfig = null;
       this.carControlRoot = null;
       this.carControlJson = null;
+      this.nextCarLightSweepAt = 0;
     }
 
     create() {
@@ -88,7 +89,9 @@
         wheel1: this.textures.exists("wheel1"),
         wheelShadow: this.textures.exists("wheelShadow"),
         carGroundShadow: this.textures.exists("carGroundShadow"),
-        turboFire1: this.textures.exists("turboFire1")
+        turboFire1: this.textures.exists("turboFire1"),
+        carCrashBody1: this.textures.exists("carCrashBody1"),
+        carLightSweep1: this.textures.exists("carLightSweep1")
       });
       this.wallet = new CT.Wallet();
       this.cameras.main.setBounds(-1800, 0, CT.Config.gameplay.worldWidth + 1800, CT.Config.height);
@@ -633,6 +636,8 @@
           this.car.bodyRig.setPosition(cfg.body.x, cfg.body.y).setAngle(0);
         }
         if (this.car.bodyImage) this.car.bodyImage.setScale(cfg.body.scale);
+        if (this.car.lightSweep) this.car.lightSweep.setScale(cfg.body.scale);
+        if (this.car.crashBody) this.car.crashBody.setScale(cfg.body.scale);
         if (this.car.rearWheel) this.car.rearWheel.setPosition(cfg.rearWheel.x, cfg.rearWheel.y).setScale(cfg.rearWheel.scale);
         if (this.car.frontWheel) this.car.frontWheel.setPosition(cfg.frontWheel.x, cfg.frontWheel.y).setScale(cfg.frontWheel.scale);
         if (this.car.wheelShadow) {
@@ -911,9 +916,15 @@
         .setBlendMode(Phaser.BlendModes.ADD);
       const bodyRig = this.add.container(0, 0);
       const bodyImage = this.add.image(0, 0, "carBody").setOrigin(0.5);
+      const lightSweep = this.add.sprite(0, 0, "carLightSweep1")
+        .setOrigin(0.5)
+        .setVisible(false)
+        .setAlpha(0)
+        .setBlendMode(Phaser.BlendModes.ADD);
+      const crashBody = this.add.sprite(0, 0, "carCrashBody1").setOrigin(0.5).setVisible(false);
 
       wheelRig.add([rearWheel, frontWheel, wheelShadow]);
-      bodyRig.add([bodyImage, turboFire]);
+      bodyRig.add([bodyImage, lightSweep, crashBody, turboFire]);
       visualRoot.add([wheelRig, bodyRig]);
       car.add(visualRoot);
 
@@ -921,6 +932,8 @@
       car.wheelRig = wheelRig;
       car.bodyRig = bodyRig;
       car.bodyImage = bodyImage;
+      car.lightSweep = lightSweep;
+      car.crashBody = crashBody;
       car.rearWheel = rearWheel;
       car.frontWheel = frontWheel;
       car.wheelShadow = wheelShadow;
@@ -930,11 +943,83 @@
       car.bodyBaseY = 0;
       car.bodyBouncePhase = Math.random() * Math.PI * 2;
       car.bodyPitchPhase = Math.random() * Math.PI * 2;
+      lightSweep.on("animationcomplete", (animation) => {
+        if (animation && animation.key === "carLightSweep") {
+          lightSweep.setVisible(false).setAlpha(0);
+        }
+      });
       this.car = car;
       this.applyCarControlConfig(false);
       this.setWheelPlayback(false);
       this.updateCarFlame();
       return car;
+    }
+
+    setCarCrashVisual(active) {
+      if (!this.car) return;
+      if (this.car.bodyImage) this.car.bodyImage.setVisible(!active);
+      if (this.car.rearWheel) this.car.rearWheel.setVisible(!active);
+      if (this.car.frontWheel) this.car.frontWheel.setVisible(!active);
+      if (this.car.wheelShadow) this.car.wheelShadow.setVisible(!active);
+
+      if (this.car.turboFire) {
+        this.car.turboFire.setVisible(!active);
+        if (active) this.car.turboFire.setAlpha(0);
+      }
+      if (active) this.hideCarLightSweep();
+
+      if (!this.car.crashBody) return;
+      if (active) {
+        if (this.car.crashBody.visible) return;
+        this.car.crashBody
+          .setVisible(true)
+          .setAlpha(1)
+          .setTexture("carCrashBody1");
+        this.car.crashBody.play("carBodyCrash", true);
+      } else {
+        if (this.car.crashBody.anims && this.car.crashBody.anims.isPlaying) {
+          this.car.crashBody.stop();
+        }
+        this.car.crashBody
+          .setTexture("carCrashBody1")
+          .setVisible(false)
+          .setAlpha(0);
+      }
+    }
+
+    hideCarLightSweep() {
+      if (!this.car || !this.car.lightSweep) return;
+      if (this.car.lightSweep.anims && this.car.lightSweep.anims.isPlaying) {
+        this.car.lightSweep.stop();
+      }
+      this.car.lightSweep
+        .setTexture("carLightSweep1")
+        .setVisible(false)
+        .setAlpha(0);
+    }
+
+    updateCarLightSweep(roadSpeed) {
+      if (!this.car || !this.car.lightSweep) return;
+      if (this.state !== "running" || (this.car.crashBody && this.car.crashBody.visible)) {
+        this.hideCarLightSweep();
+        return;
+      }
+
+      const now = this.time.now;
+      const speedT = Phaser.Math.Clamp((roadSpeed - 340) / 1900, 0, 1);
+      const speedEase = Phaser.Math.Easing.Sine.Out(speedT);
+      const interval = Phaser.Math.Linear(1450, 480, speedEase);
+      if (!this.nextCarLightSweepAt) {
+        this.nextCarLightSweepAt = now + Phaser.Math.FloatBetween(120, 320);
+      }
+      if (now < this.nextCarLightSweepAt || this.car.lightSweep.anims.isPlaying) return;
+
+      this.car.lightSweep
+        .setVisible(true)
+        .setAlpha(Phaser.Math.Linear(0.5, 0.82, speedEase))
+        .play("carLightSweep", true);
+      this.car.lightSweep.anims.timeScale = Phaser.Math.Linear(0.82, 1.24, speedEase);
+      this.nextCarLightSweepAt = now + interval * Phaser.Math.FloatBetween(0.82, 1.16);
     }
 
     createDummy() {
@@ -1065,6 +1150,9 @@
       if (this.car.bodyRig) this.car.bodyRig.y = this.car.bodyBaseY || 0;
       if (this.car.bodyRig) this.car.bodyRig.angle = 0;
       this.setWheelPlayback(false);
+      this.setCarCrashVisual(false);
+      this.hideCarLightSweep();
+      this.nextCarLightSweepAt = 0;
       this.updateCarFlame();
       this.updateCarGroundShadow();
       this.dummy.setPosition(-22, -45).setAngle(0).setScale(1).setDepth(0);
@@ -1182,8 +1270,8 @@
       const payout = this.wallet.currentBet * this.multiplier;
       const crashRoadTravel = 820;
       const crashApproachDuration = Phaser.Math.Clamp((crashRoadTravel / releaseRoadSpeed) * 1000 * 0.48, 240, 390);
-      const impactCarX = CT.Config.width * 0.57;
-      const impactWallX = impactCarX + 142;
+      const impactWallX = CT.Config.width * 0.57 + 142;
+      const impactCarX = CT.Config.width * 0.57 - 30;
       const wallStartX = impactWallX + crashRoadTravel;
       this.pendingPayout = payout;
       this.bonusAdd = 0;
@@ -1199,6 +1287,14 @@
 
       const roadMotion = { t: 0 };
       let lastRoadT = 0;
+      let crashVisualStarted = false;
+      const crashVisualLead = 150;
+      const crashVisualStartT = Math.max(0, 1 - crashVisualLead / crashApproachDuration);
+      const startCrashVisual = () => {
+        if (crashVisualStarted) return;
+        crashVisualStarted = true;
+        this.setCarCrashVisual(true);
+      };
       this.tweens.add({
         targets: roadMotion,
         t: 1,
@@ -1209,11 +1305,15 @@
           const diff = motionT - lastRoadT;
           lastRoadT = motionT;
           this.advanceRoad(diff * crashRoadTravel);
-          this.barrier.x = wallStartX - motionT * crashRoadTravel;
-          this.car.x = Phaser.Math.Linear(carStartX, impactCarX, motionT);
+          const nextBarrierX = wallStartX - motionT * crashRoadTravel;
+          const nextCarX = Phaser.Math.Linear(carStartX, impactCarX, motionT);
+          this.barrier.x = nextBarrierX;
+          this.car.x = nextCarX;
           this.updateCarGroundShadow();
+          if (roadMotion.t >= crashVisualStartT) startCrashVisual();
         },
         onComplete: () => {
+          startCrashVisual();
           this.barrier.x = impactWallX;
           this.car.x = impactCarX;
           this.updateCarGroundShadow();
@@ -1228,12 +1328,6 @@
       this.tweens.killTweensOf(this.car);
       this.tweens.killTweensOf(this.dummy);
       this.setWheelPlayback(false);
-      this.tweens.add({
-        targets: this.car,
-        angle: -6,
-        duration: 55,
-        ease: "Quad.out"
-      });
       this.launchDummyAfterImpact(payout);
     }
 
@@ -1780,6 +1874,7 @@
       this.setPageControlsDimmed(false);
       this.tweens.killTweensOf(this.car);
       this.setWheelPlayback(false);
+      this.hideCarLightSweep();
       this.updateCarFlame();
       this.cameras.main.shake(180, 0.006);
       this.spawnSmoke(this.car.x + 94, this.car.y - 8, 22, 0x3e454a);
@@ -1908,6 +2003,9 @@
       if (this.car && this.car.bodyRig) this.car.bodyRig.y = this.car.bodyBaseY || 0;
       if (this.car && this.car.bodyRig) this.car.bodyRig.angle = 0;
       this.setWheelPlayback(false);
+      this.setCarCrashVisual(false);
+      this.hideCarLightSweep();
+      this.nextCarLightSweepAt = 0;
       this.updateCarFlame();
       this.updateCarGroundShadow();
       this.applyMultiplierTheme("idle");
@@ -1944,6 +2042,9 @@
       if (this.car && this.car.bodyRig) this.car.bodyRig.y = this.car.bodyBaseY || 0;
       if (this.car && this.car.bodyRig) this.car.bodyRig.angle = 0;
       this.setWheelPlayback(false);
+      this.setCarCrashVisual(false);
+      this.hideCarLightSweep();
+      this.nextCarLightSweepAt = 0;
       this.updateCarFlame();
       this.updateCarGroundShadow();
       this.applyMultiplierTheme("idle");
@@ -2011,6 +2112,7 @@
       this.updateCarBodyBounce(this.time.now);
       this.setWheelPlayback(true, Phaser.Math.Linear(0.38, 1.65, Phaser.Math.Clamp(roadSpeed / 980, 0, 1)));
       this.updateCarFlame();
+      this.updateCarLightSweep(roadSpeed);
       this.updateCarGroundShadow();
       this.advanceRoad(dx);
       if (this.multiplier >= this.engineBreakAt) {
