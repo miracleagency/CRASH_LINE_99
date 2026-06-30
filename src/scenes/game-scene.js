@@ -1016,7 +1016,7 @@
 
       this.car.lightSweep
         .setVisible(true)
-        .setAlpha(Phaser.Math.Linear(0.5, 0.82, speedEase))
+        .setAlpha(0.5)
         .play("carLightSweep", true);
       this.car.lightSweep.anims.timeScale = Phaser.Math.Linear(0.82, 1.24, speedEase);
       this.nextCarLightSweepAt = now + interval * Phaser.Math.FloatBetween(0.82, 1.16);
@@ -1271,7 +1271,7 @@
       const crashRoadTravel = 820;
       const crashApproachDuration = Phaser.Math.Clamp((crashRoadTravel / releaseRoadSpeed) * 1000 * 0.48, 240, 390);
       const impactWallX = CT.Config.width * 0.57 + 142;
-      const impactCarX = CT.Config.width * 0.57 - 30;
+      const impactCarX = CT.Config.width * 0.57 - 10;
       const wallStartX = impactWallX + crashRoadTravel;
       this.pendingPayout = payout;
       this.bonusAdd = 0;
