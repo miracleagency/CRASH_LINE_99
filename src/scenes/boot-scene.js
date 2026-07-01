@@ -33,6 +33,27 @@
       const carGroundShadowUrl = CT.asset("images/shadow_under_car_wheels.png");
       const wheelUrls = [1, 2, 3, 4, 5].map((index) => CT.asset("images/wheel_seq/wheel_" + index + ".png"));
       const turboFireUrls = [1, 2, 3, 4, 5, 6, 7, 8].map((index) => CT.asset("images/turbo_fire_seq/turbo_fire_" + index + ".png"));
+      const dummyPartFiles = {
+        head: "dummy_head.png",
+        torso: "dummy_torso.png",
+        pelvis: "dummy_pelvis.png",
+        upperArmL: "dummy_upper_arm_l.png",
+        lowerArmL: "dummy_lower_arm_l.png",
+        handL: "dummy_hand_l.png",
+        thighL: "dummy_thigh_l.png",
+        shinL: "dummy_shin_l.png",
+        footL: "dummy_foot_l.png",
+        upperArmR: "dummy_upper_arm_r.png",
+        lowerArmR: "dummy_lower_arm_r.png",
+        handR: "dummy_hand_r.png",
+        thighR: "dummy_thigh_r.png",
+        shinR: "dummy_shin_r.png",
+        footR: "dummy_foot_r.png"
+      };
+      const dummyPartUrls = Object.keys(dummyPartFiles).map((key) => ({
+        key: "dummyPart_" + key,
+        url: CT.asset("images/DUMMY_PARTS/" + dummyPartFiles[key])
+      }));
       const roadBgOverlayUrls = [
         CT.asset("images/ROAD_bg_overlays/ROAD_bg_overlay_1.png"),
         CT.asset("images/ROAD_bg_overlays/ROAD_bg_overlay_2.png"),
@@ -66,6 +87,7 @@
       console.log("LOAD carGroundShadow:", carGroundShadowUrl);
       console.log("LOAD wheels:", wheelUrls);
       console.log("LOAD turboFire:", turboFireUrls);
+      console.log("LOAD dummyParts:", dummyPartUrls);
       console.log("LOAD roadBgOverlays:", roadBgOverlayUrls);
 
       this.load.on("filecomplete-image-bounceIcon", () => {
@@ -105,6 +127,9 @@
       turboFireUrls.forEach((url, index) => {
         this.load.image("turboFire" + (index + 1), url);
       });
+      dummyPartUrls.forEach((item) => {
+        this.load.image(item.key, item.url);
+      });
       roadBgOverlayUrls.forEach((url, index) => {
         this.load.image("roadBgOverlay" + (index + 1), url);
       });
@@ -134,6 +159,9 @@
         carGroundShadow: this.textures.exists("carGroundShadow"),
         wheel1: this.textures.exists("wheel1"),
         turboFire1: this.textures.exists("turboFire1"),
+        dummyPartHead: this.textures.exists("dummyPart_head"),
+        dummyPartTorso: this.textures.exists("dummyPart_torso"),
+        dummyPartFootR: this.textures.exists("dummyPart_footR"),
         roadBgOverlay1: this.textures.exists("roadBgOverlay1"),
         roadBgOverlay2: this.textures.exists("roadBgOverlay2"),
         roadBgOverlay3: this.textures.exists("roadBgOverlay3"),

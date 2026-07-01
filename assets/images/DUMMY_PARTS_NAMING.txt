@@ -1,0 +1,34 @@
+Dummy ragdoll texture naming
+============================
+
+Put PNG textures for the crash-test dummy parts into the dummy parts folder using these names.
+Use transparent PNG files. Keep each part centered around its own visual pivot.
+
+Core:
+dummy_head.png        -> code part: head
+dummy_torso.png       -> code part: torso
+dummy_pelvis.png      -> code part: pelvis
+
+Back side limbs, farther from camera:
+dummy_upper_arm_l.png -> code part: upperArmL
+dummy_lower_arm_l.png -> code part: lowerArmL
+dummy_hand_l.png      -> code part: handL
+dummy_thigh_l.png     -> code part: thighL
+dummy_shin_l.png      -> code part: shinL
+dummy_foot_l.png      -> code part: footL
+
+Front side limbs, closer to camera:
+dummy_upper_arm_r.png -> code part: upperArmR
+dummy_lower_arm_r.png -> code part: lowerArmR
+dummy_hand_r.png      -> code part: handR
+dummy_thigh_r.png     -> code part: thighR
+dummy_shin_r.png      -> code part: shinR
+dummy_foot_r.png      -> code part: footR
+
+Orientation notes:
+- Head: centered.
+- Torso and pelvis: centered.
+- Upper/lower arms and upper/lower legs: draw mostly vertical in a neutral pose.
+- Hands and feet: draw mostly horizontal in a neutral pose.
+- Left-side parts use the "_l" suffix and are rendered behind the body.
+- Right-side parts use the "_r" suffix and are rendered in front of the body.
