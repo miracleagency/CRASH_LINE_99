@@ -1,0 +1,637 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Ragdoll Test</title>
+  <style>
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background: #090d10;
+      color: #f5f7fb;
+      font-family: Arial, Helvetica, sans-serif;
+      overflow: hidden;
+    }
+
+    .page {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      gap: 14px;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .topbar {
+      width: min(960px, 96vw);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .title {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+    }
+
+    .controls {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    button {
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      background: #141b22;
+      color: #ffffff;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #1d2731;
+    }
+
+    #gameWrap {
+      width: min(960px, 96vw);
+      aspect-ratio: 960 / 620;
+      border: 2px solid rgba(255, 255, 255, 0.72);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #10161c;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.42);
+      touch-action: none;
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="topbar">
+      <div class="title">RAGDOLL TEST</div>
+      <div class="controls">
+        <button id="resetBtn" type="button">RESET</button>
+        <button id="throwBtn" type="button">TOSS</button>
+        <button id="breakBtn" type="button">DETACH</button>
+      </div>
+    </div>
+    <div id="gameWrap"></div>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.88.2/phaser.min.js"></script>
+  <script>
+    (() => {
+      const W = 960;
+      const H = 620;
+      const WALL = 36;
+      const VERSION = "ragdoll-test-v0.0.10";
+
+      class RagdollScene extends Phaser.Scene {
+        constructor() {
+          super("RagdollScene");
+          this.parts = [];
+          this.joints = [];
+          this.grabbed = null;
+          this.drawLayer = null;
+          this.breakFlash = 0;
+          this.collisionLayers = null;
+        }
+
+        create() {
+          this.Matter = Phaser.Physics.Matter.Matter;
+          this.matter.world.setGravity(0, 1.15);
+          this.matter.world.setBounds(0, 0, W, H, WALL, true, true, true, true);
+          this.matter.world.engine.positionIterations = 20;
+          this.matter.world.engine.velocityIterations = 12;
+          this.matter.world.engine.constraintIterations = 10;
+          this.collisionLayers = {
+            world: 0x0001,
+            back: 0x0002,
+            core: 0x0004,
+            leftLeg: 0x0008,
+            rightLeg: 0x0010,
+            front: 0x0020
+          };
+
+          this.drawLayer = this.add.graphics();
+          this.versionText = this.add.text(18, H - 24, VERSION, {
+            fontFamily: "Arial",
+            fontSize: "13px",
+            color: "#ffffff"
+          }).setAlpha(0.42).setDepth(3);
+          this.createRagdoll(W * 0.5, H * 0.34);
+          this.bindPointerControls();
+          this.bindCollisionBreaks();
+          this.addHotkeys();
+        }
+
+        createRagdoll(x, y) {
+          this.clearRagdoll();
+          const skin = 0xf2b34c;
+          const suit = 0xf4a33c;
+          const dark = 0x27313b;
+
+          const backSkin = 0xc8873b;
+          const head = this.addPart("head", this.circle(x + 5, y - 128, 25, skin, { layer: 3, z: "core" }));
+          const torso = this.addPart("torso", this.rect(x, y - 67, 42, 78, suit, 0.03, { layer: 2, z: "core" }));
+          const pelvis = this.addPart("pelvis", this.rect(x + 2, y - 9, 46, 34, suit, 0.04, { layer: 2, z: "core" }));
+          const upperArmL = this.addPart("upperArmL", this.rect(x - 16, y - 70, 18, 66, backSkin, -0.18, { layer: 0, alpha: 0.72, z: "back" }));
+          const lowerArmL = this.addPart("lowerArmL", this.rect(x - 21, y - 16, 16, 46, backSkin, 0.04, { layer: 0, alpha: 0.72, z: "back" }));
+          const handL = this.addPart("handL", this.rect(x - 22, y + 15, 22, 14, backSkin, 0.02, { layer: 0, alpha: 0.72, z: "back" }));
+          const upperArmR = this.addPart("upperArmR", this.rect(x + 28, y - 68, 20, 66, skin, 0.24, { layer: 4, z: "front" }));
+          const lowerArmR = this.addPart("lowerArmR", this.rect(x + 42, y - 15, 17, 46, skin, 0.08, { layer: 4, z: "front" }));
+          const handR = this.addPart("handR", this.rect(x + 45, y + 17, 24, 15, skin, 0.02, { layer: 5, z: "front" }));
+          const thighL = this.addPart("thighL", this.rect(x - 10, y + 39, 20, 68, 0x1d252c, 0.08, { layer: 0, alpha: 0.76, z: "leftLeg" }));
+          const shinL = this.addPart("shinL", this.rect(x - 14, y + 101, 18, 66, backSkin, 0.02, { layer: 0, alpha: 0.76, z: "leftLeg" }));
+          const footL = this.addPart("footL", this.rect(x - 9, y + 139, 42, 16, backSkin, 0.04, { layer: 0, alpha: 0.76, z: "leftLeg" }));
+          const thighR = this.addPart("thighR", this.rect(x + 20, y + 38, 22, 68, dark, -0.12, { layer: 4, z: "rightLeg" }));
+          const shinR = this.addPart("shinR", this.rect(x + 28, y + 101, 20, 66, skin, -0.08, { layer: 4, z: "rightLeg" }));
+          const footR = this.addPart("footR", this.rect(x + 38, y + 139, 44, 17, skin, -0.03, { layer: 5, z: "rightLeg" }));
+
+          this.joint("neck", head, torso, { x: -2, y: 22 }, { x: 2, y: -39 }, 0.9, 86);
+          this.joint("spine", torso, pelvis, { x: 0, y: 39 }, { x: 0, y: -18 }, 0.92, 98);
+          this.joint("shoulderL", torso, upperArmL, { x: -16, y: -31 }, { x: 0, y: -32 }, 0.94, 96);
+          this.joint("clavicleL", torso, upperArmL, { x: -5, y: -39 }, { x: 0, y: -19 }, 0.88, 92);
+          this.joint("elbowL", upperArmL, lowerArmL, { x: 0, y: 32 }, { x: 0, y: -23 }, 0.9, 88);
+          this.joint("elbowBraceL", upperArmL, lowerArmL, { x: 0, y: 21 }, { x: 0, y: -12 }, 0.82, 84);
+          this.joint("wristL", lowerArmL, handL, { x: 0, y: 23 }, { x: -4, y: -7 }, 0.9, 58);
+          this.joint("wristBraceL", lowerArmL, handL, { x: -4, y: 15 }, { x: 5, y: 5 }, 0.74, 48);
+          this.joint("shoulderR", torso, upperArmR, { x: 16, y: -31 }, { x: 0, y: -32 }, 0.94, 96);
+          this.joint("clavicleR", torso, upperArmR, { x: 5, y: -39 }, { x: 0, y: -19 }, 0.88, 92);
+          this.joint("elbowR", upperArmR, lowerArmR, { x: 0, y: 32 }, { x: 0, y: -23 }, 0.9, 88);
+          this.joint("elbowBraceR", upperArmR, lowerArmR, { x: 0, y: 21 }, { x: 0, y: -12 }, 0.82, 84);
+          this.joint("wristR", lowerArmR, handR, { x: 0, y: 23 }, { x: -5, y: -7 }, 0.9, 58);
+          this.joint("wristBraceR", lowerArmR, handR, { x: 4, y: 15 }, { x: -5, y: 5 }, 0.74, 48);
+          this.joint("hipL", pelvis, thighL, { x: -12, y: 14 }, { x: 0, y: -34 }, 0.88, 88);
+          this.joint("kneeL", thighL, shinL, { x: 0, y: 34 }, { x: 0, y: -33 }, 0.82, 82);
+          this.joint("ankleL", shinL, footL, { x: 0, y: 33 }, { x: -9, y: -7 }, 0.9, 58);
+          this.joint("ankleBraceL", shinL, footL, { x: -4, y: 24 }, { x: 11, y: -4 }, 0.76, 48);
+          this.joint("hipR", pelvis, thighR, { x: 14, y: 14 }, { x: 0, y: -34 }, 0.88, 88);
+          this.joint("kneeR", thighR, shinR, { x: 0, y: 34 }, { x: 0, y: -33 }, 0.82, 82);
+          this.joint("ankleR", shinR, footR, { x: 0, y: 33 }, { x: -10, y: -7 }, 0.9, 58);
+          this.joint("ankleBraceR", shinR, footR, { x: 4, y: 24 }, { x: 12, y: -4 }, 0.76, 48);
+
+          this.setPoseStabilizers({
+            head,
+            torso,
+            pelvis,
+            upperArmL,
+            lowerArmL,
+            handL,
+            upperArmR,
+            lowerArmR,
+            handR,
+            thighL,
+            shinL,
+            footL,
+            thighR,
+            shinR,
+            footR
+          });
+
+          this.toss(0.45);
+        }
+
+        clearRagdoll() {
+          this.releaseGrab();
+          this.joints.forEach((joint) => this.Matter.Composite.remove(this.matter.world.localWorld, joint));
+          this.parts.forEach((body) => this.Matter.Composite.remove(this.matter.world.localWorld, body));
+          this.parts = [];
+          this.joints = [];
+        }
+
+        circle(x, y, radius, color, options) {
+          const z = options && options.z ? options.z : "body";
+          const body = this.matter.add.circle(x, y, radius, {
+            friction: 0.9,
+            frictionAir: 0.014,
+            restitution: 0.12,
+            density: 0.003,
+            slop: 0.04,
+            collisionFilter: this.collisionFilterFor(z)
+          });
+          body.renderInfo = Object.assign({ color, radius, layer: 1, alpha: 1 }, options || {});
+          return body;
+        }
+
+        rect(x, y, width, height, color, angle, options) {
+          const z = options && options.z ? options.z : "body";
+          const body = this.matter.add.rectangle(x, y, width, height, {
+            chamfer: { radius: Math.min(9, width * 0.35) },
+            friction: 0.88,
+            frictionAir: 0.014,
+            restitution: 0.1,
+            density: 0.0027,
+            slop: 0.04,
+            collisionFilter: this.collisionFilterFor(z)
+          });
+          if (angle) this.Matter.Body.rotate(body, angle);
+          body.renderInfo = Object.assign({ color, width, height, layer: 1, alpha: 1 }, options || {});
+          return body;
+        }
+
+        collisionFilterFor(z) {
+          const layers = this.collisionLayers || {
+            world: 0x0001,
+            back: 0x0002,
+            core: 0x0004,
+            leftLeg: 0x0008,
+            rightLeg: 0x0010,
+            front: 0x0020
+          };
+          const zone = z === "body" ? "core" : z;
+          const category = layers[zone] || layers.core;
+          if (zone === "core") {
+            return {
+              category,
+              mask: layers.world | layers.core | layers.leftLeg | layers.rightLeg
+            };
+          }
+          if (zone === "leftLeg" || zone === "rightLeg") {
+            return {
+              category,
+              mask: layers.world | layers.core
+            };
+          }
+          return {
+            category,
+            mask: layers.world | category
+          };
+        }
+
+        addPart(name, body) {
+          body.ragdollPart = name;
+          this.parts.push(body);
+          return body;
+        }
+
+        setPoseStabilizers(parts) {
+          this.pose(parts.head, parts.torso, 0.044, 0.072);
+          this.pose(parts.torso, parts.pelvis, 0.03, 0.052);
+          this.pose(parts.upperArmL, parts.torso, 0.05, 0.078);
+          this.pose(parts.lowerArmL, parts.upperArmL, 0.062, 0.092);
+          this.pose(parts.handL, parts.lowerArmL, 0.078, 0.11);
+          this.pose(parts.upperArmR, parts.torso, 0.05, 0.078);
+          this.pose(parts.lowerArmR, parts.upperArmR, 0.062, 0.092);
+          this.pose(parts.handR, parts.lowerArmR, 0.078, 0.11);
+          this.pose(parts.thighL, parts.pelvis, 0.048, 0.078);
+          this.pose(parts.shinL, parts.thighL, 0.06, 0.092);
+          this.pose(parts.footL, parts.shinL, 0.076, 0.11);
+          this.pose(parts.thighR, parts.pelvis, 0.048, 0.078);
+          this.pose(parts.shinR, parts.thighR, 0.06, 0.092);
+          this.pose(parts.footR, parts.shinR, 0.076, 0.11);
+        }
+
+        pose(body, anchor, strength, maxSpeed) {
+          body.poseInfo = {
+            anchor,
+            restAngle: body.angle,
+            angleOffset: this.wrapAngle(body.angle - anchor.angle),
+            strength,
+            maxSpeed
+          };
+        }
+
+        joint(name, bodyA, bodyB, pointA, pointB, stiffness, breakLimit) {
+          const joint = this.Matter.Constraint.create({
+            bodyA,
+            bodyB,
+            pointA,
+            pointB,
+            stiffness,
+            damping: 0.22
+          });
+          joint.ragdollJoint = Object.assign({ name, breakLimit }, this.jointProfile(name));
+          this.Matter.Composite.add(this.matter.world.localWorld, joint);
+          this.joints.push(joint);
+          return joint;
+        }
+
+        jointProfile(name) {
+          if (name.indexOf("wrist") !== -1 || name.indexOf("ankle") !== -1) {
+            return { toughness: 0.42, weakness: 4.2 };
+          }
+          if (name.indexOf("elbow") !== -1 || name.indexOf("knee") !== -1) {
+            return { toughness: 0.68, weakness: 2.35 };
+          }
+          if (name.indexOf("shoulder") !== -1 || name.indexOf("clavicle") !== -1 || name.indexOf("hip") !== -1) {
+            return { toughness: 0.9, weakness: 1.45 };
+          }
+          if (name === "neck" || name === "spine") {
+            return { toughness: 1.22, weakness: 0.7 };
+          }
+          return { toughness: 1, weakness: 1 };
+        }
+
+        bindPointerControls() {
+          this.input.on("pointerdown", (pointer) => this.grab(pointer));
+          this.input.on("pointermove", (pointer) => {
+            if (!this.grabbed) return;
+            const now = this.time.now;
+            const dt = Math.max(16, now - this.grabbed.lastTime);
+            const vx = ((pointer.x - this.grabbed.last.x) / dt) * 16.667;
+            const vy = ((pointer.y - this.grabbed.last.y) / dt) * 16.667;
+            this.grabbed.target.x = pointer.x;
+            this.grabbed.target.y = pointer.y;
+            this.grabbed.throwVelocity.x = Phaser.Math.Clamp(vx, -46, 46);
+            this.grabbed.throwVelocity.y = Phaser.Math.Clamp(vy, -46, 46);
+            this.grabbed.last.x = pointer.x;
+            this.grabbed.last.y = pointer.y;
+            this.grabbed.lastTime = now;
+          });
+          this.input.on("pointerup", () => this.releaseGrab());
+          this.input.on("pointerupoutside", () => this.releaseGrab());
+          this.input.on("wheel", (_pointer, _objects, _dx, dy) => {
+            if (!this.grabbed || !this.grabbed.body) return;
+            this.Matter.Body.setAngularVelocity(this.grabbed.body, Phaser.Math.Clamp(-dy * 0.0018, -0.18, 0.18));
+          });
+        }
+
+        grab(pointer) {
+          this.releaseGrab();
+          const hits = this.Matter.Query.point(this.parts, { x: pointer.x, y: pointer.y });
+          if (!hits.length) return;
+          const body = hits[hits.length - 1];
+          const localPoint = this.Matter.Vector.rotate(
+            this.Matter.Vector.sub({ x: pointer.x, y: pointer.y }, body.position),
+            -body.angle
+          );
+          this.Matter.Sleeping.set(body, false);
+          this.parts.forEach((part) => this.Matter.Sleeping.set(part, false));
+          this.grabbed = {
+            body,
+            localPoint,
+            target: { x: pointer.x, y: pointer.y },
+            last: { x: pointer.x, y: pointer.y },
+            lastTime: this.time.now,
+            throwVelocity: { x: 0, y: 0 }
+          };
+        }
+
+        releaseGrab() {
+          if (!this.grabbed) return;
+          this.Matter.Body.setVelocity(this.grabbed.body, this.grabbed.throwVelocity);
+          this.grabbed = null;
+        }
+
+        bindCollisionBreaks() {
+          this.matter.world.on("collisionstart", (event) => {
+            event.pairs.forEach((pair) => {
+              const part = this.pickWallHitPart(pair.bodyA, pair.bodyB);
+              if (!part) return;
+              if (this.grabbed) return;
+              const impact = Math.max(part.speed || 0, Math.abs(part.angularSpeed || 0) * 16);
+              if (impact < 14) return;
+              const candidates = this.jointsForBody(part);
+              if (!candidates.length) return;
+              const weakBoost = Math.max(...candidates.map((joint) => joint.ragdollJoint.weakness || 1));
+              const chance = Phaser.Math.Clamp(((impact - 11) / 34) * (0.82 + weakBoost * 0.27), 0.1, 0.72);
+              if (Math.random() < chance) this.breakRandomJoint(part, impact, candidates);
+            });
+          });
+        }
+
+        pickWallHitPart(a, b) {
+          if (a.ragdollPart && b.isStatic) return a;
+          if (b.ragdollPart && a.isStatic) return b;
+          return null;
+        }
+
+        jointsForBody(body) {
+          return this.joints.filter((joint) => joint.bodyA === body || joint.bodyB === body);
+        }
+
+        breakRandomJoint(body, impact, readyCandidates) {
+          const candidates = readyCandidates || this.jointsForBody(body);
+          if (!candidates.length) return;
+          const hitName = body.ragdollPart || "";
+          let total = 0;
+          const weighted = candidates.map((joint) => {
+            const info = joint.ragdollJoint || {};
+            const limbBonus = info.name.toLowerCase().indexOf(hitName.toLowerCase().replace(/[lr]$/i, "")) !== -1 ? 1.2 : 1;
+            const weight = (info.weakness || 1) * limbBonus * Phaser.Math.FloatBetween(0.82, 1.18);
+            total += weight;
+            return { joint, weight };
+          });
+          let pick = Math.random() * total;
+          for (let i = 0; i < weighted.length; i++) {
+            pick -= weighted[i].weight;
+            if (pick <= 0) {
+              this.breakJoint(weighted[i].joint, impact);
+              return;
+            }
+          }
+          this.breakJoint(weighted[weighted.length - 1].joint, impact);
+        }
+
+        breakJoint(joint, impact) {
+          const index = this.joints.indexOf(joint);
+          if (index === -1) return;
+          this.joints.splice(index, 1);
+          this.Matter.Composite.remove(this.matter.world.localWorld, joint);
+          this.breakFlash = Math.min(1, 0.28 + impact * 0.028);
+        }
+
+        detachRandom() {
+          if (!this.joints.length) return;
+          const joint = this.joints[Math.floor(Math.random() * this.joints.length)];
+          this.breakJoint(joint, 18);
+        }
+
+        detachAll() {
+          this.joints.slice().forEach((joint) => this.breakJoint(joint, 14));
+        }
+
+        toss(power) {
+          const p = power || 1;
+          this.parts.forEach((body) => {
+            this.Matter.Body.setVelocity(body, {
+              x: Phaser.Math.FloatBetween(-7.5, 9.5) * p,
+              y: Phaser.Math.FloatBetween(-9, -3) * p
+            });
+            this.Matter.Body.setAngularVelocity(body, Phaser.Math.FloatBetween(-0.12, 0.12) * p);
+          });
+        }
+
+        addHotkeys() {
+          this.input.keyboard.on("keydown-R", () => this.createRagdoll(W * 0.5, H * 0.34));
+          this.input.keyboard.on("keydown-SPACE", () => this.toss(1.05));
+          this.input.keyboard.on("keydown-B", () => this.detachRandom());
+        }
+
+        update() {
+          this.updateGrabbed();
+          this.stabilizePose();
+          this.checkJointStress();
+          this.renderWorld();
+        }
+
+        updateGrabbed() {
+          if (!this.grabbed || !this.grabbed.body) return;
+          const body = this.grabbed.body;
+          const anchor = this.Matter.Vector.rotate(this.grabbed.localPoint, body.angle);
+          const target = {
+            x: this.grabbed.target.x - anchor.x,
+            y: this.grabbed.target.y - anchor.y
+          };
+          const next = {
+            x: Phaser.Math.Linear(body.position.x, target.x, 0.96),
+            y: Phaser.Math.Linear(body.position.y, target.y, 0.96)
+          };
+          const distance = Phaser.Math.Distance.Between(body.position.x, body.position.y, target.x, target.y);
+          const assist = Phaser.Math.Clamp((distance - 30) / 210, 0, 0.16);
+          if (assist > 0) {
+            this.Matter.Body.translate(body, {
+              x: (target.x - body.position.x) * assist,
+              y: (target.y - body.position.y) * assist
+            });
+          }
+          const followVelocity = {
+            x: Phaser.Math.Clamp((next.x - body.position.x) * 0.82, -54, 54),
+            y: Phaser.Math.Clamp((next.y - body.position.y) * 0.82, -54, 54)
+          };
+          this.Matter.Body.setVelocity(body, {
+            x: followVelocity.x + this.grabbed.throwVelocity.x * 0.24,
+            y: followVelocity.y + this.grabbed.throwVelocity.y * 0.24
+          });
+          this.Matter.Body.setAngularVelocity(body, body.angularVelocity * 0.82);
+        }
+
+        stabilizePose() {
+          this.parts.forEach((body) => {
+            const pose = body.poseInfo;
+            const grabbedBody = this.grabbed && this.grabbed.body === body;
+            const grabbedAnchor = this.grabbed && pose && this.grabbed.body === pose.anchor;
+            const hasAnchor = pose && pose.anchor && this.hasLiveJointBetween(body, pose.anchor);
+            const grabFactor = grabbedBody || grabbedAnchor ? 0.48 : 1;
+            const maxSpin = grabbedBody ? 0.72 : hasAnchor ? 0.5 : 0.36;
+            if (Math.abs(body.angularVelocity) > maxSpin) {
+              this.Matter.Body.setAngularVelocity(body, Phaser.Math.Clamp(body.angularVelocity, -maxSpin, maxSpin));
+            }
+            if (!pose) return;
+            const targetAngle = hasAnchor ? pose.anchor.angle + pose.angleOffset : pose.restAngle;
+            const error = this.wrapAngle(targetAngle - body.angle);
+            const strength = hasAnchor ? pose.strength : pose.strength * 0.72;
+            const maxSpeed = hasAnchor ? pose.maxSpeed : pose.maxSpeed * 0.82;
+            const damping = hasAnchor ? 0.88 : 0.8;
+            const correction = Phaser.Math.Clamp(error * strength * grabFactor, -maxSpeed, maxSpeed);
+            const angularVelocity = Phaser.Math.Clamp(body.angularVelocity * damping + correction, -maxSpin, maxSpin);
+            this.Matter.Body.setAngularVelocity(body, angularVelocity);
+          });
+        }
+
+        hasLiveJointBetween(a, b) {
+          return this.joints.some((joint) => (joint.bodyA === a && joint.bodyB === b) || (joint.bodyA === b && joint.bodyB === a));
+        }
+
+        wrapAngle(angle) {
+          while (angle > Math.PI) angle -= Math.PI * 2;
+          while (angle < -Math.PI) angle += Math.PI * 2;
+          return angle;
+        }
+
+        checkJointStress() {
+          if (this.grabbed) return;
+          this.joints.slice().forEach((joint) => {
+            const a = this.worldPoint(joint.bodyA, joint.pointA);
+            const b = this.worldPoint(joint.bodyB, joint.pointB);
+            const distance = Phaser.Math.Distance.Between(a.x, a.y, b.x, b.y);
+            const toughness = joint.ragdollJoint.toughness || 1;
+            const limit = joint.length + joint.ragdollJoint.breakLimit * (1.24 + toughness * 0.72);
+            if (distance > limit) this.breakJoint(joint, distance * 0.25);
+          });
+        }
+
+        worldPoint(body, point) {
+          const cos = Math.cos(body.angle);
+          const sin = Math.sin(body.angle);
+          return {
+            x: body.position.x + point.x * cos - point.y * sin,
+            y: body.position.y + point.x * sin + point.y * cos
+          };
+        }
+
+        renderWorld() {
+          const g = this.drawLayer;
+          g.clear();
+          g.fillStyle(0x10161c, 1);
+          g.fillRect(0, 0, W, H);
+          g.lineStyle(4, this.breakFlash > 0.02 ? 0xff5b5b : 0x6be1ff, 0.92);
+          g.strokeRoundedRect(10, 10, W - 20, H - 20, 10);
+
+          this.parts
+            .slice()
+            .sort((a, b) => (a.renderInfo.layer || 0) - (b.renderInfo.layer || 0))
+            .forEach((body) => this.drawPart(g, body));
+
+          if (this.grabbed) {
+            g.fillStyle(0xd67cff, 0.8);
+            g.fillCircle(this.grabbed.target.x, this.grabbed.target.y, 8);
+          }
+
+          if (this.breakFlash > 0) this.breakFlash *= 0.88;
+        }
+
+        drawPart(g, body) {
+          const info = body.renderInfo;
+          const alpha = info.alpha === undefined ? 1 : info.alpha;
+          g.fillStyle(info.color, alpha);
+          g.lineStyle(3, 0x101010, alpha * 0.7);
+
+          if (info.radius) {
+            g.fillCircle(body.position.x, body.position.y, info.radius);
+            g.strokeCircle(body.position.x, body.position.y, info.radius);
+            const eyeX = Math.cos(body.angle) * 8;
+            const eyeY = Math.sin(body.angle) * 8;
+            g.fillStyle(0x101010, 1);
+            g.fillCircle(body.position.x + eyeX, body.position.y + eyeY, 4);
+            return;
+          }
+
+          const vertices = body.vertices;
+          g.beginPath();
+          g.moveTo(vertices[0].x, vertices[0].y);
+          for (let i = 1; i < vertices.length; i++) {
+            g.lineTo(vertices[i].x, vertices[i].y);
+          }
+          g.closePath();
+          g.fillPath();
+          g.strokePath();
+        }
+      }
+
+      const game = new Phaser.Game({
+        type: Phaser.AUTO,
+        parent: "gameWrap",
+        width: W,
+        height: H,
+        backgroundColor: "#10161c",
+        physics: {
+          default: "matter",
+          matter: {
+            debug: false
+          }
+        },
+        scale: {
+          mode: Phaser.Scale.FIT,
+          autoCenter: Phaser.Scale.CENTER_BOTH
+        },
+        scene: [RagdollScene]
+      });
+
+      const getScene = () => game.scene.keys.RagdollScene;
+      document.getElementById("resetBtn").addEventListener("click", () => getScene().createRagdoll(W * 0.5, H * 0.34));
+      document.getElementById("throwBtn").addEventListener("click", () => getScene().toss(1.2));
+      document.getElementById("breakBtn").addEventListener("click", () => getScene().detachRandom());
+    })();
+  </script>
+</body>
+</html>

@@ -3,8 +3,8 @@
   const assetRoot = new URL("./assets/", window.location.href).href;
 
   CT.Config = {
-    build: "2026-06-30-v0.1.76-softer-idle-shake",
-    gameVersion: "v0.1.76",
+    build: "2026-07-01-v0.1.84-smooth-ragdoll-settle",
+    gameVersion: "v0.1.84",
     phaserVersion: "3.88.2",
     width: 720,
     height: 1280,

@@ -1,1 +1,1 @@
-GAME v0.1.76 / 2026-06-30-v0.1.76-softer-idle-shake
+GAME v0.1.84 / 2026-07-01-v0.1.84-smooth-ragdoll-settle

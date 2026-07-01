@@ -143,8 +143,12 @@
         autoCenter: Phaser.Scale.NO_CENTER
       },
       physics: {
-        default: "arcade",
-        arcade: { gravity: { y: 0 }, debug: false }
+        default: "matter",
+        arcade: { gravity: { y: 0 }, debug: false },
+        matter: {
+          gravity: { y: 0.9 },
+          debug: false
+        }
       },
       scene: [CT.BootScene, CT.GameScene],
       callbacks: {

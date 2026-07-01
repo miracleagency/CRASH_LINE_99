@@ -75,6 +75,11 @@
       this.carControlRoot = null;
       this.carControlJson = null;
       this.nextCarLightSweepAt = 0;
+      this.Matter = null;
+      this.ragdollMatterReady = false;
+      this.ragdollGround = null;
+      this.ragdollCollisionLayers = null;
+      this.flightRagdoll = null;
     }
 
     create() {
@@ -96,6 +101,7 @@
       this.wallet = new CT.Wallet();
       this.cameras.main.setBounds(-1800, 0, CT.Config.gameplay.worldWidth + 1800, CT.Config.height);
       this.cameras.main.setScroll(0, 0);
+      this.setupRagdollMatterWorld();
       this.createBackground();
       this.createPlayfield();
       this.hud = new CT.Hud(this, this.wallet, {
@@ -1035,6 +1041,705 @@
       return dummy;
     }
 
+    setupRagdollMatterWorld() {
+      if (!this.matter) {
+        console.warn("RAGDOLL: Matter physics is not available in GameScene.");
+        return;
+      }
+      if (this.ragdollMatterReady) return;
+      this.Matter = Phaser.Physics.Matter.Matter;
+      this.matter.world.setGravity(0, 0.92);
+      this.matter.world.engine.positionIterations = 18;
+      this.matter.world.engine.velocityIterations = 12;
+      this.matter.world.engine.constraintIterations = 10;
+      this.ragdollCollisionLayers = {
+        world: 0x0001,
+        back: 0x0002,
+        core: 0x0004,
+        leftLeg: 0x0008,
+        rightLeg: 0x0010,
+        front: 0x0020
+      };
+      const gp = CT.Config.gameplay;
+      const groundWidth = gp.worldWidth + 5200;
+      const groundHeight = 96;
+      this.ragdollGround = this.matter.add.rectangle(
+        gp.worldWidth / 2,
+        gp.roadY + 8 + groundHeight / 2,
+        groundWidth,
+        groundHeight,
+        {
+          isStatic: true,
+          label: "ragdollGround",
+          friction: 0.96,
+          restitution: 0.08,
+          collisionFilter: {
+            category: this.ragdollCollisionLayers.world,
+            mask: 0xffffffff
+          }
+        }
+      );
+      this.ragdollMatterReady = true;
+    }
+
+    createFlightRagdoll(trackX, trackY, trackAngle) {
+      if (!this.matter) {
+        console.warn("RAGDOLL: cannot create flight ragdoll because Matter is missing.");
+        return false;
+      }
+      this.setupRagdollMatterWorld();
+      if (!this.ragdollMatterReady || !this.Matter) {
+        console.warn("RAGDOLL: Matter world was not initialized.");
+        return false;
+      }
+      this.clearFlightRagdoll();
+
+      const scale = 0.464;
+      const skin = 0xf2b34c;
+      const suit = 0xf4a33c;
+      const dark = 0x27313b;
+      const backSkin = 0xc8873b;
+      const target = this.getRagdollTorsoTarget(trackX, trackY);
+      const baseX = target.x;
+      const baseY = target.y + 67 * scale;
+      const rig = {
+        scale,
+        parts: [],
+        joints: [],
+        graphics: this.add.graphics().setDepth(11),
+        anchor: null,
+        torso: null,
+        lastTarget: { x: target.x, y: target.y },
+        lastTrackAngleRad: Phaser.Math.DegToRad(Number(trackAngle) || 0),
+        noBreakUntil: this.time.now + 620,
+        softBreakUntil: this.time.now + 1160,
+        torsoSpinBoostUntil: 0,
+        torsoSpinBoostDuration: 1,
+        torsoSpinDirection: 1
+      };
+      this.flightRagdoll = rig;
+
+      const addPart = (name, body) => {
+        body.ragdollPart = name;
+        rig.parts.push(body);
+        return body;
+      };
+      const circle = (x, y, radius, color, options) => {
+        const body = this.matter.add.circle(x, y, radius, {
+          friction: 0.92,
+          frictionAir: 0.01,
+          restitution: 0.18,
+          density: 0.003,
+          slop: 0.045,
+          collisionFilter: this.ragdollCollisionFilter(options && options.z)
+        });
+        body.renderInfo = Object.assign({ color, radius, layer: 1, alpha: 1 }, options || {});
+        return body;
+      };
+      const rect = (x, y, width, height, color, angle, options) => {
+        const body = this.matter.add.rectangle(x, y, width, height, {
+          chamfer: { radius: Math.min(7, width * 0.36) },
+          friction: 0.9,
+          frictionAir: 0.01,
+          restitution: 0.16,
+          density: 0.0028,
+          slop: 0.045,
+          collisionFilter: this.ragdollCollisionFilter(options && options.z)
+        });
+        if (angle) this.Matter.Body.rotate(body, angle);
+        body.renderInfo = Object.assign({ color, width, height, layer: 1, alpha: 1 }, options || {});
+        return body;
+      };
+      const px = (value) => value * scale;
+      const partX = (value) => baseX + px(value);
+      const partY = (value) => baseY + px(value);
+      const pt = (x, y) => ({ x: px(x), y: px(y) });
+      const joint = (name, bodyA, bodyB, pointA, pointB, stiffness, breakLimit) => {
+        const link = this.Matter.Constraint.create({
+          bodyA,
+          bodyB,
+          pointA,
+          pointB,
+          stiffness,
+          damping: 0.2
+        });
+        link.ragdollJoint = Object.assign({ name, breakLimit: breakLimit * scale }, this.ragdollJointProfile(name));
+        this.Matter.Composite.add(this.matter.world.localWorld, link);
+        rig.joints.push(link);
+        return link;
+      };
+
+      const head = addPart("head", circle(partX(5), partY(-128), px(25), skin, { layer: 3, z: "core" }));
+      const torso = addPart("torso", rect(partX(0), partY(-67), px(42), px(78), suit, 0.03, { layer: 2, z: "core" }));
+      const pelvis = addPart("pelvis", rect(partX(2), partY(-9), px(46), px(34), suit, 0.04, { layer: 2, z: "core" }));
+      const upperArmL = addPart("upperArmL", rect(partX(-16), partY(-70), px(18), px(66), backSkin, -0.18, { layer: 0, alpha: 0.72, z: "back" }));
+      const lowerArmL = addPart("lowerArmL", rect(partX(-21), partY(-16), px(16), px(46), backSkin, 0.04, { layer: 0, alpha: 0.72, z: "back" }));
+      const handL = addPart("handL", rect(partX(-22), partY(15), px(22), px(14), backSkin, 0.02, { layer: 0, alpha: 0.72, z: "back" }));
+      const upperArmR = addPart("upperArmR", rect(partX(28), partY(-68), px(20), px(66), skin, 0.24, { layer: 4, z: "front" }));
+      const lowerArmR = addPart("lowerArmR", rect(partX(42), partY(-15), px(17), px(46), skin, 0.08, { layer: 4, z: "front" }));
+      const handR = addPart("handR", rect(partX(45), partY(17), px(24), px(15), skin, 0.02, { layer: 5, z: "front" }));
+      const thighL = addPart("thighL", rect(partX(-10), partY(39), px(20), px(68), 0x1d252c, 0.08, { layer: 0, alpha: 0.76, z: "leftLeg" }));
+      const shinL = addPart("shinL", rect(partX(-14), partY(101), px(18), px(66), backSkin, 0.02, { layer: 0, alpha: 0.76, z: "leftLeg" }));
+      const footL = addPart("footL", rect(partX(-9), partY(139), px(42), px(16), backSkin, 0.04, { layer: 0, alpha: 0.76, z: "leftLeg" }));
+      const thighR = addPart("thighR", rect(partX(20), partY(38), px(22), px(68), dark, -0.12, { layer: 4, z: "rightLeg" }));
+      const shinR = addPart("shinR", rect(partX(28), partY(101), px(20), px(66), skin, -0.08, { layer: 4, z: "rightLeg" }));
+      const footR = addPart("footR", rect(partX(38), partY(139), px(44), px(17), skin, -0.03, { layer: 5, z: "rightLeg" }));
+
+      rig.torso = torso;
+      rig.anchor = this.matter.add.circle(target.x, target.y, 6, {
+        isStatic: true,
+        isSensor: true,
+        collisionFilter: { mask: 0 }
+      });
+      rig.anchorConstraint = this.Matter.Constraint.create({
+        bodyA: rig.anchor,
+        bodyB: torso,
+        pointA: { x: 0, y: 0 },
+        pointB: { x: 0, y: 0 },
+        length: 0,
+        stiffness: 0.46,
+        damping: 0.035
+      });
+      this.Matter.Composite.add(this.matter.world.localWorld, rig.anchorConstraint);
+
+      joint("neck", head, torso, pt(-2, 22), pt(2, -39), 0.9, 86);
+      joint("spine", torso, pelvis, pt(0, 39), pt(0, -18), 0.92, 98);
+      joint("shoulderL", torso, upperArmL, pt(-16, -31), pt(0, -32), 0.78, 86);
+      joint("clavicleL", torso, upperArmL, pt(-5, -39), pt(0, -19), 0.58, 82);
+      joint("elbowL", upperArmL, lowerArmL, pt(0, 32), pt(0, -23), 0.74, 78);
+      joint("elbowBraceL", upperArmL, lowerArmL, pt(0, 21), pt(0, -12), 0.5, 74);
+      joint("wristL", lowerArmL, handL, pt(0, 23), pt(-4, -7), 0.7, 48);
+      joint("wristBraceL", lowerArmL, handL, pt(-4, 15), pt(5, 5), 0.42, 40);
+      joint("shoulderR", torso, upperArmR, pt(16, -31), pt(0, -32), 0.78, 86);
+      joint("clavicleR", torso, upperArmR, pt(5, -39), pt(0, -19), 0.58, 82);
+      joint("elbowR", upperArmR, lowerArmR, pt(0, 32), pt(0, -23), 0.74, 78);
+      joint("elbowBraceR", upperArmR, lowerArmR, pt(0, 21), pt(0, -12), 0.5, 74);
+      joint("wristR", lowerArmR, handR, pt(0, 23), pt(-5, -7), 0.7, 48);
+      joint("wristBraceR", lowerArmR, handR, pt(4, 15), pt(-5, 5), 0.42, 40);
+      joint("hipL", pelvis, thighL, pt(-12, 14), pt(0, -34), 0.88, 88);
+      joint("kneeL", thighL, shinL, pt(0, 34), pt(0, -33), 0.82, 82);
+      joint("ankleL", shinL, footL, pt(0, 33), pt(-9, -7), 0.9, 58);
+      joint("ankleBraceL", shinL, footL, pt(-4, 24), pt(11, -4), 0.76, 48);
+      joint("hipR", pelvis, thighR, pt(14, 14), pt(0, -34), 0.88, 88);
+      joint("kneeR", thighR, shinR, pt(0, 34), pt(0, -33), 0.82, 82);
+      joint("ankleR", shinR, footR, pt(0, 33), pt(-10, -7), 0.9, 58);
+      joint("ankleBraceR", shinR, footR, pt(4, 24), pt(12, -4), 0.76, 48);
+      this.rotateFlightRagdollAround(rig, target.x, target.y, rig.lastTrackAngleRad);
+      this.setFlightRagdollPoseStabilizers(rig, {
+        head,
+        torso,
+        pelvis,
+        upperArmL,
+        lowerArmL,
+        handL,
+        upperArmR,
+        lowerArmR,
+        handR,
+        thighL,
+        shinL,
+        footL,
+        thighR,
+        shinR,
+        footR
+      });
+
+      rig.parts.forEach((body) => {
+        const name = body.ragdollPart || "";
+        const isArm = /arm|hand/i.test(name);
+        const isLeg = /thigh|shin|foot/i.test(name);
+        const limbKick = isArm ? 1.7 : isLeg ? 0.72 : 0.9;
+        const spinKick = isArm ? 1.95 : isLeg ? 0.82 : 0.75;
+        body.flailWeight = isArm ? 1.55 : isLeg ? 1.08 : 0.28;
+        body.flailPhase = Math.random() * Math.PI * 2;
+        this.Matter.Body.setVelocity(body, {
+          x: Phaser.Math.FloatBetween(7.2, 13.8) * limbKick,
+          y: Phaser.Math.FloatBetween(-10.5, -3.1) * limbKick
+        });
+        this.Matter.Body.setAngularVelocity(body, Phaser.Math.FloatBetween(0.04, 0.32) * spinKick);
+      });
+      this.syncFlightRagdollToDummy(true);
+      this.renderFlightRagdoll();
+      return true;
+    }
+
+    getRagdollTorsoTarget(trackX, trackY) {
+      return {
+        x: trackX,
+        y: trackY - 18
+      };
+    }
+
+    rotateFlightRagdollAround(rig, centerX, centerY, angleRad) {
+      if (!rig || !rig.parts || !angleRad) return;
+      const cos = Math.cos(angleRad);
+      const sin = Math.sin(angleRad);
+      rig.parts.forEach((body) => {
+        const dx = body.position.x - centerX;
+        const dy = body.position.y - centerY;
+        this.Matter.Body.setPosition(body, {
+          x: centerX + dx * cos - dy * sin,
+          y: centerY + dx * sin + dy * cos
+        });
+        this.Matter.Body.rotate(body, angleRad);
+      });
+    }
+
+    ragdollCollisionFilter(z) {
+      const layers = this.ragdollCollisionLayers || {
+        world: 0x0001,
+        back: 0x0002,
+        core: 0x0004,
+        leftLeg: 0x0008,
+        rightLeg: 0x0010,
+        front: 0x0020
+      };
+      const zone = z === "body" ? "core" : z || "core";
+      const category = layers[zone] || layers.core;
+      if (zone === "core") {
+        return { category, mask: layers.world | layers.core | layers.leftLeg | layers.rightLeg };
+      }
+      if (zone === "leftLeg" || zone === "rightLeg") {
+        return { category, mask: layers.world | layers.core };
+      }
+      return { category, mask: layers.world | category };
+    }
+
+    setFlightRagdollPoseStabilizers(rig, parts) {
+      const pose = (body, anchor, strength, maxSpeed) => {
+        body.poseInfo = {
+          anchor,
+          restAngle: body.angle,
+          angleOffset: this.wrapRagdollAngle(body.angle - anchor.angle),
+          strength,
+          maxSpeed
+        };
+      };
+      pose(parts.head, parts.torso, 0.058, 0.085);
+      pose(parts.torso, parts.pelvis, 0.044, 0.068);
+      pose(parts.upperArmL, parts.torso, 0.046, 0.11);
+      pose(parts.lowerArmL, parts.upperArmL, 0.054, 0.13);
+      pose(parts.handL, parts.lowerArmL, 0.066, 0.15);
+      pose(parts.upperArmR, parts.torso, 0.046, 0.11);
+      pose(parts.lowerArmR, parts.upperArmR, 0.054, 0.13);
+      pose(parts.handR, parts.lowerArmR, 0.066, 0.15);
+      pose(parts.thighL, parts.pelvis, 0.064, 0.1);
+      pose(parts.shinL, parts.thighL, 0.076, 0.12);
+      pose(parts.footL, parts.shinL, 0.09, 0.14);
+      pose(parts.thighR, parts.pelvis, 0.064, 0.1);
+      pose(parts.shinR, parts.thighR, 0.076, 0.12);
+      pose(parts.footR, parts.shinR, 0.09, 0.14);
+      rig.poseParts = parts;
+    }
+
+    ragdollJointProfile(name) {
+      if (name.indexOf("wrist") !== -1 || name.indexOf("ankle") !== -1) {
+        return { toughness: 0.34, weakness: 5.2 };
+      }
+      if (name.indexOf("elbow") !== -1 || name.indexOf("knee") !== -1) {
+        return { toughness: 0.55, weakness: 3.05 };
+      }
+      if (name.indexOf("shoulder") !== -1 || name.indexOf("clavicle") !== -1 || name.indexOf("hip") !== -1) {
+        return { toughness: 0.76, weakness: 1.95 };
+      }
+      if (name === "neck" || name === "spine") {
+        return { toughness: 1.22, weakness: 0.7 };
+      }
+      return { toughness: 1, weakness: 1 };
+    }
+
+    syncFlightRagdollToDummy(force) {
+      const rig = this.flightRagdoll;
+      if (!rig || !rig.anchor || !this.dummy) return;
+      if (rig.settling && !force) return;
+      const target = this.getRagdollTorsoTarget(this.dummy.x, this.dummy.y);
+      const dx = target.x - rig.lastTarget.x;
+      const dy = target.y - rig.lastTarget.y;
+      const trackAngleRad = Phaser.Math.DegToRad(this.dummy.angle || 0);
+      const trackSpin = this.wrapRagdollAngle(trackAngleRad - rig.lastTrackAngleRad);
+      this.Matter.Body.setPosition(rig.anchor, target);
+      if (force && rig.torso) {
+        const diffX = target.x - rig.torso.position.x;
+        const diffY = target.y - rig.torso.position.y;
+        rig.parts.forEach((body) => this.Matter.Body.translate(body, { x: diffX, y: diffY }));
+      } else if (rig.torso) {
+        const errorX = target.x - rig.torso.position.x;
+        const errorY = target.y - rig.torso.position.y;
+        const dist = Math.sqrt(errorX * errorX + errorY * errorY);
+        if (dist > 130) {
+          this.Matter.Body.translate(rig.torso, { x: errorX * 0.18, y: errorY * 0.18 });
+        }
+        this.Matter.Body.setVelocity(rig.torso, {
+          x: Phaser.Math.Clamp(dx * 0.58 + errorX * 0.038, -42, 42),
+          y: Phaser.Math.Clamp(dy * 0.58 + errorY * 0.038, -42, 42)
+        });
+      }
+      if (rig.torso) {
+        const angleError = this.wrapRagdollAngle(trackAngleRad - rig.torso.angle);
+        const spinBoostT = this.getFlightRagdollSpinBoostT(rig);
+        const spinBoostActive = spinBoostT > 0;
+        const spinBoost = spinBoostActive ? 0.24 * Math.pow(spinBoostT, 1.6) : 0;
+        const maxAngular = Phaser.Math.Linear(0.98, 1.45, spinBoostT);
+        const angularFollow = Phaser.Math.Clamp(angleError * 0.13 + trackSpin * 0.52, -0.56, 0.56);
+        this.Matter.Body.setAngularVelocity(rig.torso, Phaser.Math.Clamp(rig.torso.angularVelocity * 0.78 + angularFollow + spinBoost, rig.settling ? -maxAngular : 0, maxAngular));
+      }
+      rig.lastTarget.x = target.x;
+      rig.lastTarget.y = target.y;
+      rig.lastTrackAngleRad = trackAngleRad;
+    }
+
+    updateFlightRagdoll(delta) {
+      if (!this.flightRagdoll) return;
+      if (this.state === "dummyFlight") this.syncFlightRagdollToDummy(false);
+      this.flailFlightRagdoll(delta);
+      this.settleFlightRagdoll(delta);
+      this.stabilizeFlightRagdoll();
+      this.checkFlightRagdollJointStress();
+      this.renderFlightRagdoll();
+    }
+
+    getFlightRagdollSpinBoostT(rig) {
+      if (!rig || !rig.torsoSpinBoostUntil || this.time.now >= rig.torsoSpinBoostUntil) return 0;
+      return Phaser.Math.Clamp((rig.torsoSpinBoostUntil - this.time.now) / Math.max(1, rig.torsoSpinBoostDuration || 1), 0, 1);
+    }
+
+    flailFlightRagdoll(delta) {
+      const rig = this.flightRagdoll;
+      if (!rig || rig.settling || !rig.parts) return;
+      const dt = Phaser.Math.Clamp((delta || 16.6667) / 16.6667, 0.4, 2);
+      const launchFactor = this.time.now < (rig.noBreakUntil || 0) ? 0.55 : 1;
+      const t = this.time.now;
+      const connected = this.getFlightRagdollConnectedParts(rig.torso);
+      rig.parts.forEach((body) => {
+        if (body === rig.torso) return;
+        if (!connected.has(body)) return;
+        const weight = body.flailWeight || 0;
+        if (!weight) return;
+        const wave = Math.max(0, Math.sin(t * 0.012 + body.flailPhase));
+        const pulse = Math.max(0, Math.sin(t * 0.019 + body.flailPhase * 1.7));
+        const nextAngular = body.angularVelocity + (0.005 + wave * 0.012 + pulse * 0.007) * weight * launchFactor * dt;
+        this.Matter.Body.setAngularVelocity(body, Phaser.Math.Clamp(nextAngular, 0, 1.15));
+      });
+    }
+
+    settleFlightRagdoll(delta) {
+      const rig = this.flightRagdoll;
+      if (!rig || !rig.settling || !rig.parts) return;
+      if (rig.settleLocked) return;
+      const dt = Phaser.Math.Clamp((delta || 16.6667) / 16.6667, 0.4, 2);
+      const elapsed = this.time.now - (rig.settleStartedAt || this.time.now);
+      const floorY = rig.settleFloorY || (CT.Config.gameplay.roadY + 8);
+      const lockDelay = rig.settleLockDelay || 580;
+      const settleT = Phaser.Math.Clamp(elapsed / lockDelay, 0, 1);
+      const settleEase = Phaser.Math.Easing.Sine.Out(settleT);
+      const allNearFloor = rig.parts.every((body) => this.getFlightRagdollBottomY(body) >= floorY - 24);
+      if (elapsed >= lockDelay && allNearFloor) {
+        this.lockFlightRagdollOnGround(rig);
+        return;
+      }
+      rig.parts.forEach((body) => {
+        const bottomY = this.getFlightRagdollBottomY(body);
+        const nearGround = bottomY >= floorY - 14;
+        const vxDamp = Phaser.Math.Linear(0.34, 0.16, settleEase);
+        const vx = Math.abs(body.velocity.x) < 0.06 ? 0 : body.velocity.x * Math.pow(vxDamp, dt);
+        let vy = body.velocity.y;
+        if (nearGround) {
+          const yDamp = Phaser.Math.Linear(0.36, 0.2, settleEase);
+          vy = Math.abs(vy) < 0.18 ? 0 : vy * Math.pow(yDamp, dt);
+        } else {
+          vy = Phaser.Math.Clamp(vy + Phaser.Math.Linear(1.35, 2.15, settleEase) * dt, -2.5, 18);
+        }
+        const targetAngle = this.getFlightRagdollGroundAngle(body);
+        const angleError = this.wrapRagdollAngle(targetAngle - body.angle);
+        const angularDamp = Phaser.Math.Linear(0.54, 0.3, settleEase);
+        const angleStrength = Phaser.Math.Linear(0.055, 0.18, settleEase);
+        const maxAngular = Phaser.Math.Linear(0.58, 0.92, settleEase);
+        const av = Phaser.Math.Clamp(body.angularVelocity * Math.pow(angularDamp, dt) + angleError * angleStrength, -maxAngular, maxAngular);
+        this.Matter.Body.setVelocity(body, { x: vx, y: vy });
+        this.Matter.Body.setAngularVelocity(body, av);
+      });
+    }
+
+    lockFlightRagdollOnGround(rig) {
+      if (!rig || rig.settleLocked) return;
+      rig.settleLocked = true;
+      rig.parts.forEach((body) => {
+        this.Matter.Sleeping.set(body, false);
+        this.Matter.Body.setVelocity(body, { x: 0, y: 0 });
+        this.Matter.Body.setAngularVelocity(body, 0);
+        this.Matter.Sleeping.set(body, true);
+      });
+    }
+
+    getFlightRagdollGroundAngle(body) {
+      const name = body && body.ragdollPart ? body.ragdollPart : "";
+      if (name === "head") return body.angle;
+      if (name === "pelvis") return 1.2;
+      if (name === "footL") return 0.04;
+      if (name === "footR") return -0.06;
+      if (/hand/i.test(name)) return 0.1;
+      if (/arm|thigh|shin|torso/i.test(name)) return 1.42;
+      return body.angle;
+    }
+
+    getFlightRagdollBottomY(body) {
+      if (!body || !body.vertices || !body.vertices.length) return body ? body.position.y : 0;
+      return body.vertices.reduce((bottom, point) => Math.max(bottom, point.y), -Infinity);
+    }
+
+    stabilizeFlightRagdoll() {
+      const rig = this.flightRagdoll;
+      if (!rig || !rig.parts) return;
+      if (rig.settleLocked) return;
+      const settleFactor = rig.settling ? 0.22 : 1;
+      rig.parts.forEach((body) => {
+        const pose = body.poseInfo;
+        const hasAnchor = pose && pose.anchor && this.hasFlightRagdollJointBetween(body, pose.anchor);
+        const spinBoostActive = body === rig.torso && this.getFlightRagdollSpinBoostT(rig) > 0;
+        const maxSpin = rig.settling ? 0.18 : spinBoostActive ? 1.45 : hasAnchor ? 0.78 : 0.58;
+        const minSpin = rig.settling ? -maxSpin : 0;
+        if (Math.abs(body.angularVelocity) > maxSpin) {
+          this.Matter.Body.setAngularVelocity(body, Phaser.Math.Clamp(body.angularVelocity, minSpin, maxSpin));
+        }
+        if (!pose) return;
+        const targetAngle = hasAnchor ? pose.anchor.angle + pose.angleOffset : pose.restAngle;
+        const error = this.wrapRagdollAngle(targetAngle - body.angle);
+        const strength = (hasAnchor ? pose.strength : pose.strength * 0.72) * settleFactor;
+        const maxSpeed = (hasAnchor ? pose.maxSpeed : pose.maxSpeed * 0.82) * settleFactor;
+        const damping = rig.settling ? 0.68 : hasAnchor ? 0.93 : 0.86;
+        const correction = Phaser.Math.Clamp(error * strength, -maxSpeed, maxSpeed);
+        const angularVelocity = Phaser.Math.Clamp(body.angularVelocity * damping + correction, minSpin, maxSpin);
+        this.Matter.Body.setAngularVelocity(body, angularVelocity);
+      });
+    }
+
+    hasFlightRagdollJointBetween(a, b) {
+      const rig = this.flightRagdoll;
+      if (!rig || !rig.joints) return false;
+      return rig.joints.some((joint) => (joint.bodyA === a && joint.bodyB === b) || (joint.bodyA === b && joint.bodyB === a));
+    }
+
+    checkFlightRagdollJointStress() {
+      const rig = this.flightRagdoll;
+      if (!rig || !rig.joints) return;
+      if (rig.settling) return;
+      if (this.time.now < (rig.noBreakUntil || 0)) return;
+      if (!rig.allowStressBreakUntil || this.time.now > rig.allowStressBreakUntil) return;
+      const softBreakFactor = this.time.now < (rig.softBreakUntil || 0) ? 1.42 : 1;
+      rig.joints.slice().forEach((joint) => {
+        if (!joint.ragdollJoint) return;
+        const a = this.ragdollWorldPoint(joint.bodyA, joint.pointA);
+        const b = this.ragdollWorldPoint(joint.bodyB, joint.pointB);
+        const distance = Phaser.Math.Distance.Between(a.x, a.y, b.x, b.y);
+        const toughness = joint.ragdollJoint.toughness || 1;
+        const limit = joint.length + joint.ragdollJoint.breakLimit * (1.12 + toughness * 0.64) * softBreakFactor;
+        if (distance > limit) this.breakFlightRagdollJoint(joint, distance * 0.2);
+      });
+    }
+
+    kickFlightRagdollFromGround(power, options) {
+      const rig = this.flightRagdoll;
+      if (!rig || !rig.parts) return;
+      const p = Number(power) || 1;
+      const opts = options || {};
+      if (opts.torsoSpin && rig.torso) {
+        rig.torsoSpinDirection = 1;
+        rig.torsoSpinBoostDuration = 1120;
+        rig.torsoSpinBoostUntil = this.time.now + 1120;
+        this.Matter.Body.setAngularVelocity(rig.torso, Math.max(rig.torso.angularVelocity, 1.18));
+      }
+      rig.allowStressBreakUntil = this.time.now + (opts.firstImpact ? 160 : 280);
+      const connected = this.getFlightRagdollConnectedParts(rig.torso);
+      rig.parts.forEach((body) => {
+        if (body === rig.torso) return;
+        if (!connected.has(body)) return;
+        this.Matter.Body.setVelocity(body, {
+          x: body.velocity.x + Phaser.Math.FloatBetween(-7.5, 11.5) * p,
+          y: Math.min(body.velocity.y, Phaser.Math.FloatBetween(-15, -5.5) * p)
+        });
+        this.Matter.Body.setAngularVelocity(body, Phaser.Math.Clamp(body.angularVelocity + Phaser.Math.FloatBetween(0.06, 0.34) * p, 0, 1.2));
+      });
+      const firstImpactScale = opts.firstImpact ? 0.42 : 1;
+      const chance = Phaser.Math.Clamp((0.22 + p * 0.13) * firstImpactScale, 0.08, 0.62);
+      if (Math.random() < chance) this.breakRandomFlightRagdollJoint(p);
+    }
+
+    breakRandomFlightRagdollJoint(power) {
+      const rig = this.flightRagdoll;
+      if (!rig || !rig.joints || !rig.joints.length) return;
+      if (this.time.now < (rig.noBreakUntil || 0)) return;
+      let total = 0;
+      const weighted = rig.joints
+        .filter((joint) => joint !== rig.anchorConstraint)
+        .map((joint) => {
+          const info = joint.ragdollJoint || {};
+          const weight = (info.weakness || 1) * Phaser.Math.FloatBetween(0.82, 1.18);
+          total += weight;
+          return { joint, weight };
+        });
+      if (!weighted.length || total <= 0) return;
+      let pick = Math.random() * total;
+      for (let i = 0; i < weighted.length; i++) {
+        pick -= weighted[i].weight;
+        if (pick <= 0) {
+          this.breakFlightRagdollJoint(weighted[i].joint, 16 * (power || 1));
+          return;
+        }
+      }
+      this.breakFlightRagdollJoint(weighted[weighted.length - 1].joint, 16 * (power || 1));
+    }
+
+    kickFlightRagdollFromBonus(value) {
+      const rig = this.flightRagdoll;
+      if (!rig || !rig.torso || rig.settling) return;
+      const amount = Phaser.Math.Clamp(Number(value || 1), 0.1, 20);
+      const power = Phaser.Math.Clamp(0.65 + Math.log2(amount + 1) * 0.2, 0.65, 1.55);
+      rig.torsoSpinDirection = 1;
+      rig.torsoSpinBoostDuration = 780;
+      rig.torsoSpinBoostUntil = this.time.now + 780;
+      rig.allowStressBreakUntil = this.time.now + 240;
+      this.Matter.Body.setAngularVelocity(rig.torso, Phaser.Math.Clamp(Math.max(0, rig.torso.angularVelocity) + 0.92 * power, 0, 1.5));
+      const connected = this.getFlightRagdollConnectedParts(rig.torso);
+      rig.parts.forEach((body) => {
+        if (body === rig.torso || !connected.has(body)) return;
+        const weight = body.flailWeight || 0.25;
+        this.Matter.Body.setAngularVelocity(body, Phaser.Math.Clamp(Math.max(0, body.angularVelocity) + 0.18 * power * weight, 0, 1.2));
+      });
+      const chance = Phaser.Math.Clamp(0.04 + amount * 0.012, 0.04, 0.22);
+      if (Math.random() < chance) this.breakRandomFlightRagdollJoint(power);
+    }
+
+    getFlightRagdollConnectedParts(root) {
+      const rig = this.flightRagdoll;
+      const connected = new Set();
+      if (!rig || !root) return connected;
+      const queue = [root];
+      connected.add(root);
+      while (queue.length) {
+        const body = queue.shift();
+        (rig.joints || []).forEach((joint) => {
+          if (joint === rig.anchorConstraint) return;
+          let next = null;
+          if (joint.bodyA === body) next = joint.bodyB;
+          else if (joint.bodyB === body) next = joint.bodyA;
+          if (!next || connected.has(next)) return;
+          connected.add(next);
+          queue.push(next);
+        });
+      }
+      return connected;
+    }
+
+    startFlightRagdollSettle() {
+      const rig = this.flightRagdoll;
+      if (!rig || rig.settling) return;
+      rig.settling = true;
+      rig.settleStartedAt = this.time.now;
+      rig.settleTarget = this.dummy ? this.getRagdollTorsoTarget(this.dummy.x, this.dummy.y) : null;
+      rig.settleFloorY = CT.Config.gameplay.roadY + 8;
+      rig.settleLockDelay = 580;
+      rig.settleLocked = false;
+      rig.torsoSpinBoostUntil = 0;
+      if (rig.anchorConstraint) {
+        this.Matter.Composite.remove(this.matter.world.localWorld, rig.anchorConstraint);
+        rig.anchorConstraint = null;
+      }
+      rig.parts.forEach((body) => {
+        this.Matter.Sleeping.set(body, false);
+        body.frictionAir = 0.035;
+        body.friction = 0.98;
+        body.frictionStatic = 1.8;
+        body.restitution = 0.02;
+        this.Matter.Body.setVelocity(body, {
+          x: body.velocity.x * 0.18,
+          y: Math.max(body.velocity.y * 0.18, 3.2)
+        });
+        this.Matter.Body.setAngularVelocity(body, body.angularVelocity * 0.35);
+      });
+    }
+
+    breakFlightRagdollJoint(joint, impact) {
+      const rig = this.flightRagdoll;
+      if (!rig || !joint || joint === rig.anchorConstraint) return;
+      const index = rig.joints.indexOf(joint);
+      if (index === -1) return;
+      rig.joints.splice(index, 1);
+      this.Matter.Composite.remove(this.matter.world.localWorld, joint);
+      this.spawnSmoke(
+        (joint.bodyA.position.x + joint.bodyB.position.x) * 0.5,
+        (joint.bodyA.position.y + joint.bodyB.position.y) * 0.5,
+        Math.max(2, Math.round((impact || 12) / 12)),
+        0xf2b34c
+      );
+    }
+
+    renderFlightRagdoll() {
+      const rig = this.flightRagdoll;
+      if (!rig || !rig.graphics) return;
+      const g = rig.graphics;
+      g.clear();
+      rig.parts
+        .slice()
+        .sort((a, b) => (a.renderInfo.layer || 0) - (b.renderInfo.layer || 0))
+        .forEach((body) => this.drawFlightRagdollPart(g, body));
+    }
+
+    drawFlightRagdollPart(g, body) {
+      const info = body.renderInfo || {};
+      const alpha = info.alpha === undefined ? 1 : info.alpha;
+      g.fillStyle(info.color || 0xf2b34c, alpha);
+      g.lineStyle(2, 0x111111, alpha * 0.72);
+      if (info.radius) {
+        g.fillCircle(body.position.x, body.position.y, info.radius);
+        g.strokeCircle(body.position.x, body.position.y, info.radius);
+        const eyeX = Math.cos(body.angle) * info.radius * 0.32;
+        const eyeY = Math.sin(body.angle) * info.radius * 0.32;
+        g.fillStyle(0x111111, alpha);
+        g.fillCircle(body.position.x + eyeX, body.position.y + eyeY, Math.max(2, info.radius * 0.16));
+        return;
+      }
+      const vertices = body.vertices;
+      if (!vertices || !vertices.length) return;
+      g.beginPath();
+      g.moveTo(vertices[0].x, vertices[0].y);
+      for (let i = 1; i < vertices.length; i++) {
+        g.lineTo(vertices[i].x, vertices[i].y);
+      }
+      g.closePath();
+      g.fillPath();
+      g.strokePath();
+    }
+
+    ragdollWorldPoint(body, point) {
+      const cos = Math.cos(body.angle);
+      const sin = Math.sin(body.angle);
+      return {
+        x: body.position.x + point.x * cos - point.y * sin,
+        y: body.position.y + point.x * sin + point.y * cos
+      };
+    }
+
+    wrapRagdollAngle(angle) {
+      while (angle > Math.PI) angle -= Math.PI * 2;
+      while (angle < -Math.PI) angle += Math.PI * 2;
+      return angle;
+    }
+
+    clearFlightRagdoll() {
+      const rig = this.flightRagdoll;
+      if (!rig) return;
+      if (rig.graphics) {
+        rig.graphics.clear();
+        rig.graphics.destroy();
+      }
+      if (this.matter && this.Matter) {
+        if (rig.anchorConstraint) this.Matter.Composite.remove(this.matter.world.localWorld, rig.anchorConstraint);
+        (rig.joints || []).forEach((joint) => this.Matter.Composite.remove(this.matter.world.localWorld, joint));
+        (rig.parts || []).forEach((body) => this.Matter.Composite.remove(this.matter.world.localWorld, body));
+        if (rig.anchor) this.Matter.Composite.remove(this.matter.world.localWorld, rig.anchor);
+      }
+      this.flightRagdoll = null;
+    }
+
     setWheelPlayback(active, rate) {
       if (!this.car || !this.car.wheels) return;
       this.car.wheels.forEach((wheel) => {
@@ -1367,7 +2072,9 @@
       const dummyWorldAngle = this.car.angle + this.dummy.angle;
       this.car.remove(this.dummy, false);
       this.children.add(this.dummy);
-      this.dummy.setPosition(dummyWorldX, dummyWorldY).setDepth(9).setScale(1).setAngle(dummyWorldAngle).setVisible(true);
+      this.dummy.setPosition(dummyWorldX, dummyWorldY).setDepth(9).setScale(1).setAngle(dummyWorldAngle).setVisible(false);
+      this.createFlightRagdoll(dummyWorldX, dummyWorldY, dummyWorldAngle);
+      this.dummy.setVisible(false);
       this.startCrashDebrisRoadLock();
       this.tweens.add({
         targets: this.dummy,
@@ -1444,9 +2151,12 @@
           this.dummy.x = Phaser.Math.Linear(startX, impactX, t);
           this.dummy.y = Phaser.Math.Linear(startY, groundY, t) - Math.sin(Math.PI * t) * arc;
           this.dummy.angle = Phaser.Math.Linear(spinStart, spinEnd, t);
+          this.syncFlightRagdollToDummy(false);
         },
         onComplete: () => {
           this.dummy.setPosition(impactX, groundY).setAngle(spinEnd);
+          this.syncFlightRagdollToDummy(false);
+          this.kickFlightRagdollFromGround(1.12, { firstImpact: true, torsoSpin: bounceCount > 0 });
           this.cameras.main.shake(150, 0.006);
           this.spawnSmoke(this.dummy.x, groundY + 8, 8, 0xd7dde2);
           this.playDummyBounces(payout, bounceCount);
@@ -1507,6 +2217,7 @@
             this.dummy.x = Phaser.Math.Linear(startX, endX, u);
             this.dummy.y = groundY - Math.sin(Math.PI * u) * height;
             this.dummy.angle = Phaser.Math.Linear(startAngle, endAngle, u);
+            this.syncFlightRagdollToDummy(false);
             if (index >= totalBounces) {
               const brakeT = Phaser.Math.Clamp((u - 0.28) / 0.72, 0, 1);
               const brakeEase = Phaser.Math.Easing.Sine.InOut(brakeT);
@@ -1516,6 +2227,8 @@
           },
           onComplete: () => {
             this.dummy.setPosition(endX, groundY).setAngle(endAngle);
+            this.syncFlightRagdollToDummy(false);
+            this.kickFlightRagdollFromGround(1 + index * 0.08, { torsoSpin: true });
             this.spawnSmoke(this.dummy.x, groundY + 6, 3, 0xd7dde2);
             next();
           }
@@ -1690,6 +2403,7 @@
       this.bonusAdd += bonus.bonusValue;
       this.hud.setMultiplier(this.getDisplayedMultiplier());
       this.playOneShot("bonusUp");
+      this.kickFlightRagdollFromBonus(bonus.bonusValue);
       this.showBonusPop(bonus.x, bonus.y, bonus.bonusValue);
       this.cameras.main.shake(bonus.bonusValue >= 5 ? 150 : 75, bonus.bonusValue >= 5 ? 0.006 : 0.003);
       this.pauseForBonus(bonus.bonusValue);
@@ -1710,6 +2424,7 @@
     collectExtraBounceCoin(bonus) {
       const added = this.extraBounceAdder ? this.extraBounceAdder() : false;
       this.playOneShot("bonusUp");
+      this.kickFlightRagdollFromBonus(2);
       if (added) {
         this.flightRoadSpeed = Math.max(this.flightRoadSpeed * 1.14, this.flightRoadSpeed + 80);
         this.showExtraBouncePop(bonus.x, bonus.y);
@@ -1795,6 +2510,7 @@
     settleDummy(payout) {
       const groundY = CT.Config.gameplay.roadY + 8;
       this.flightRoadSpeed = 0;
+      this.startFlightRagdollSettle();
       this.tweens.add({
         targets: this.dummy,
         y: groundY + 5,
@@ -1803,6 +2519,7 @@
         yoyo: true,
         repeat: 1,
         ease: "Sine.inOut",
+        onUpdate: () => this.syncFlightRagdollToDummy(false),
         onComplete: () => this.showCrashFinal(payout)
       });
     }
@@ -1998,6 +2715,7 @@
 
     resetRunVisuals(launchPosition) {
       const cfg = CT.Config;
+      this.clearFlightRagdoll();
       this.tweens.killTweensOf([this.car, this.dummy]);
       this.stopCrashDebrisRoadLock();
       this.barrier.setVisible(false);
@@ -2044,6 +2762,7 @@
 
     resetRunStateOnly() {
       const cfg = CT.Config;
+      this.clearFlightRagdoll();
       this.stopCrashDebrisRoadLock();
       this.barrier.setVisible(false);
       this.barrier.setAlpha(this.hitWallAlpha).setScale(1);
@@ -2105,6 +2824,7 @@
       const dt = delta / 1000;
       this.updateFenceLights(_time);
       this.updateCarIdleShake(_time);
+      this.updateFlightRagdoll(delta);
       if (this.state === "dummyFlight") {
         let roadDx = 0;
         if (this.flightRoadSpeed > 0.5) {
