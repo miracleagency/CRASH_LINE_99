@@ -67,6 +67,7 @@
       this.fenceOverlayAlpha = 0.96;
       this.hitWallX = 570;
       this.hitWallY = 888;
+      this.hitWallVisualOffsetX = 0;
       this.hitWallScale = 0.34;
       this.hitWallAlpha = 1;
       this.hitWallImage = null;
@@ -498,6 +499,7 @@
       this.fenceOverlayAlpha = gp.fenceOverlayAlpha;
       this.hitWallX = gp.hitWallX;
       this.hitWallY = gp.hitWallY;
+      this.hitWallVisualOffsetX = Number(gp.hitWallVisualOffsetX) || 0;
       this.hitWallScale = gp.hitWallScale;
       this.hitWallAlpha = gp.hitWallAlpha;
     }
@@ -505,7 +507,7 @@
     updateHitWallLayout() {
       if (!this.barrier) return;
       this.barrier.setPosition(this.hitWallX, this.hitWallY).setAlpha(this.hitWallAlpha);
-      if (this.hitWallImage) this.hitWallImage.setScale(this.hitWallScale);
+      if (this.hitWallImage) this.hitWallImage.setPosition(this.hitWallVisualOffsetX, 0).setScale(this.hitWallScale);
       if (this.hitWallPreview && this.state === "ready") this.barrier.setVisible(true);
     }
 
@@ -636,7 +638,8 @@
       });
 
       if (this.car) {
-        if (this.car.visualRoot) this.car.visualRoot.setPosition(cfg.root.x, cfg.root.y).setScale(cfg.root.scale);
+        const carVisualScale = Number(CT.Config.gameplay.carVisualScale) || 1;
+        if (this.car.visualRoot) this.car.visualRoot.setPosition(cfg.root.x, cfg.root.y).setScale(cfg.root.scale * carVisualScale);
         if (this.car.bodyRig) {
           this.car.bodyBaseY = cfg.body.y;
           this.car.bodyRig.setPosition(cfg.body.x, cfg.body.y).setAngle(0);
@@ -1094,7 +1097,7 @@
       }
       this.clearFlightRagdoll();
 
-      const scale = 0.464;
+      const scale = 0.5568;
       const skin = 0xf2b34c;
       const suit = 0xf4a33c;
       const dark = 0x27313b;
@@ -1860,7 +1863,8 @@
       const cfg = this.carControlConfig;
       const root = cfg.root || CT.Config.gameplay.carArt.root;
       const wheelShadow = cfg.wheelShadow || CT.Config.gameplay.carArt.wheelShadow;
-      const rootScale = Math.max(0.01, Number(root.scale) || 1);
+      const carVisualScale = Number(CT.Config.gameplay.carVisualScale) || 1;
+      const rootScale = Math.max(0.01, Number(root.scale) || 1) * carVisualScale;
       const baseCarY = CT.Config.gameplay.roadY - 54;
       const alpha = Phaser.Math.Clamp(Number(wheelShadow.alpha), 0, 1) * Phaser.Math.Clamp(this.car.alpha, 0, 1);
       this.car.carGroundShadow
@@ -2058,7 +2062,6 @@
 
     playCrashImpact(payout) {
       this.cameras.main.shake(420, 0.018);
-      this.spawnSmoke(this.car.x + 96, this.car.y - 10, 20, 0xffcf30);
       this.tweens.killTweensOf(this.car);
       this.tweens.killTweensOf(this.dummy);
       this.setWheelPlayback(false);

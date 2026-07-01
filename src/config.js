@@ -3,8 +3,8 @@
   const assetRoot = new URL("./assets/", window.location.href).href;
 
   CT.Config = {
-    build: "2026-07-01-v0.1.84-smooth-ragdoll-settle",
-    gameVersion: "v0.1.84",
+    build: "2026-07-01-v0.1.89-no-impact-yellow-particles",
+    gameVersion: "v0.1.89",
     phaserVersion: "3.88.2",
     width: 720,
     height: 1280,
@@ -56,7 +56,8 @@
       barrierX: 590,
       hitWallX: 570,
       hitWallY: 902,
-      hitWallScale: 0.48,
+      hitWallVisualOffsetX: 70,
+      hitWallScale: 0.528,
       hitWallAlpha: 1,
       carArt: {
         root: { x: -28, y: 14, scale: 0.94 },
@@ -74,6 +75,7 @@
           purple: "#b15cff"
         }
       },
+      carVisualScale: 1.2,
       worldWidth: 24000,
       minBounces: 0,
       maxBounces: 10,
