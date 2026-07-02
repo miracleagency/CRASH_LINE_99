@@ -1487,12 +1487,12 @@ getFlightRagdollLegacyPose() {
     matterScale: 0.61248,
     textureScale: 0.484,
     parts: {
-      upperArmL: { x: 0, y: 6, rotation: 0, scale: 0.484, alpha: 0.86, layer: 10, anchors: { shoulder: { x: -0.75, y: -14.5 }, elbow: { x: 0.75, y: 17 } } },
-      lowerArmL: { x: -1, y: 38.24, rotation: 0, scale: 0.484, alpha: 0.86, layer: 9, anchors: { elbow: { x: 1, y: -13.5 }, wrist: { x: 0.5, y: 10.75 } } },
-      handL: { x: 1.71, y: 58.47, rotation: 0, scale: 0.484, alpha: 0.86, layer: 8, anchors: { wrist: { x: -0.75, y: -7 } } },
-      thighL: { x: -4.22, y: 72.9, rotation: 0, scale: 0.484, alpha: 0.88, layer: 13, anchors: { hip: { x: 0.75, y: -22 }, knee: { x: 0.75, y: 25.75 } } },
-      shinL: { x: -1.72, y: 120.48, rotation: -3.44, scale: 0.484, alpha: 0.88, layer: 12, anchors: { knee: { x: 0, y: -20.21 }, ankle: { x: 0, y: 20.21 } } },
-      footL: { x: 4.78, y: 145.98, rotation: -2.29, scale: 0.484, alpha: 0.88, layer: 11, anchors: { ankle: { x: -5.51, y: -4.29 } } },
+      upperArmL: { x: 0, y: 6, rotation: 0, scale: 0.484, alpha: 1, layer: 10, anchors: { shoulder: { x: -0.75, y: -14.5 }, elbow: { x: 0.75, y: 17 } } },
+      lowerArmL: { x: -1, y: 38.24, rotation: 0, scale: 0.484, alpha: 1, layer: 9, anchors: { elbow: { x: 1, y: -13.5 }, wrist: { x: 0.5, y: 10.75 } } },
+      handL: { x: 1.71, y: 58.47, rotation: 0, scale: 0.484, alpha: 1, layer: 8, anchors: { wrist: { x: -0.75, y: -7 } } },
+      thighL: { x: -4.22, y: 72.9, rotation: 0, scale: 0.484, alpha: 1, layer: 13, anchors: { hip: { x: 0.75, y: -22 }, knee: { x: 0.75, y: 25.75 } } },
+      shinL: { x: -1.72, y: 120.48, rotation: -3.44, scale: 0.484, alpha: 1, layer: 12, anchors: { knee: { x: 0, y: -20.21 }, ankle: { x: 0, y: 20.21 } } },
+      footL: { x: 4.78, y: 145.98, rotation: -2.29, scale: 0.484, alpha: 1, layer: 11, anchors: { ankle: { x: -5.51, y: -4.29 } } },
       torso: { x: 0, y: 0, rotation: 1.72, scale: 0.484, alpha: 1, layer: 36, anchors: { neck: { x: 2, y: -27 }, spine: { x: 0, y: 25.75 }, shoulderL: { x: 0.2, y: -11.99 }, shoulderR: { x: -0.2, y: -11.99 } } },
       pelvis: { x: -1, y: 43.5, rotation: 2.29, scale: 0.484, alpha: 1, layer: 31, anchors: { spine: { x: 0, y: -11.02 }, hipL: { x: -7.35, y: 8.57 }, hipR: { x: 8.57, y: 8.57 } } },
       head: { x: 3.5, y: -40, rotation: 0, scale: 0.484, alpha: 1, layer: 40, anchors: { neck: { x: -2, y: 7 } } },
@@ -2025,12 +2025,12 @@ createFlightRagdollLegacySkin(trackX, trackY, trackAngle) {
 
 getFlightRagdollTextureLayout() {
   return {
-    upperArmL: { x: 415, y: 219, scale: 1, rotation: 78, alpha: 0.86, layer: 10, anchors: { shoulder: { x: 0.04, y: -0.37 }, elbow: { x: 0, y: 0.38 } } },
-    lowerArmL: { x: 356, y: 226, scale: 1, rotation: 88, alpha: 0.86, layer: 9, anchors: { elbow: { x: 0, y: -0.34 }, wrist: { x: 0, y: 0.36 } } },
-    handL: { x: 315, y: 226, scale: 1, rotation: 92, alpha: 0.86, layer: 8, anchors: { wrist: { x: 0, y: -0.45 } } },
-    thighL: { x: 437, y: 369, scale: 1, rotation: 18, alpha: 0.88, layer: 13, anchors: { hip: { x: 0.1, y: -0.32 }, knee: { x: 0.1, y: 0.4 } } },
-    shinL: { x: 419, y: 457, scale: 1, rotation: 10, alpha: 0.88, layer: 12, anchors: { knee: { x: 0, y: -0.34 }, ankle: { x: 0.07, y: 0.41 } } },
-    footL: { x: 424, y: 512, scale: 1, rotation: 0, alpha: 0.88, layer: 11, anchors: { ankle: { x: -0.16, y: -0.53 } } },
+    upperArmL: { x: 415, y: 219, scale: 1, rotation: 78, alpha: 1, layer: 10, anchors: { shoulder: { x: 0.04, y: -0.37 }, elbow: { x: 0, y: 0.38 } } },
+    lowerArmL: { x: 356, y: 226, scale: 1, rotation: 88, alpha: 1, layer: 9, anchors: { elbow: { x: 0, y: -0.34 }, wrist: { x: 0, y: 0.36 } } },
+    handL: { x: 315, y: 226, scale: 1, rotation: 92, alpha: 1, layer: 8, anchors: { wrist: { x: 0, y: -0.45 } } },
+    thighL: { x: 437, y: 369, scale: 1, rotation: 18, alpha: 1, layer: 13, anchors: { hip: { x: 0.1, y: -0.32 }, knee: { x: 0.1, y: 0.4 } } },
+    shinL: { x: 419, y: 457, scale: 1, rotation: 10, alpha: 1, layer: 12, anchors: { knee: { x: 0, y: -0.34 }, ankle: { x: 0.07, y: 0.41 } } },
+    footL: { x: 424, y: 512, scale: 1, rotation: 0, alpha: 1, layer: 11, anchors: { ankle: { x: -0.16, y: -0.53 } } },
     torso: { x: 451, y: 233, scale: 1, rotation: 0, alpha: 1, layer: 36, anchors: { neck: { x: 0.08, y: -0.39 }, spine: { x: -0.01, y: 0.4 }, shoulderL: { x: -0.03, y: -0.14 }, shoulderR: { x: 0.01, y: -0.14 } } },
     pelvis: { x: 451, y: 315, scale: 1, rotation: 0, alpha: 1, layer: 31, anchors: { spine: { x: 0, y: -0.34 }, hipL: { x: 0.05, y: 0.19 }, hipR: { x: 0.08, y: 0.18 } } },
     head: { x: 459, y: 158, scale: 1, rotation: 0, alpha: 1, layer: 40, anchors: { neck: { x: -0.05, y: 0.35 } } },
@@ -2173,7 +2173,7 @@ createFlightRagdollImageForBody(rig, body, layoutPart) {
   const image = this.add.image(body.position.x, body.position.y, info.textureKey)
     .setOrigin(0.5)
     .setDepth(11 + (Number(info.layer) || 0) * 0.001)
-    .setAlpha(layoutPart && layoutPart.alpha !== undefined ? layoutPart.alpha : 1)
+    .setAlpha(1)
     .setScale(info.textureScale || 1);
   body.ragdollImage = image;
   rig.sprites.push(image);
@@ -2313,7 +2313,14 @@ setFlightRagdollPoseStabilizers(rig, parts) {
   rig.poseParts = parts;
 }
 
+isRightArmProtectedJointName(name) {
+  return /^(shoulder|shoulderBrace|elbow|elbowBrace|wrist|wristBrace)R$/.test(String(name || ""));
+}
+
 ragdollJointProfile(name) {
+  if (this.isRightArmProtectedJointName(name)) {
+    return { toughness: 12, weakness: 0, locked: true, protectedRightArm: true };
+  }
   if (name.indexOf("wrist") !== -1 || name.indexOf("ankle") !== -1) {
     return { toughness: 0.28, weakness: 7.4 };
   }
@@ -3301,11 +3308,131 @@ alignFlightRagdollFinalHop(delta, power) {
   });
 }
 
+setFlightRagdollThumbUpHand(rig) {
+  if (!rig || rig.thumbUpHandActive) return;
+  const parts = rig.poseParts || this.getFlightRagdollPartMap(rig);
+  const hand = parts && parts.handR;
+  if (!hand || !hand.ragdollImage || !this.textures.exists("dummyPart_handRThumbUp")) return;
+  hand.ragdollImage.setTexture("dummyPart_handRThumbUp");
+  hand.renderInfo = hand.renderInfo || {};
+  if (hand.renderInfo.thumbUpBaseTextureRotationOffset === undefined) {
+    hand.renderInfo.thumbUpBaseTextureRotationOffset = Number(hand.renderInfo.textureRotationOffset) || 0;
+  }
+  hand.renderInfo.textureKey = "dummyPart_handRThumbUp";
+  hand.renderInfo.textureRotationOffset = hand.renderInfo.thumbUpBaseTextureRotationOffset + Phaser.Math.DegToRad(45);
+  rig.thumbUpHandActive = true;
+}
+
+isRightArmRagdollBody(body) {
+  return !!(body && /^(upperArmR|lowerArmR|handR)$/.test(String(body.ragdollPart || "")));
+}
+
+poseFlightRagdollThumbUp(rig, amount) {
+  if (!rig || !rig.torso || !this.Matter) return;
+  const parts = rig.poseParts || this.getFlightRagdollPartMap(rig);
+  const torso = parts && parts.torso;
+  const upper = parts && parts.upperArmR;
+  const lower = parts && parts.lowerArmR;
+  const hand = parts && parts.handR;
+  if (!torso || !upper || !lower || !hand) return;
+  const connected = this.getFlightRagdollConnectedParts(torso);
+  if (!connected.has(upper) || !connected.has(lower) || !connected.has(hand)) return;
+
+  const t = Phaser.Math.Clamp(Number(amount) || 0, 0, 1);
+  if (t <= 0) return;
+  const ease = Phaser.Math.Easing.Sine.InOut(t);
+  if (t > 0.28) this.setFlightRagdollThumbUpHand(rig);
+
+  const shoulder = this.ragdollWorldPoint(torso, (torso.ragdollAnchorPoints || {}).shoulderR || { x: 0, y: 0 });
+  const blendAngle = (current, target) => {
+    return current + this.wrapRagdollAngle(target - current) * Phaser.Math.Clamp(0.18 + ease * 0.82, 0, 1);
+  };
+  const placeAtAnchor = (body, anchorName, worldPoint, targetAngle) => {
+    const anchor = (body.ragdollAnchorPoints || {})[anchorName] || { x: 0, y: 0 };
+    const angle = blendAngle(body.angle || 0, targetAngle);
+    const rotated = this.rotateRagdollPoint(anchor, angle);
+    const targetX = worldPoint.x - rotated.x;
+    const targetY = worldPoint.y - rotated.y;
+    const posBlend = Phaser.Math.Clamp(0.14 + ease * 0.86, 0, 1);
+    this.Matter.Body.setPosition(body, {
+      x: Phaser.Math.Linear(body.position.x, targetX, posBlend),
+      y: Phaser.Math.Linear(body.position.y, targetY, posBlend)
+    });
+    this.Matter.Body.setAngle(body, angle);
+    this.Matter.Body.setVelocity(body, {
+      x: (body.velocity.x || 0) * 0.18,
+      y: (body.velocity.y || 0) * 0.18
+    });
+    this.Matter.Body.setAngularVelocity(body, (body.angularVelocity || 0) * 0.12);
+    return this.ragdollWorldPoint(body, anchorName === "shoulder" ? ((body.ragdollAnchorPoints || {}).elbow || anchor) : ((body.ragdollAnchorPoints || {}).wrist || anchor));
+  };
+
+  const upperTarget = -Math.PI + Phaser.Math.DegToRad(8);
+  const lowerTarget = -Math.PI + Phaser.Math.DegToRad(2);
+  const handTarget = -Math.PI - Phaser.Math.DegToRad(4);
+  const elbow = placeAtAnchor(upper, "shoulder", shoulder, upperTarget);
+  const wrist = placeAtAnchor(lower, "elbow", elbow || shoulder, lowerTarget);
+  placeAtAnchor(hand, "wrist", wrist || shoulder, handTarget);
+}
+
+freezeFlightRagdollRightArm(rig) {
+  if (!rig || !this.Matter) return;
+  const parts = rig.poseParts || this.getFlightRagdollPartMap(rig);
+  ["upperArmR", "lowerArmR", "handR"].forEach((name) => {
+    const body = parts && parts[name];
+    if (!body) return;
+    this.Matter.Sleeping.set(body, false);
+    this.Matter.Body.setVelocity(body, { x: 0, y: 0 });
+    this.Matter.Body.setAngularVelocity(body, 0);
+    body.collisionFilter.mask = 0;
+    this.Matter.Body.setStatic(body, true);
+    this.Matter.Sleeping.set(body, true);
+  });
+  rig.thumbUpArmFrozen = true;
+}
+
+scheduleFlightRagdollThumbUpAfterLock(rig) {
+  if (!rig || rig.thumbUpScheduled) return;
+  rig.thumbUpScheduled = true;
+  const parts = rig.poseParts || this.getFlightRagdollPartMap(rig);
+  ["upperArmR", "lowerArmR", "handR"].forEach((name) => {
+    const body = parts && parts[name];
+    if (!body) return;
+    this.Matter.Sleeping.set(body, false);
+    this.Matter.Body.setStatic(body, false);
+    this.Matter.Body.setVelocity(body, { x: 0, y: 0 });
+    this.Matter.Body.setAngularVelocity(body, 0);
+    body.collisionFilter.mask = 0;
+  });
+  rig.thumbUpEvent = this.time.delayedCall(70, () => {
+    if (this.flightRagdoll !== rig || rig.thumbUpArmFrozen) return;
+    const state = { t: 0 };
+    rig.thumbUpTween = this.tweens.add({
+      targets: state,
+      t: 1,
+      duration: 340,
+      ease: "Sine.out",
+      onUpdate: () => {
+        if (this.flightRagdoll !== rig) return;
+        this.poseFlightRagdollThumbUp(rig, state.t);
+        this.renderFlightRagdoll();
+      },
+      onComplete: () => {
+        if (this.flightRagdoll !== rig) return;
+        this.poseFlightRagdollThumbUp(rig, 1);
+        this.freezeFlightRagdollRightArm(rig);
+        this.renderFlightRagdoll();
+      }
+    });
+  });
+}
+
 relaxFlightRagdollFinalLandingJoints(rig) {
   if (!rig || !rig.joints) return;
   rig.joints.forEach((joint) => {
     if (!joint || !joint.ragdollJoint) return;
     const name = String(joint.ragdollJoint.name || "");
+    if (this.isRightArmProtectedJointName(name)) return;
     const isCore = /spine|neck/i.test(name);
     const isHip = /hip/i.test(name);
     if (isCore || isHip) return;
@@ -3318,15 +3445,21 @@ lockFlightRagdollOnGround(rig, options) {
   if (!rig || rig.settleLocked) return;
   const opts = options || {};
   if (!opts.relaxed) this.keepFlightRagdollLegHinges(16.6667, { forceGround: true, passes: 4 });
+  const deferRightArm = !!opts.relaxed;
   rig.settleLocked = true;
   rig.parts.forEach((body) => {
     this.Matter.Sleeping.set(body, false);
     this.Matter.Body.setVelocity(body, { x: 0, y: 0 });
     this.Matter.Body.setAngularVelocity(body, 0);
     body.collisionFilter.mask = 0;
+    if (deferRightArm && this.isRightArmRagdollBody(body)) {
+      this.Matter.Body.setStatic(body, false);
+      return;
+    }
     this.Matter.Body.setStatic(body, true);
     this.Matter.Sleeping.set(body, true);
   });
+  if (deferRightArm) this.scheduleFlightRagdollThumbUpAfterLock(rig);
 }
 
 settleFlightRagdollFreeFall(delta) {
@@ -4285,6 +4418,14 @@ clearFlightRagdoll() {
     rig.visualReleaseEvent.remove(false);
     rig.visualReleaseEvent = null;
   }
+  if (rig.thumbUpEvent) {
+    rig.thumbUpEvent.remove(false);
+    rig.thumbUpEvent = null;
+  }
+  if (rig.thumbUpTween) {
+    rig.thumbUpTween.remove();
+    rig.thumbUpTween = null;
+  }
   if (rig.graphics) {
     rig.graphics.clear();
     rig.graphics.destroy();
@@ -4594,7 +4735,7 @@ cashOutCrash() {
   const carStartX = this.car.x;
   this.tweens.killTweensOf(this.car);
   this.tweens.killTweensOf(this.barrier);
-  this.cameras.main.shake(360, 0.004);
+  this.cameras.main.shake(360, 0.0032);
 
   const roadMotion = { t: 0 };
   let lastRoadT = 0;
@@ -4634,7 +4775,7 @@ cashOutCrash() {
 }
 
 playCrashImpact(payout) {
-  this.cameras.main.shake(420, 0.018);
+  this.cameras.main.shake(460, 0.0135);
   this.tweens.killTweensOf(this.car);
   this.tweens.killTweensOf(this.dummy);
   this.setWheelPlayback(false);
@@ -5247,8 +5388,7 @@ returnCameraToStart(spawnNewCar) {
   this.setPageControlsDimmed(false);
   this.hud.setTurbo(false);
   if (spawnNewCar) {
-    const carVisibleInView = this.car.x > this.cameras.main.scrollX - 220 && this.car.x < this.cameras.main.scrollX + CT.Config.width + 220;
-    this.car.setAlpha(carVisibleInView ? 0.82 : 0);
+    this.car.setAlpha(1);
     if (this.car.turboFire) this.car.turboFire.setAlpha(0);
     this.updateCarGroundShadow();
     const cfg = CT.Config;

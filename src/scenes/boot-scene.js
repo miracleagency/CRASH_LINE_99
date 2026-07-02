@@ -54,6 +54,10 @@
         key: "dummyPart_" + key,
         url: CT.asset("images/DUMMY_PARTS/" + dummyPartFiles[key])
       }));
+      dummyPartUrls.push({
+        key: "dummyPart_handRThumbUp",
+        url: CT.asset("images/DUMMY_PARTS/dummy_hand_r_thumb_up.png")
+      });
       const roadBgOverlayUrls = [
         CT.asset("images/ROAD_bg_overlays/ROAD_bg_overlay_1.png"),
         CT.asset("images/ROAD_bg_overlays/ROAD_bg_overlay_2.png"),
