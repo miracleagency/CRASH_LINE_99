@@ -70,34 +70,6 @@
         carEngineLoop: CT.asset("audio/car_engin_loop.mp3")
       };
 
-      console.log("ASSET ROOT:", CT.Config.assets.root);
-      console.log("IMAGE ROOT:", CT.Config.assets.images);
-      console.log("LOAD bounceIcon:", iconUrl);
-      console.log("LOAD bounceIconExtra:", extraUrl);
-      console.log("LOAD doubleBounceCoin:", doubleBounceUrl);
-      console.log("LOAD hitWall:", hitWallUrl);
-      console.log("LOAD roadLoops:", roadLoopUrls);
-      console.log("LOAD roadFence:", roadFenceUrl);
-      console.log("LOAD fencePole:", fencePoleUrl);
-      console.log("LOAD fenceLight:", fenceLightUrl);
-      console.log("LOAD carBody:", carBodyUrl);
-      console.log("LOAD carCrashBody:", carCrashBodyUrls);
-      console.log("LOAD carLightSweep:", carLightSweepUrls);
-      console.log("LOAD wheelShadow:", wheelShadowUrl);
-      console.log("LOAD carGroundShadow:", carGroundShadowUrl);
-      console.log("LOAD wheels:", wheelUrls);
-      console.log("LOAD turboFire:", turboFireUrls);
-      console.log("LOAD dummyParts:", dummyPartUrls);
-      console.log("LOAD roadBgOverlays:", roadBgOverlayUrls);
-
-      this.load.on("filecomplete-image-bounceIcon", () => {
-        console.log("LOADED bounceIcon", this.textures.exists("bounceIcon"));
-      });
-
-      this.load.on("filecomplete-image-bounceIconExtra", () => {
-        console.log("LOADED bounceIconExtra", this.textures.exists("bounceIconExtra"));
-      });
-
       this.load.on("loaderror", (file) => {
         console.warn("FAILED ASSET:", file.key, file.src);
       });
@@ -139,35 +111,6 @@
     }
 
     create() {
-      console.log("BOOT DONE:", {
-        bounceIcon: this.textures.exists("bounceIcon"),
-        bounceIconExtra: this.textures.exists("bounceIconExtra"),
-        doubleBounceCoin: this.textures.exists("doubleBounceCoin"),
-        hitWall: this.textures.exists("hitWall"),
-        roadLoop1: this.textures.exists("roadLoop1"),
-        roadLoop2: this.textures.exists("roadLoop2"),
-        roadLoop3: this.textures.exists("roadLoop3"),
-        roadFence: this.textures.exists("roadFence"),
-        fencePole: this.textures.exists("fencePole"),
-        fenceLight: this.textures.exists("fenceLight"),
-        carBody: this.textures.exists("carBody"),
-        carCrashBody1: this.textures.exists("carCrashBody1"),
-        carCrashBody9: this.textures.exists("carCrashBody9"),
-        carLightSweep1: this.textures.exists("carLightSweep1"),
-        carLightSweep5: this.textures.exists("carLightSweep5"),
-        wheelShadow: this.textures.exists("wheelShadow"),
-        carGroundShadow: this.textures.exists("carGroundShadow"),
-        wheel1: this.textures.exists("wheel1"),
-        turboFire1: this.textures.exists("turboFire1"),
-        dummyPartHead: this.textures.exists("dummyPart_head"),
-        dummyPartTorso: this.textures.exists("dummyPart_torso"),
-        dummyPartFootR: this.textures.exists("dummyPart_footR"),
-        roadBgOverlay1: this.textures.exists("roadBgOverlay1"),
-        roadBgOverlay2: this.textures.exists("roadBgOverlay2"),
-        roadBgOverlay3: this.textures.exists("roadBgOverlay3"),
-        roadBgOverlay4: this.textures.exists("roadBgOverlay4"),
-        roadBgOverlay5: this.textures.exists("roadBgOverlay5")
-      });
       if (!this.anims.exists("wheelSpin")) {
         this.anims.create({
           key: "wheelSpin",

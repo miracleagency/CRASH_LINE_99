@@ -8,10 +8,7 @@
 
   const fullscreenBtn = document.getElementById("fullscreenBtn");
   const soundBtn = document.getElementById("soundBtn");
-  const controlBtn = document.getElementById("controlBtn");
-  const controlPanel = document.getElementById("control-ui");
   let soundMuted = localStorage.getItem(cfg.storage.muted) === "1";
-  let controlPanelOpen = false;
 
   function hideBootLoader() {
     const loader = document.getElementById("bootLoader");
@@ -45,16 +42,6 @@
   function updateFullscreenButton() {
     if (!fullscreenBtn) return;
     fullscreenBtn.classList.toggle("is-hidden", isFullscreen());
-  }
-
-  function updateControlPanelButton() {
-    if (controlPanel) {
-      controlPanel.classList.toggle("is-hidden", !controlPanelOpen);
-    }
-    if (controlBtn) {
-      controlBtn.classList.toggle("is-active", controlPanelOpen);
-      controlBtn.setAttribute("aria-label", controlPanelOpen ? "Hide tuning panel" : "Show tuning panel");
-    }
   }
 
   function applySoundMute() {
@@ -114,14 +101,6 @@
       applySoundMute();
     }
 
-    if (controlBtn && controlPanel) {
-      controlPanelOpen = false;
-      updateControlPanelButton();
-      controlBtn.addEventListener("click", () => {
-        controlPanelOpen = !controlPanelOpen;
-        updateControlPanelButton();
-      });
-    }
   }
 
   function boot() {

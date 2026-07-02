@@ -3,8 +3,8 @@
   const assetRoot = new URL("./assets/", window.location.href).href;
 
   CT.Config = {
-    build: "2026-07-02-v0.1.138-ragdoll-leg-spread-fix",
-    gameVersion: "v0.1.138",
+    build: "2026-07-02-v0.1.140-final-landing-hop",
+    gameVersion: "v0.1.140",
     phaserVersion: "3.88.2",
     width: 720,
     height: 1280,

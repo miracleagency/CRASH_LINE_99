@@ -1,23 +1,8 @@
 (function () {const CT = window.CrashTest = window.CrashTest || {};
 
-class GameScene extends Phaser.Scene {constructor() {super("GameScene");this.wallet = null;this.hud = null;this.state = "ready";this.round = 0;this.multiplier = 0;this.speed = 0;this.turbo = false;this.turboPower = 0;this.engineBreakAt = 0;this.roadOffset = 0;this.fenceOffset = 0;this.visualSpeed = 0;this.flightRoadSpeed = 0;this.pendingPayout = 0;this.autoCrash = false;this.safeMode = false;this.bonusAdd = 0;this.bonusItems = [];this.bonusPauseToken = 0;this.lastMultiplierDisplay = -1;this.lastMultiplierPulseAt = 0;this.rareBounceCount = 0;this.nextRareBounceAt = 0;this.remainingBounces = null;this.extraBounceAdder = null;this.extraBounceBonusCount = 0;this.sfx = {};this.engineAudioToken = 0;this.engineLoopTimer = null;this.engineLoopIndex = 0;this.roadTiles = [];this.fenceTiles = [];this.loopObjectLayers = [];this.crashDebrisActive = false;this.fencePoleItems = [];this.fencePoleLayer = null;this.fenceOverlayItems = [];this.fenceOverlayLayer = null;this.fenceOverlayKeys = [];this.roadArtY = 0;this.roadArtScale = 1;this.fenceArtY = 0;this.fenceArtScale = 1;this.fencePoleX = 0;this.fencePoleY = 0;this.fencePoleSpacing = 247;this.fencePoleScale = 0.5;this.fenceLightOffsetY = -29;this.fenceLightScale = 0.4;this.fenceLightIntensity = 0.79;this.fenceLightDelay = 0.085;this.fenceOverlayX = 0;this.fenceOverlayY = 760;this.fenceOverlayHeight = 64;this.fenceOverlaySpacing = 420;this.fenceOverlayJitterX = 110;this.fenceOverlayCount = 24;this.fenceOverlayChance = 0.36;this.fenceOverlayScaleMin = 0.42;this.fenceOverlayScaleMax = 0.62;this.fenceOverlayAlpha = 0.96;this.hitWallX = 570;this.hitWallY = 888;this.hitWallVisualOffsetX = 0;this.hitWallScale = 0.34;this.hitWallAlpha = 1;this.hitWallImage = null;this.hitWallPreview = false;this.carControlConfig = null;this.carControlRoot = null;this.carControlJson = null;this.nextCarLightSweepAt = 0;this.Matter = null;this.ragdollMatterReady = false;this.ragdollGround = null;this.ragdollCollisionLayers = null;this.flightRagdoll = null;}
+class GameScene extends Phaser.Scene {constructor() {super("GameScene");this.wallet = null;this.hud = null;this.state = "ready";this.round = 0;this.multiplier = 0;this.speed = 0;this.turbo = false;this.turboPower = 0;this.engineBreakAt = 0;this.roadOffset = 0;this.fenceOffset = 0;this.visualSpeed = 0;this.flightRoadSpeed = 0;this.pendingPayout = 0;this.autoCrash = false;this.safeMode = false;this.bonusAdd = 0;this.bonusItems = [];this.bonusPauseToken = 0;this.lastMultiplierDisplay = -1;this.lastMultiplierPulseAt = 0;this.rareBounceCount = 0;this.nextRareBounceAt = 0;this.remainingBounces = null;this.extraBounceAdder = null;this.extraBounceBonusCount = 0;this.sfx = {};this.engineAudioToken = 0;this.engineLoopTimer = null;this.engineLoopIndex = 0;this.roadTiles = [];this.fenceTiles = [];this.loopObjectLayers = [];this.crashDebrisActive = false;this.fencePoleItems = [];this.fencePoleLayer = null;this.fenceOverlayItems = [];this.fenceOverlayLayer = null;this.fenceOverlayKeys = [];this.roadArtY = 0;this.roadArtScale = 1;this.fenceArtY = 0;this.fenceArtScale = 1;this.fencePoleX = 0;this.fencePoleY = 0;this.fencePoleSpacing = 247;this.fencePoleScale = 0.5;this.fenceLightOffsetY = -29;this.fenceLightScale = 0.4;this.fenceLightIntensity = 0.79;this.fenceLightDelay = 0.085;this.fenceOverlayX = 0;this.fenceOverlayY = 760;this.fenceOverlayHeight = 64;this.fenceOverlaySpacing = 420;this.fenceOverlayJitterX = 110;this.fenceOverlayCount = 24;this.fenceOverlayChance = 0.36;this.fenceOverlayScaleMin = 0.42;this.fenceOverlayScaleMax = 0.62;this.fenceOverlayAlpha = 0.96;this.hitWallX = 570;this.hitWallY = 888;this.hitWallVisualOffsetX = 0;this.hitWallScale = 0.34;this.hitWallAlpha = 1;this.hitWallImage = null;this.hitWallPreview = false;this.carControlConfig = null;this.carControlRoot = null;this.carControlJson = null;this.turboFireTintStops = null;this.nextCarLightSweepAt = 0;this.nextFenceLightUpdateAt = 0;this.Matter = null;this.ragdollMatterReady = false;this.ragdollGround = null;this.ragdollCollisionLayers = null;this.flightRagdoll = null;}
 
 create() {
-  console.log("GAME TEXTURES:", {
-    bounceIcon: this.textures.exists("bounceIcon"),
-    bounceIconExtra: this.textures.exists("bounceIconExtra"),
-    hitWall: this.textures.exists("hitWall"),
-    fencePole: this.textures.exists("fencePole"),
-    fenceLight: this.textures.exists("fenceLight"),
-    roadBgOverlay1: this.textures.exists("roadBgOverlay1"),
-    carBody: this.textures.exists("carBody"),
-    wheel1: this.textures.exists("wheel1"),
-    wheelShadow: this.textures.exists("wheelShadow"),
-    carGroundShadow: this.textures.exists("carGroundShadow"),
-    turboFire1: this.textures.exists("turboFire1"),
-    carCrashBody1: this.textures.exists("carCrashBody1"),
-    carLightSweep1: this.textures.exists("carLightSweep1")
-  });
   this.wallet = new CT.Wallet();
   this.cameras.main.setBounds(-1800, 0, CT.Config.gameplay.worldWidth + 1800, CT.Config.height);
   this.cameras.main.setScroll(0, 0);
@@ -199,7 +184,6 @@ createPlayfield() {
   }).setOrigin(0.5);
   this.multiplierPanel.add([this.multiplierGlow, this.multiplierPanelBg, this.multiplierPanelInner, this.multiplierPanelLabel, this.multiplierText]);
   this.createBounceBadge();
-  this.createCarControlUI();
   this.applyMultiplierTheme("idle");
 }
 
@@ -300,6 +284,8 @@ createFencePoleLoop() {
 
 layoutFenceOverlayItem(item) {
   const activeCount = Math.round(Phaser.Math.Clamp(this.fenceOverlayCount, 0, 48));
+  item.loopXJitter = 0;
+  item.loopYOffset = 0;
   if (item.loopIndex >= activeCount) {
     item.setVisible(false);
     return;
@@ -326,8 +312,8 @@ layoutFenceOverlayItem(item) {
   const scale = Phaser.Math.Linear(scaleLow, scaleHigh, this.seededUnit(logicalIndex, 53));
 
   item.setVisible(true);
-  item.x += xJitter;
-  item.y = this.fenceOverlayY + yOffset;
+  item.loopXJitter = xJitter;
+  item.loopYOffset = yOffset;
   item.image.setScale(scale);
   item.image.setAlpha(this.fenceOverlayAlpha);
 }
@@ -348,7 +334,8 @@ createLoopObjectLayer(options) {
     getLayout: options.getLayout,
     createItem: options.createItem,
     onLayout: options.onLayout,
-    active: true
+    active: true,
+    layoutDirty: true
   };
 
   for (let i = 0; i < layer.count; i++) {
@@ -369,15 +356,23 @@ layoutLoopObjectLayer(layer) {
   if (!layer || !layer.items.length) return;
   const layout = layer.getLayout ? layer.getLayout() : {};
   const spacing = Math.max(24, Number(layout.spacing) || 24);
+  const baseX = Number(layout.x) || 0;
+  const baseY = Number.isFinite(Number(layout.y)) ? Number(layout.y) : 0;
   layer.offset = Phaser.Math.Wrap(layer.travel, 0, spacing);
   const baseIndex = Math.floor(layer.travel / spacing);
 
   layer.items.forEach((item, i) => {
-    item.x = (Number(layout.x) || 0) + i * spacing - spacing - layer.offset;
-    item.y = Number.isFinite(Number(layout.y)) ? Number(layout.y) : 0;
-    item.logicalIndex = baseIndex + i - 1;
-    if (layer.onLayout) layer.onLayout(item, i, layer, layout);
+    const nextLogicalIndex = baseIndex + i - 1;
+    const changed = layer.layoutDirty || item.logicalIndex !== nextLogicalIndex || item.layoutDirty;
+    item.logicalIndex = nextLogicalIndex;
+    if (changed && layer.onLayout) {
+      layer.onLayout(item, i, layer, layout);
+      item.layoutDirty = false;
+    }
+    item.x = baseX + i * spacing - spacing - layer.offset + (Number(item.loopXJitter) || 0);
+    item.y = baseY + (Number(item.loopYOffset) || 0);
   });
+  layer.layoutDirty = false;
 }
 
 updateLoopObjectLayersLayout() {
@@ -459,7 +454,10 @@ updateRoadTilesLayout() {
   const patternWidth = tileWidth * 3;
   this.roadOffset = Phaser.Math.Wrap(this.roadOffset, 0, patternWidth);
   this.roadTiles.forEach((tile, i) => {
-    tile.setScale(this.roadArtScale);
+    if (tile._appliedRoadScale !== this.roadArtScale) {
+      tile.setScale(this.roadArtScale);
+      tile._appliedRoadScale = this.roadArtScale;
+    }
     tile.y = this.roadArtY;
     tile.x = i * tileWidth - tileWidth - this.roadOffset;
   });
@@ -467,7 +465,10 @@ updateRoadTilesLayout() {
     const fenceWidth = this.getFenceTileWidth();
     this.fenceOffset = Phaser.Math.Wrap(this.fenceOffset, 0, fenceWidth);
     this.fenceTiles.forEach((tile, i) => {
-      tile.setScale(this.fenceArtScale);
+      if (tile._appliedFenceScale !== this.fenceArtScale) {
+        tile.setScale(this.fenceArtScale);
+        tile._appliedFenceScale = this.fenceArtScale;
+      }
       tile.y = this.fenceArtY;
       tile.x = i * fenceWidth - fenceWidth - this.fenceOffset;
     });
@@ -494,14 +495,7 @@ updateFenceLights(time) {
 }
 
 createCarControlConfig() {
-  const defaults = JSON.parse(JSON.stringify(CT.Config.gameplay.carArt || {}));
-  let saved = null;
-  try {
-    saved = JSON.parse(localStorage.getItem("crashTestCarArtV4") || "null");
-  } catch (e) {
-    saved = null;
-  }
-  this.carControlConfig = this.mergeCarControlConfig(defaults, saved);
+  this.carControlConfig = JSON.parse(JSON.stringify(CT.Config.gameplay.carArt || {}));
 }
 
 mergeCarControlConfig(defaults, saved) {
@@ -555,6 +549,7 @@ applyCarControlConfig(save) {
   ["orange", "yellow", "green", "blue", "purple"].forEach((key) => {
     cfg.turboFireTint[key] = this.normalizeHexColor(cfg.turboFireTint[key], CT.Config.gameplay.carArt.turboFireTint[key]);
   });
+  this.turboFireTintStops = ["orange", "yellow", "green", "blue", "purple"].map((key) => this.hexToRgb(cfg.turboFireTint[key]));
 
   if (this.car) {
     const carVisualScale = Number(CT.Config.gameplay.carVisualScale) || 1;
@@ -581,10 +576,7 @@ applyCarControlConfig(save) {
     this.updateCarFlame();
   }
 
-  if (save) {
-    localStorage.setItem("crashTestCarArtV4", JSON.stringify(cfg));
-  }
-  this.updateCarControlJson();
+  void save;
 }
 
 createCarControlUI() {
@@ -965,7 +957,9 @@ applyMultiplierTheme(theme) {
 showBounceBadge(count) {
   if (!this.bounceBadge) return;
   const n = Math.max(0, Math.floor(Number(count || 0)));
-  this.bounceBadgeText.setText(String(n));
+  if (this.bounceBadge.lastCount !== n || this.bounceBadgeText.text !== String(n)) {
+    this.bounceBadgeText.setText(String(n));
+  }
   if (n <= 0) {
     if (!this.bounceBadge.visible) return;
     this.tweens.killTweensOf(this.bounceBadge);
@@ -3185,12 +3179,23 @@ settleFlightRagdoll(delta) {
   const finalPop = !!rig.finalLandingPopActive;
   const settleT = Phaser.Math.Clamp(elapsed / lockDelay, 0, 1);
   const settleEase = Phaser.Math.Easing.Sine.Out(settleT);
-  const popT = finalPop ? Phaser.Math.Clamp(1 - elapsed / 340, 0, 1) : 0;
   const allNearFloor = rig.parts.every((body) => this.getFlightRagdollBottomY(body) >= floorY - 38);
 
-  // Final landing rule:
-  // clear micro-hop to the right, relaxed limbs, then hard stop. No left crawl / no vibration.
-  if (finalPop && ((elapsed > 420 && allNearFloor) || elapsed > 600)) {
+  if (finalPop) {
+    const alignT = Phaser.Math.Clamp(elapsed / 360, 0, 1);
+    const alignPower = 1 - Phaser.Math.Easing.Sine.In(alignT);
+    if (alignPower > 0.02) {
+      this.alignFlightRagdollFinalHop(delta, alignPower);
+    }
+    if (elapsed > 360 && !rig.finalLandingJointsRelaxed) {
+      this.relaxFlightRagdollFinalLandingJoints(rig);
+      rig.finalLandingJointsRelaxed = true;
+      rig.finalLandingRelaxed = true;
+    }
+  }
+
+  // Final landing rule: small align-hop, relaxed drop, then hard stop. No snap into pose on lock.
+  if (finalPop && ((elapsed > 680 && allNearFloor) || elapsed > 900)) {
     rig.parts.forEach((body) => {
       const bottomY = this.getFlightRagdollBottomY(body);
       const overlap = bottomY - floorY;
@@ -3198,7 +3203,7 @@ settleFlightRagdoll(delta) {
       this.Matter.Body.setVelocity(body, { x: 0, y: 0 });
       this.Matter.Body.setAngularVelocity(body, 0);
     });
-    this.lockFlightRagdollOnGround(rig);
+    this.lockFlightRagdollOnGround(rig, { relaxed: true });
     return;
   }
 
@@ -3218,29 +3223,26 @@ settleFlightRagdoll(delta) {
     let av = body.angularVelocity || 0;
 
     if (finalPop) {
-      // First ~300ms = visible tiny hop to the right. Then brake and lock.
-      if (elapsed < 300) {
-        const minRight = Phaser.Math.Linear(0.72, 0.12, 1 - popT);
-        vx = Math.max(vx, minRight);
-        vx *= Math.pow(Phaser.Math.Linear(0.84, 0.50, 1 - popT), dt);
-        vy = nearGround ? vy * Math.pow(0.62, dt) + 0.04 * dt : Phaser.Math.Clamp(vy + 0.44 * dt, -5.2, 10);
-
-        if (isArm && nearGround) {
-          // Once an arm touches the floor, kill the sticking-up vibration quickly.
-          av *= Math.pow(0.30, dt);
-        } else {
-          av *= Math.pow(0.62, dt);
-        }
+      if (elapsed < 360) {
+        const hopT = Phaser.Math.Clamp(elapsed / 360, 0, 1);
+        const hopEase = Phaser.Math.Easing.Sine.InOut(hopT);
+        vx = Math.max(0, vx) * Math.pow(Phaser.Math.Linear(0.92, 0.62, hopEase), dt);
+        vy = Phaser.Math.Clamp(vy + Phaser.Math.Linear(0.18, 0.72, hopEase) * dt, -3.6, 8);
+        av *= Math.pow(Phaser.Math.Linear(0.54, 0.72, hopEase), dt);
       } else {
-        vx = Math.abs(vx) < 0.52 ? 0 : vx * Math.pow(0.10, dt);
-        vy = nearGround ? 0 : Phaser.Math.Clamp(vy + 1.30 * dt, -2.0, 14);
-        av = Math.abs(av) < 0.12 ? 0 : av * Math.pow(isArm ? 0.08 : 0.13, dt);
-      }
+        const relaxT = Phaser.Math.Clamp((elapsed - 360) / 320, 0, 1);
+        const relaxEase = Phaser.Math.Easing.Sine.Out(relaxT);
+        vx = Math.abs(vx) < 0.18 ? 0 : vx * Math.pow(Phaser.Math.Linear(0.58, 0.18, relaxEase), dt);
 
-      if (elapsed > 360 && nearGround) {
-        vx = 0;
-        vy = 0;
-        av = 0;
+        if (nearGround) {
+          const overlap = bottomY - floorY;
+          if (overlap > 2) this.Matter.Body.translate(body, { x: 0, y: -Math.min(5, overlap * 0.40) });
+          vy = Math.abs(vy) < 0.18 ? 0 : vy * Math.pow(Phaser.Math.Linear(0.42, 0.12, relaxEase), dt);
+          av = Math.abs(av) < 0.05 ? 0 : av * Math.pow(isArm ? 0.24 : 0.32, dt);
+        } else {
+          vy = Phaser.Math.Clamp(vy + Phaser.Math.Linear(0.82, 1.45, relaxEase) * dt, -1.8, 12);
+          av *= Math.pow(Phaser.Math.Linear(0.82, 0.55, relaxEase), dt);
+        }
       }
 
       this.Matter.Body.setVelocity(body, { x: Math.max(0, vx), y: vy });
@@ -3274,9 +3276,48 @@ settleFlightRagdoll(delta) {
   });
 }
 
-lockFlightRagdollOnGround(rig) {
+alignFlightRagdollFinalHop(delta, power) {
+  const rig = this.flightRagdoll;
+  if (!rig || !rig.parts || !rig.torso || rig.settleLocked) return;
+  const connected = this.getFlightRagdollConnectedParts(rig.torso);
+  const dt = Phaser.Math.Clamp((delta || 16.6667) / 16.6667, 0.4, 1.8);
+  const p = Phaser.Math.Clamp(Number(power) || 0, 0, 1);
+
+  rig.parts.forEach((body) => {
+    const pose = body.poseInfo;
+    if (!pose || !pose.anchor || !connected.has(body) || !connected.has(pose.anchor) || body.detachedRagdoll) return;
+    const name = body.ragdollPart || "";
+    const isCore = /torso|pelvis|head/i.test(name);
+    const targetAngle = pose.anchor.angle + pose.angleOffset;
+    const error = this.wrapRagdollAngle(body.angle - targetAngle);
+    const maxSpin = (body.renderInfo && body.renderInfo.maxSpin) || (isCore ? 0.8 : 1.1);
+    const pull = isCore ? 0.34 : 0.22;
+    const damping = isCore ? 0.58 : 0.66;
+    const correction = Phaser.Math.Clamp(-error * pull * p * dt, -maxSpin, maxSpin);
+    this.Matter.Body.setAngularVelocity(
+      body,
+      Phaser.Math.Clamp((body.angularVelocity || 0) * Math.pow(damping, dt) + correction, -maxSpin, maxSpin)
+    );
+  });
+}
+
+relaxFlightRagdollFinalLandingJoints(rig) {
+  if (!rig || !rig.joints) return;
+  rig.joints.forEach((joint) => {
+    if (!joint || !joint.ragdollJoint) return;
+    const name = String(joint.ragdollJoint.name || "");
+    const isCore = /spine|neck/i.test(name);
+    const isHip = /hip/i.test(name);
+    if (isCore || isHip) return;
+    joint.stiffness = Math.min(Number(joint.stiffness) || 0.1, 0.018);
+    joint.damping = Math.min(Number(joint.damping) || 0.02, 0.012);
+  });
+}
+
+lockFlightRagdollOnGround(rig, options) {
   if (!rig || rig.settleLocked) return;
-  this.keepFlightRagdollLegHinges(16.6667, { forceGround: true, passes: 4 });
+  const opts = options || {};
+  if (!opts.relaxed) this.keepFlightRagdollLegHinges(16.6667, { forceGround: true, passes: 4 });
   rig.settleLocked = true;
   rig.parts.forEach((body) => {
     this.Matter.Sleeping.set(body, false);
@@ -3333,6 +3374,7 @@ keepFlightRagdollLegHinges(delta, options) {
   if (!rig || !rig.parts || !rig.torso || rig.settleLocked || rig.freeFallSettle) return;
 
   const opts = options || {};
+  if (rig.finalLandingPopActive && rig.finalLandingRelaxed && !opts.forceGround) return;
   const parts = rig.poseParts || this.getFlightRagdollPartMap(rig);
   const connected = this.getFlightRagdollConnectedParts(rig.torso);
   const dt = Phaser.Math.Clamp((delta || 16.6667) / 16.6667, 0.45, 1.8);
@@ -4043,11 +4085,13 @@ startFlightRagdollSettle() {
   rig.settleStartedAt = this.time.now;
   rig.settleTarget = this.dummy ? this.getRagdollTorsoTarget(this.dummy.x, this.dummy.y) : null;
   rig.settleFloorY = CT.Config.gameplay.roadY + 8;
-  rig.settleLockDelay = finalPop ? 660 : 420;
+  rig.settleLockDelay = finalPop ? 860 : 420;
   rig.settleLocked = false;
   rig.finalLandingPopActive = finalPop;
   rig.finalLandingRelaxUntil = finalPop ? this.time.now + 360 : 0;
-  rig.finalPopRightVelocity = finalPop ? 1.55 : 0;
+  rig.finalLandingRelaxed = false;
+  rig.finalLandingJointsRelaxed = false;
+  rig.finalPopRightVelocity = finalPop ? 0.95 : 0;
   rig.torsoSpinBoostUntil = 0;
   rig.legAirSpreadPosePower = 0;
   rig.legAirSpreadPoseFade = 0;
@@ -4063,52 +4107,31 @@ startFlightRagdollSettle() {
     rig.anchorConstraint = null;
   }
 
-  // During the finishing micro-hop, loosen the arms only. Legs keep their joint strength
-  // so the dummy can settle without knees/ankles stretching into a folded heap.
-  if (finalPop) {
-    (rig.joints || []).forEach((joint) => {
-      if (!joint || !joint.ragdollJoint) return;
-      const name = String(joint.ragdollJoint.name || "");
-      const isCore = /spine|neck/i.test(name);
-      const isHip = /hip/i.test(name);
-      const isArmJoint = /shoulder|elbow|wrist/i.test(name);
-      if (isCore || isHip || !isArmJoint) return;
-      joint.stiffness = Math.min(Number(joint.stiffness) || 0.1, 0.010);
-      joint.damping = Math.min(Number(joint.damping) || 0.02, 0.010);
-    });
-  }
-
   rig.parts.forEach((body) => {
     const name = body.ragdollPart || "";
     const isArm = /arm|hand/i.test(name);
     const isLeg = /thigh|shin|foot/i.test(name);
     const isLimb = isArm || isLeg;
     const isCore = /torso|pelvis|head/i.test(name);
-    const rightPop = finalPop ? (isCore ? 1.55 : isArm ? Phaser.Math.FloatBetween(1.10, 1.85) : isLeg ? Phaser.Math.FloatBetween(0.95, 1.65) : 1.15) : 0;
+    const rightPop = finalPop ? (isCore ? 0.98 : isArm ? 0.82 : isLeg ? 0.72 : 0.80) : 0;
+    const lift = finalPop ? (isCore ? 2.55 : isArm ? 2.15 : isLeg ? 2.35 : 2.20) : 0;
 
     this.Matter.Sleeping.set(body, false);
-    body.frictionAir = finalPop ? 0.060 : 0.09;
-    body.friction = finalPop ? 0.86 : 0.98;
-    body.frictionStatic = finalPop ? 1.85 : 2.6;
-    body.restitution = finalPop ? 0.075 : 0.02;
+    body.frictionAir = finalPop ? 0.050 : 0.09;
+    body.friction = finalPop ? 0.92 : 0.98;
+    body.frictionStatic = finalPop ? 2.1 : 2.6;
+    body.restitution = finalPop ? 0.045 : 0.02;
 
     this.Matter.Body.setVelocity(body, {
-      // Make finishing inertia always read as "flew right, tiny hop, done".
       x: finalPop
-        ? Phaser.Math.Clamp(Math.max(0, body.velocity.x || 0) * 0.030 + rightPop * 0.78, 0.62, 1.70)
+        ? Phaser.Math.Clamp(Math.max(0, body.velocity.x || 0) * 0.025 + rightPop, 0.46, 1.05)
         : body.velocity.x * 0.1,
       y: finalPop
-        ? Phaser.Math.Clamp(body.velocity.y * 0.030 - (isArm ? Phaser.Math.FloatBetween(1.8, 3.2) : isLeg ? Phaser.Math.FloatBetween(1.5, 2.8) : 1.75), -3.8, 1.1)
+        ? Phaser.Math.Clamp((body.velocity.y || 0) * 0.020 - lift, -3.1, -1.25)
         : Math.max(body.velocity.y * 0.1, 2.2)
     });
 
-    // Give arms a little collapse torque so they don't freeze sticking upward.
-    if (finalPop && isArm) {
-      const side = /L$/.test(name) ? -1 : 1;
-      this.Matter.Body.setAngularVelocity(body, Phaser.Math.Clamp((body.angularVelocity || 0) * 0.18 + side * Phaser.Math.FloatBetween(0.10, 0.34), -0.55, 0.55));
-    } else {
-      this.Matter.Body.setAngularVelocity(body, body.angularVelocity * (isLimb ? 0.22 : 0.08));
-    }
+    this.Matter.Body.setAngularVelocity(body, body.angularVelocity * (finalPop ? (isLimb ? 0.12 : 0.05) : (isLimb ? 0.22 : 0.08)));
   });
 
   rig.finalLandingPop = false;
@@ -4192,11 +4215,10 @@ renderFlightRagdoll() {
   const rig = this.flightRagdoll;
   if (!rig || !rig.graphics) return;
   const g = rig.graphics;
-  g.clear();
-  rig.parts
-    .slice()
-    .sort((a, b) => (a.renderInfo.layer || 0) - (b.renderInfo.layer || 0))
-    .forEach((body) => {
+  const parts = rig.parts || [];
+  const usesGraphics = parts.some((body) => !body.ragdollImage);
+  if (usesGraphics) g.clear();
+  parts.forEach((body) => {
       const info = body.renderInfo || {};
       if (body.ragdollImage) {
         const offset = info.textureOffset || { x: 0, y: 0 };
@@ -4208,9 +4230,6 @@ renderFlightRagdoll() {
             body.position.y + offset.x * sin + offset.y * cos
           )
           .setRotation(body.angle + (info.textureRotationOffset || 0))
-          .setScale(info.textureScale || 1)
-          .setAlpha(info.alpha === undefined ? 1 : info.alpha)
-          .setDepth(11 + (Number(info.layer) || 0) * 0.001)
           .setVisible(true);
         return;
       }
@@ -4306,11 +4325,26 @@ updateCarFlame() {
   const tintPhase = running ? power : Phaser.Math.Clamp(Number(this.carControlConfig.turboFireTint.preview) || 0, 0, 1);
   const scalePower = running ? 0.2 + power * 0.8 : 0.2;
   const alphaPower = running ? 0.62 + power * 0.38 : (preview ? 0.34 : 0);
-  this.car.turboFire
-    .setTint(this.getTurboFireTint(tintPhase))
-    .setScale(fireCfg.scale * scalePower)
-    .setAlpha(fireCfg.alpha * alphaPower);
-  this.car.turboFire.anims.timeScale = running ? Phaser.Math.Linear(0.75, 2.1, power) : 0.5;
+  const tint = this.getTurboFireTint(tintPhase);
+  const scale = fireCfg.scale * scalePower;
+  const alpha = fireCfg.alpha * alphaPower;
+  const timeScale = running ? Phaser.Math.Linear(0.75, 2.1, power) : 0.5;
+  if (this.car.turboFire._lastTint !== tint) {
+    this.car.turboFire.setTint(tint);
+    this.car.turboFire._lastTint = tint;
+  }
+  if (this.car.turboFire._lastScale !== scale) {
+    this.car.turboFire.setScale(scale);
+    this.car.turboFire._lastScale = scale;
+  }
+  if (this.car.turboFire._lastAlpha !== alpha) {
+    this.car.turboFire.setAlpha(alpha);
+    this.car.turboFire._lastAlpha = alpha;
+  }
+  if (this.car.turboFire._lastTimeScale !== timeScale) {
+    this.car.turboFire.anims.timeScale = timeScale;
+    this.car.turboFire._lastTimeScale = timeScale;
+  }
 }
 
 normalizeHexColor(value, fallback) {
@@ -4323,7 +4357,7 @@ getTurboFireTint(phase) {
   const tint = this.carControlConfig && this.carControlConfig.turboFireTint
     ? this.carControlConfig.turboFireTint
     : CT.Config.gameplay.carArt.turboFireTint;
-  const stops = [tint.orange, tint.yellow, tint.green, tint.blue, tint.purple]
+  const stops = this.turboFireTintStops || [tint.orange, tint.yellow, tint.green, tint.blue, tint.purple]
     .map((color) => this.hexToRgb(color));
   const t = Phaser.Math.Clamp(Number(phase) || 0, 0, 1) * (stops.length - 1);
   const index = Math.min(stops.length - 2, Math.floor(t));
@@ -4956,6 +4990,7 @@ collectBonusCoin(bonus) {
   this.cameras.main.shake(bonus.bonusValue >= 5 ? 150 : 75, bonus.bonusValue >= 5 ? 0.006 : 0.003);
   this.pauseForBonus(bonus.bonusValue);
   this.tweens.killTweensOf(bonus);
+  this.removeBonusItem(bonus);
   this.tweens.add({
     targets: bonus,
     scaleX: bonus.bonusValue >= 5 ? 2.25 : 1.75,
@@ -4980,6 +5015,7 @@ collectExtraBounceCoin(bonus) {
     this.pauseForBonus(2);
   }
   this.tweens.killTweensOf(bonus);
+  this.removeBonusItem(bonus);
   this.tweens.add({
     targets: bonus,
     scaleX: added ? 2.05 : 1.35,
@@ -5041,9 +5077,16 @@ showBonusPop(x, y, value) {
   });
 }
 
+removeBonusItem(item) {
+  const index = this.bonusItems.indexOf(item);
+  if (index !== -1) this.bonusItems.splice(index, 1);
+}
+
 clearBonusItems() {
   this.bonusItems.forEach((item) => {
-    if (item && item.active) item.destroy();
+    if (!item) return;
+    this.tweens.killTweensOf(item);
+    if (item.active) item.destroy();
   });
   this.bonusItems = [];
 }
@@ -5063,11 +5106,12 @@ settleDummy(payout) {
   if (this.flightRagdoll) this.flightRagdoll.finalLandingPop = true;
 
   this.startFlightRagdollSettle();
+  const finalLandingMs = this.flightRagdoll && this.flightRagdoll.finalLandingPopActive ? 680 : 360;
   this.tweens.add({
     targets: this.dummy,
     y: groundY + 2,
     angle: this.dummy.angle + 18,
-    duration: 360,
+    duration: finalLandingMs,
     ease: "Sine.out",
     onComplete: () => this.showCrashFinal(payout)
   });
@@ -5371,10 +5415,12 @@ spawnSmoke(x, y, count, color) {
 update(_time, delta) {
   const cfg = CT.Config;
   const dt = delta / 1000;
-  this.updateFenceLights(_time);
+  if (_time >= this.nextFenceLightUpdateAt) {
+    this.nextFenceLightUpdateAt = _time + 33;
+    this.updateFenceLights(_time);
+  }
   this.updateCarIdleShake(_time);
   this.updateFlightRagdoll(delta);
-  this.updateRagdollDebugUI(false);
   if (this.state === "dummyFlight") {
     let roadDx = 0;
     if (this.flightRoadSpeed > 0.5) {
@@ -5528,7 +5574,8 @@ flashRareBounce() {
 setMultiplierDisplay(value) {
   if (!this.multiplierText) return;
   const n = Number(value || 0);
-  this.multiplierText.setText(n <= 0 ? "0x" : n.toFixed(2) + "x");
+  const nextText = n <= 0 ? "0x" : n.toFixed(2) + "x";
+  if (this.multiplierText.text !== nextText) this.multiplierText.setText(nextText);
   if (n > 0 && Math.abs(n - this.lastMultiplierDisplay) > 0.035 && this.time.now - this.lastMultiplierPulseAt > 150) {
     this.lastMultiplierDisplay = n;
     this.lastMultiplierPulseAt = this.time.now;

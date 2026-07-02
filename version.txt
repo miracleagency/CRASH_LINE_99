@@ -1,1 +1,1 @@
-GAME v0.1.138 / 2026-07-02-v0.1.138-ragdoll-leg-spread-fix
+GAME v0.1.140 / 2026-07-02-v0.1.140-final-landing-hop
