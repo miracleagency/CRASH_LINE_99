@@ -1,1 +1,1 @@
-GAME v0.1.117 / 2026-07-01-v0.1.117-ragdoll-shoulder-anchor-tune
+GAME v0.1.138 / 2026-07-02-v0.1.138-ragdoll-leg-spread-fix

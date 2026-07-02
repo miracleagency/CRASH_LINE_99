@@ -1,0 +1,1369 @@
+{
+  "version": "v0.1.133",
+  "build": "2026-07-02-v0.1.133-ragdoll-leg-hinge-keeper",
+  "timeMs": 67044,
+  "state": "dummyFlight",
+  "multiplier": 0.4,
+  "remainingBounces": 0,
+  "flightRoadSpeed": 0,
+  "dummy": {
+    "x": 1658.4,
+    "y": 868,
+    "angleDeg": 54.43
+  },
+  "ragdoll": {
+    "createdAt": 65443,
+    "settling": true,
+    "settleLocked": true,
+    "allowJointBreaks": true,
+    "partCount": 15,
+    "jointCount": 24,
+    "connectedCount": 14,
+    "wheelSpin": {
+      "active": false,
+      "speedDeg": 0,
+      "smoothDeg": 310.59,
+      "cruiseDeg": 0,
+      "minDeg": 155,
+      "maxDeg": 545,
+      "burstT": 0,
+      "burstDeg": 380,
+      "burstFrameDeg": 7.1,
+      "burstStepDeg": 38
+    },
+    "parts": [
+      {
+        "name": "footL",
+        "connectedToTorso": true,
+        "detached": false,
+        "position": {
+          "x": 1636.96,
+          "y": 838.96
+        },
+        "velocity": {
+          "x": 0,
+          "y": 0
+        },
+        "angleDeg": 110.21,
+        "angularVelocity": 0,
+        "bottomY": 851.76,
+        "parent": "shinL",
+        "relativeAngleDeg": 2.3,
+        "targetRelativeAngleDeg": 1.15,
+        "relativeErrorDeg": 1.15,
+        "legFoldGuard": 0.116,
+        "legHingeError": 1.352,
+        "legAngleGuard": 1,
+        "maxSpin": 1.22,
+        "collision": {
+          "category": 8,
+          "mask": 0
+        },
+        "anchors": {
+          "ankle": {
+            "local": {
+              "x": -5.51,
+              "y": -4.29
+            },
+            "world": {
+              "x": 1642.88,
+              "y": 835.27
+            }
+          }
+        }
+      },
+      {
+        "name": "footR",
+        "connectedToTorso": false,
+        "detached": true,
+        "position": {
+          "x": 1599.44,
+          "y": 848.41
+        },
+        "velocity": {
+          "x": 0,
+          "y": 0
+        },
+        "angleDeg": 20.44,
+        "angularVelocity": 0,
+        "bottomY": 855.8,
+        "parent": null,
+        "relativeAngleDeg": 0,
+        "targetRelativeAngleDeg": 0,
+        "relativeErrorDeg": 0,
+        "legFoldGuard": 0.008,
+        "legHingeError": 0.507,
+        "legAngleGuard": 1,
+        "maxSpin": 1.22,
+        "collision": {
+          "category": 16,
+          "mask": 0
+        },
+        "anchors": {
+          "ankle": {
+            "local": {
+              "x": -7,
+              "y": -8.25
+            },
+            "world": {
+              "x": 1595.76,
+              "y": 838.23
+            }
+          }
+        }
+      },
+      {
+        "name": "handL",
+        "connectedToTorso": true,
+        "detached": false,
+        "position": {
+          "x": 1731.72,
+          "y": 847.81
+        },
+        "velocity": {
+          "x": 0,
+          "y": 0
+        },
+        "angleDeg": 264.98,
+        "angularVelocity": 0,
+        "bottomY": 854.47,
+        "parent": "lowerArmL",
+        "relativeAngleDeg": -0.75,
+        "targetRelativeAngleDeg": 32.47,
+        "relativeErrorDeg": -33.22,
+        "legFoldGuard": null,
+        "legHingeError": null,
+        "legAngleGuard": null,
+        "maxSpin": 2,
+        "collision": {
+          "category": 256,
+          "mask": 0
+        },
+        "anchors": {
+          "wrist": {
+            "local": {
+              "x": -0.75,
+              "y": -7
+            },
+            "world": {
+              "x": 1724.82,
+              "y": 849.17
+            }
+          }
+        }
+      },
+      {
+        "name": "handR",
+        "connectedToTorso": true,
+        "detached": false,
+        "position": {
+          "x": 1618.43,
+          "y": 830.15
+        },
+        "velocity": {
+          "x": 0,
+          "y": 0
+        },
+        "angleDeg": -170.66,
+        "angularVelocity": 0,
+        "bottomY": 834.76,
+        "parent": "lowerArmR",
+        "relativeAngleDeg": 52.5,
+        "targetRelativeAngleDeg": -2.7,
+        "relativeErrorDeg": 55.21,
+        "legFoldGuard": null,
+        "legHingeError": null,
+        "legAngleGuard": null,
+        "maxSpin": 2,
+        "collision": {
+          "category": 2048,
+          "mask": 0
+        },
+        "anchors": {
+          "wrist": {
+            "local": {
+              "x": -3.06,
+              "y": -4.29
+            },
+            "world": {
+              "x": 1620.75,
+              "y": 834.88
+            }
+          }
+        }
+      },
+      {
+        "name": "head",
+        "connectedToTorso": true,
+        "detached": false,
+        "position": {
+          "x": 1651.29,
+          "y": 837.51
+        },
+        "velocity": {
+          "x": 0,
+          "y": 0
+        },
+        "angleDeg": -60.77,
+        "angularVelocity": 0,
+        "bottomY": 852.77,
+        "parent": "torso",
+        "relativeAngleDeg": 20.18,
+        "targetRelativeAngleDeg": -1.72,
+        "relativeErrorDeg": 21.9,
+        "legFoldGuard": null,
+        "legHingeError": null,
+        "legAngleGuard": null,
+        "maxSpin": 1.05,
+        "collision": {
+          "category": 4,
+          "mask": 0
+        },
+        "anchors": {
+          "neck": {
+            "local": {
+              "x": -2,
+              "y": 7
+            },
+            "world": {
+              "x": 1656.42,
+              "y": 842.67
+            }
+          }
+        }
+      },
+      {
+        "name": "lowerArmL",
+        "connectedToTorso": true,
+        "detached": false,
+        "position": {
+          "x": 1716.47,
+          "y": 850.79
+        },
+        "velocity": {
+          "x": 0,
+          "y": 0
+        },
+        "angleDeg": 265.73,
+        "angularVelocity": 0,
+        "bottomY": 856.46,
+        "parent": "upperArmL",
+        "relativeAngleDeg": -13.18,
+        "targetRelativeAngleDeg": -19.87,
+        "relativeErrorDeg": 6.69,
+        "legFoldGuard": null,
+        "legHingeError": null,
+        "legAngleGuard": null,
+        "maxSpin": 2.15,
+        "collision": {
+          "category": 128,
+          "mask": 0
+        },
+        "anchors": {
+          "elbow": {
+            "local": {
+              "x": 1,
+              "y": -13.5
+            },
+            "world": {
+              "x": 1702.93,
+              "y": 850.8
+            }
+          },
+          "wrist": {
+            "local": {
+              "x": 0.5,
+              "y": 10.75
+            },
+            "world": {
+              "x": 1727.15,
+              "y": 849.49
+            }
+          }
+        }
+      },
+      {
+        "name": "lowerArmR",
+        "connectedToTorso": true,
+        "detached": false,
+        "position": {
+          "x": 1628.71,
+          "y": 841.94
+        },
+        "velocity": {
+          "x": 0,
+          "y": 0
+        },
+        "angleDeg": 136.84,
+        "angularVelocity": 0,
+        "bottomY": 854.18,
+        "parent": "upperArmR",
+        "relativeAngleDeg": 55.22,
+        "targetRelativeAngleDeg": -68.19,
+        "relativeErrorDeg": 123.41,
+        "legFoldGuard": null,
+        "legHingeError": null,
+        "legAngleGuard": null,
+        "maxSpin": 2.15,
+        "collision": {
+          "category": 1024,
+          "mask": 0
+        },
+        "anchors": {
+          "elbow": {
+            "local": {
+              "x": 0,
+              "y": -14.09
+            },
+            "world": {
+              "x": 1638.35,
+              "y": 852.22
+            }
+          },
+          "wrist": {
+            "local": {
+              "x": 0,
+              "y": 14.09
+            },
+            "world": {
+              "x": 1619.08,
+              "y": 831.67
+            }
+          }
+        }
+      },
+      {
+        "name": "pelvis",
+        "connectedToTorso": true,
+        "detached": false,
+        "position": {
+          "x": 1719.38,
+          "y": 850.44
+        },
+        "velocity": {
+          "x": 0,
+          "y": 0
+        },
+        "angleDeg": -80.06,
+        "angularVelocity": 0,
+        "bottomY": 865,
+        "parent": "torso",
+        "relativeAngleDeg": 0.88,
+        "targetRelativeAngleDeg": 0.57,
+        "relativeErrorDeg": 0.31,
+        "legFoldGuard": null,
+        "legHingeError": null,
+        "legAngleGuard": null,
+        "maxSpin": 0.78,
+        "collision": {
+          "category": 4,
+          "mask": 0
+        },
+        "anchors": {
+          "spine": {
+            "local": {
+              "x": 0,
+              "y": -11.02
+            },
+            "world": {
+              "x": 1708.53,
+              "y": 848.54
+            }
+          },
+          "hipL": {
+            "local": {
+              "x": -7.35,
+              "y": 8.57
+            },
+            "world": {
+              "x": 1726.56,
+              "y": 859.16
+            }
+          },
+          "hipR": {
+            "local": {
+              "x": 8.57,
+              "y": 8.57
+            },
+            "world": {
+              "x": 1729.31,
+              "y": 843.48
+            }
+          }
+        }
+      },
+      {
+        "name": "shinL",
+        "connectedToTorso": true,
+        "detached": false,
+        "position": {
+          "x": 1662.02,
+          "y": 842.69
+        },
+        "velocity": {
+          "x": 0,
+          "y": 0
+        },
+        "angleDeg": 107.91,
+        "angularVelocity": 0,
+        "bottomY": 853.1,
+        "parent": "thighL",
+        "relativeAngleDeg": 4.11,
+        "targetRelativeAngleDeg": -3.44,
+        "relativeErrorDeg": 7.55,
+        "legFoldGuard": 0,
+        "legHingeError": 1.07,
+        "legAngleGuard": 1,
+        "maxSpin": 1.08,
+        "collision": {
+          "category": 8,
+          "mask": 0
+        },
+        "anchors": {
+          "knee": {
+            "local": {
+              "x": 0,
+              "y": -20.21
+            },
+            "world": {
+              "x": 1681.25,
+              "y": 848.9
+            }
+          },
+          "ankle": {
+            "local": {
+              "x": 0,
+              "y": 20.21
+            },
+            "world": {
+              "x": 1642.79,
+              "y": 836.47
+            }
+          }
+        }
+      },
+      {
+        "name": "shinR",
+        "connectedToTorso": true,
+        "detached": false,
+        "position": {
+          "x": 1674.15,
+          "y": 846.28
+        },
+        "velocity": {
+          "x": 0,
+          "y": 0
+        },
+        "angleDeg": 31.79,
+        "angularVelocity": 0,
+        "bottomY": 865,
+        "parent": "thighR",
+        "relativeAngleDeg": -78.73,
+        "targetRelativeAngleDeg": 0,
+        "relativeErrorDeg": -78.73,
+        "legFoldGuard": 0,
+        "legHingeError": 0.507,
+        "legAngleGuard": 1,
+        "maxSpin": 1.08,
+        "collision": {
+          "category": 16,
+          "mask": 0
+        },
+        "anchors": {
+          "knee": {
+            "local": {
+              "x": -0.75,
+              "y": -22
+            },
+            "world": {
+              "x": 1685.11,
+              "y": 827.18
+            }
+          },
+          "ankle": {
+            "local": {
+              "x": -0.75,
+              "y": 18.25
+            },
+            "world": {
+              "x": 1663.9,
+              "y": 861.39
+            }
+          }
+        }
+      },
+      {
+        "name": "thighL",
+        "connectedToTorso": true,
+        "detached": false,
+        "position": {
+          "x": 1706.26,
+          "y": 855.27
+        },
+        "velocity": {
+          "x": 0,
+          "y": 0
+        },
+        "angleDeg": 103.8,
+        "angularVelocity": 0,
+        "bottomY": 865.16,
+        "parent": "pelvis",
+        "relativeAngleDeg": -176.14,
+        "targetRelativeAngleDeg": -2.29,
+        "relativeErrorDeg": -173.85,
+        "legFoldGuard": 1,
+        "legHingeError": 0,
+        "legAngleGuard": 1,
+        "maxSpin": 0.92,
+        "collision": {
+          "category": 8,
+          "mask": 0
+        },
+        "anchors": {
+          "hip": {
+            "local": {
+              "x": 0.75,
+              "y": -22
+            },
+            "world": {
+              "x": 1727.44,
+              "y": 861.25
+            }
+          },
+          "knee": {
+            "local": {
+              "x": 0.75,
+              "y": 25.75
+            },
+            "world": {
+              "x": 1681.07,
+              "y": 849.86
+            }
+          }
+        }
+      },
+      {
+        "name": "thighR",
+        "connectedToTorso": true,
+        "detached": false,
+        "position": {
+          "x": 1710.77,
+          "y": 835.11
+        },
+        "velocity": {
+          "x": 0,
+          "y": 0
+        },
+        "angleDeg": 110.52,
+        "angularVelocity": 0,
+        "bottomY": 847.28,
+        "parent": "pelvis",
+        "relativeAngleDeg": -169.43,
+        "targetRelativeAngleDeg": -2.29,
+        "relativeErrorDeg": -167.14,
+        "legFoldGuard": 1,
+        "legHingeError": 0.507,
+        "legAngleGuard": 1,
+        "maxSpin": 0.92,
+        "collision": {
+          "category": 16,
+          "mask": 0
+        },
+        "anchors": {
+          "hip": {
+            "local": {
+              "x": 3.25,
+              "y": -20.75
+            },
+            "world": {
+              "x": 1729.06,
+              "y": 845.42
+            }
+          },
+          "knee": {
+            "local": {
+              "x": 3.25,
+              "y": 25.75
+            },
+            "world": {
+              "x": 1685.51,
+              "y": 829.13
+            }
+          }
+        }
+      },
+      {
+        "name": "torso",
+        "connectedToTorso": true,
+        "detached": false,
+        "position": {
+          "x": 1682.93,
+          "y": 848.09
+        },
+        "velocity": {
+          "x": 0,
+          "y": 0
+        },
+        "angleDeg": -80.94,
+        "angularVelocity": 0,
+        "bottomY": 863.53,
+        "parent": null,
+        "relativeAngleDeg": 0,
+        "targetRelativeAngleDeg": 0,
+        "relativeErrorDeg": 0,
+        "legFoldGuard": null,
+        "legHingeError": null,
+        "legAngleGuard": null,
+        "maxSpin": 1.15,
+        "collision": {
+          "category": 4,
+          "mask": 0
+        },
+        "anchors": {
+          "neck": {
+            "local": {
+              "x": 2,
+              "y": -27
+            },
+            "world": {
+              "x": 1656.58,
+              "y": 841.87
+            }
+          },
+          "spine": {
+            "local": {
+              "x": 0,
+              "y": 25.75
+            },
+            "world": {
+              "x": 1708.36,
+              "y": 852.14
+            }
+          },
+          "shoulderL": {
+            "local": {
+              "x": 0.2,
+              "y": -11.99
+            },
+            "world": {
+              "x": 1671.12,
+              "y": 846.01
+            }
+          },
+          "shoulderR": {
+            "local": {
+              "x": -0.2,
+              "y": -11.99
+            },
+            "world": {
+              "x": 1671.05,
+              "y": 846.4
+            }
+          }
+        }
+      },
+      {
+        "name": "upperArmL",
+        "connectedToTorso": true,
+        "detached": false,
+        "position": {
+          "x": 1683.75,
+          "y": 848.24
+        },
+        "velocity": {
+          "x": 0,
+          "y": 0
+        },
+        "angleDeg": 278.91,
+        "angularVelocity": 0,
+        "bottomY": 856.12,
+        "parent": "torso",
+        "relativeAngleDeg": -0.15,
+        "targetRelativeAngleDeg": 34.44,
+        "relativeErrorDeg": -34.59,
+        "legFoldGuard": null,
+        "legHingeError": null,
+        "legAngleGuard": null,
+        "maxSpin": 3.15,
+        "collision": {
+          "category": 64,
+          "mask": 0
+        },
+        "anchors": {
+          "shoulder": {
+            "local": {
+              "x": -0.75,
+              "y": -14.5
+            },
+            "world": {
+              "x": 1669.3,
+              "y": 846.74
+            }
+          },
+          "elbow": {
+            "local": {
+              "x": 0.75,
+              "y": 17
+            },
+            "world": {
+              "x": 1700.66,
+              "y": 850.13
+            }
+          }
+        }
+      },
+      {
+        "name": "upperArmR",
+        "connectedToTorso": true,
+        "detached": false,
+        "position": {
+          "x": 1658.33,
+          "y": 851.36
+        },
+        "velocity": {
+          "x": 0,
+          "y": 0
+        },
+        "angleDeg": 81.61,
+        "angularVelocity": 0,
+        "bottomY": 859.73,
+        "parent": "torso",
+        "relativeAngleDeg": 162.55,
+        "targetRelativeAngleDeg": 52.8,
+        "relativeErrorDeg": 109.75,
+        "legFoldGuard": null,
+        "legHingeError": null,
+        "legAngleGuard": null,
+        "maxSpin": 3.15,
+        "collision": {
+          "category": 512,
+          "mask": 0
+        },
+        "anchors": {
+          "shoulder": {
+            "local": {
+              "x": 0.75,
+              "y": -15.75
+            },
+            "world": {
+              "x": 1674.03,
+              "y": 849.81
+            }
+          },
+          "elbow": {
+            "local": {
+              "x": -1,
+              "y": 18.25
+            },
+            "world": {
+              "x": 1640.13,
+              "y": 853.04
+            }
+          }
+        }
+      }
+    ],
+    "joints": [
+      {
+        "name": "neck",
+        "a": "head",
+        "b": "torso",
+        "pointA": {
+          "x": 1658.31,
+          "y": 835.55
+        },
+        "pointB": {
+          "x": 1673.39,
+          "y": 873.43
+        },
+        "distance": 40.769,
+        "length": 0,
+        "stretch": 40.769,
+        "stiffness": 0.9,
+        "damping": 0.2,
+        "breakLimit": 52.673,
+        "toughness": 1.22,
+        "weakness": 0.7,
+        "critical": false,
+        "pinStrength": null,
+        "locked": false,
+        "brace": false
+      },
+      {
+        "name": "spine",
+        "a": "torso",
+        "b": "pelvis",
+        "pointA": {
+          "x": 1690.19,
+          "y": 823.39
+        },
+        "pointB": {
+          "x": 1716.05,
+          "y": 860.94
+        },
+        "distance": 45.595,
+        "length": 0,
+        "stretch": 45.595,
+        "stiffness": 0.98,
+        "damping": 0.28,
+        "breakLimit": 67.373,
+        "toughness": 12,
+        "weakness": 0,
+        "critical": false,
+        "pinStrength": null,
+        "locked": true,
+        "brace": false
+      },
+      {
+        "name": "spineBraceL",
+        "a": "torso",
+        "b": "pelvis",
+        "pointA": {
+          "x": 1700.57,
+          "y": 830.6
+        },
+        "pointB": {
+          "x": 1729.01,
+          "y": 859.8
+        },
+        "distance": 40.76,
+        "length": 9.061,
+        "stretch": 31.699,
+        "stiffness": 0.88,
+        "damping": 0.24,
+        "breakLimit": 58.798,
+        "toughness": 12,
+        "weakness": 0,
+        "critical": false,
+        "pinStrength": null,
+        "locked": true,
+        "brace": true
+      },
+      {
+        "name": "spineBraceR",
+        "a": "torso",
+        "b": "pelvis",
+        "pointA": {
+          "x": 1677.55,
+          "y": 823.84
+        },
+        "pointB": {
+          "x": 1706.13,
+          "y": 852.59
+        },
+        "distance": 40.543,
+        "length": 9.061,
+        "stretch": 31.482,
+        "stiffness": 0.88,
+        "damping": 0.24,
+        "breakLimit": 58.798,
+        "toughness": 12,
+        "weakness": 0,
+        "critical": false,
+        "pinStrength": null,
+        "locked": true,
+        "brace": true
+      },
+      {
+        "name": "shoulderL",
+        "a": "torso",
+        "b": "upperArmL",
+        "pointA": {
+          "x": 1679.35,
+          "y": 859.54
+        },
+        "pointB": {
+          "x": 1680.02,
+          "y": 862.28
+        },
+        "distance": 2.821,
+        "length": 0,
+        "stretch": 2.821,
+        "stiffness": 0.01,
+        "damping": 0.002,
+        "breakLimit": 75.948,
+        "toughness": 0.66,
+        "weakness": 2.55,
+        "critical": false,
+        "pinStrength": null,
+        "locked": false,
+        "brace": false
+      },
+      {
+        "name": "elbowL",
+        "a": "upperArmL",
+        "b": "lowerArmL",
+        "pointA": {
+          "x": 1688.23,
+          "y": 831.83
+        },
+        "pointB": {
+          "x": 1717.49,
+          "y": 864.29
+        },
+        "distance": 43.7,
+        "length": 0,
+        "stretch": 43.7,
+        "stiffness": 0.01,
+        "damping": 0.01,
+        "breakLimit": 50.223,
+        "toughness": 0.46,
+        "weakness": 4.35,
+        "critical": false,
+        "pinStrength": null,
+        "locked": false,
+        "brace": false
+      },
+      {
+        "name": "elbowBraceL",
+        "a": "upperArmL",
+        "b": "lowerArmL",
+        "pointA": {
+          "x": 1692.38,
+          "y": 835.26
+        },
+        "pointB": {
+          "x": 1712.24,
+          "y": 863.05
+        },
+        "distance": 34.161,
+        "length": 10.77,
+        "stretch": 23.39,
+        "stiffness": 0.01,
+        "damping": 0.01,
+        "breakLimit": 45.324,
+        "toughness": 0.46,
+        "weakness": 4.35,
+        "critical": false,
+        "pinStrength": null,
+        "locked": false,
+        "brace": true
+      },
+      {
+        "name": "wristL",
+        "a": "lowerArmL",
+        "b": "handL",
+        "pointA": {
+          "x": 1714.38,
+          "y": 840.24
+        },
+        "pointB": {
+          "x": 1733.68,
+          "y": 854.57
+        },
+        "distance": 24.041,
+        "length": 0,
+        "stretch": 24.041,
+        "stiffness": 0.01,
+        "damping": 0.01,
+        "breakLimit": 31.849,
+        "toughness": 0.28,
+        "weakness": 7.4,
+        "critical": false,
+        "pinStrength": null,
+        "locked": false,
+        "brace": false
+      },
+      {
+        "name": "wristBraceL",
+        "a": "lowerArmL",
+        "b": "handL",
+        "pointA": {
+          "x": 1718.63,
+          "y": 841.62
+        },
+        "pointB": {
+          "x": 1728.24,
+          "y": 852.49
+        },
+        "distance": 14.505,
+        "length": 10.296,
+        "stretch": 4.21,
+        "stiffness": 0.01,
+        "damping": 0.01,
+        "breakLimit": 24.499,
+        "toughness": 0.28,
+        "weakness": 7.4,
+        "critical": false,
+        "pinStrength": null,
+        "locked": false,
+        "brace": true
+      },
+      {
+        "name": "shoulderR",
+        "a": "torso",
+        "b": "upperArmR",
+        "pointA": {
+          "x": 1679.73,
+          "y": 859.65
+        },
+        "pointB": {
+          "x": 1662.15,
+          "y": 866.66
+        },
+        "distance": 18.926,
+        "length": 0,
+        "stretch": 18.926,
+        "stiffness": 0.01,
+        "damping": 0.002,
+        "breakLimit": 75.948,
+        "toughness": 0.66,
+        "weakness": 2.55,
+        "critical": false,
+        "pinStrength": null,
+        "locked": false,
+        "brace": false
+      },
+      {
+        "name": "elbowR",
+        "a": "upperArmR",
+        "b": "lowerArmR",
+        "pointA": {
+          "x": 1654.02,
+          "y": 833.6
+        },
+        "pointB": {
+          "x": 1614.65,
+          "y": 841.03
+        },
+        "distance": 40.064,
+        "length": 0,
+        "stretch": 40.064,
+        "stiffness": 0.01,
+        "damping": 0.01,
+        "breakLimit": 50.223,
+        "toughness": 0.46,
+        "weakness": 4.35,
+        "critical": false,
+        "pinStrength": null,
+        "locked": false,
+        "brace": false
+      },
+      {
+        "name": "elbowBraceR",
+        "a": "upperArmR",
+        "b": "lowerArmR",
+        "pointA": {
+          "x": 1649.81,
+          "y": 836.96
+        },
+        "pointB": {
+          "x": 1616.33,
+          "y": 846.15
+        },
+        "distance": 34.726,
+        "length": 10.77,
+        "stretch": 23.956,
+        "stiffness": 0.01,
+        "damping": 0.01,
+        "breakLimit": 45.324,
+        "toughness": 0.46,
+        "weakness": 4.35,
+        "critical": false,
+        "pinStrength": null,
+        "locked": false,
+        "brace": true
+      },
+      {
+        "name": "wristR",
+        "a": "lowerArmR",
+        "b": "handR",
+        "pointA": {
+          "x": 1642.78,
+          "y": 842.85
+        },
+        "pointB": {
+          "x": 1617.21,
+          "y": 825.02
+        },
+        "distance": 31.165,
+        "length": 0,
+        "stretch": 31.165,
+        "stiffness": 0.01,
+        "damping": 0.01,
+        "breakLimit": 31.849,
+        "toughness": 0.28,
+        "weakness": 7.4,
+        "critical": false,
+        "pinStrength": null,
+        "locked": false,
+        "brace": false
+      },
+      {
+        "name": "wristBraceR",
+        "a": "lowerArmR",
+        "b": "handR",
+        "pointA": {
+          "x": 1641.04,
+          "y": 838.73
+        },
+        "pointB": {
+          "x": 1611.45,
+          "y": 825.92
+        },
+        "distance": 32.24,
+        "length": 9.983,
+        "stretch": 22.258,
+        "stiffness": 0.01,
+        "damping": 0.009,
+        "breakLimit": 24.499,
+        "toughness": 0.28,
+        "weakness": 7.4,
+        "critical": false,
+        "pinStrength": null,
+        "locked": false,
+        "brace": true
+      },
+      {
+        "name": "hipL",
+        "a": "pelvis",
+        "b": "thighL",
+        "pointA": {
+          "x": 1728.95,
+          "y": 844.44
+        },
+        "pointB": {
+          "x": 1695.38,
+          "y": 874.41
+        },
+        "distance": 45.001,
+        "length": 0,
+        "stretch": 45.001,
+        "stiffness": 0.82,
+        "damping": 0.09,
+        "breakLimit": 63.698,
+        "toughness": 12,
+        "weakness": 0,
+        "critical": false,
+        "pinStrength": null,
+        "locked": true,
+        "brace": false
+      },
+      {
+        "name": "hipBraceL",
+        "a": "pelvis",
+        "b": "thighL",
+        "pointA": {
+          "x": 1736.8,
+          "y": 842.65
+        },
+        "pointB": {
+          "x": 1697.53,
+          "y": 855.21
+        },
+        "distance": 41.224,
+        "length": 19.349,
+        "stretch": 21.875,
+        "stiffness": 0.145,
+        "damping": 0.045,
+        "breakLimit": 56.348,
+        "toughness": 12,
+        "weakness": 0,
+        "critical": false,
+        "pinStrength": null,
+        "locked": true,
+        "brace": true
+      },
+      {
+        "name": "kneeL",
+        "a": "thighL",
+        "b": "shinL",
+        "pointA": {
+          "x": 1717.49,
+          "y": 832.09
+        },
+        "pointB": {
+          "x": 1649.24,
+          "y": 858.34
+        },
+        "distance": 73.126,
+        "length": 0,
+        "stretch": 73.126,
+        "stiffness": 0.78,
+        "damping": 0.058,
+        "breakLimit": 53.898,
+        "toughness": 0.76,
+        "weakness": 1.9,
+        "critical": false,
+        "pinStrength": null,
+        "locked": false,
+        "brace": false
+      },
+      {
+        "name": "kneeBraceL",
+        "a": "thighL",
+        "b": "shinL",
+        "pointA": {
+          "x": 1721.39,
+          "y": 837.49
+        },
+        "pointB": {
+          "x": 1646.52,
+          "y": 852.27
+        },
+        "distance": 76.313,
+        "length": 14.496,
+        "stretch": 61.817,
+        "stiffness": 0.165,
+        "damping": 0.034,
+        "breakLimit": 47.773,
+        "toughness": 0.76,
+        "weakness": 1.9,
+        "critical": false,
+        "pinStrength": null,
+        "locked": false,
+        "brace": true
+      },
+      {
+        "name": "ankleL",
+        "a": "shinL",
+        "b": "footL",
+        "pointA": {
+          "x": 1674.81,
+          "y": 827.04
+        },
+        "pointB": {
+          "x": 1638.1,
+          "y": 845.85
+        },
+        "distance": 41.248,
+        "length": 0,
+        "stretch": 41.248,
+        "stiffness": 0.74,
+        "damping": 0.044,
+        "breakLimit": 37.974,
+        "toughness": 0.28,
+        "weakness": 7.4,
+        "critical": false,
+        "pinStrength": null,
+        "locked": false,
+        "brace": false
+      },
+      {
+        "name": "ankleBraceL",
+        "a": "shinL",
+        "b": "footL",
+        "pointA": {
+          "x": 1676.62,
+          "y": 831.09
+        },
+        "pointB": {
+          "x": 1633.57,
+          "y": 838.96
+        },
+        "distance": 43.762,
+        "length": 13.893,
+        "stretch": 29.869,
+        "stiffness": 0.15,
+        "damping": 0.026,
+        "breakLimit": 29.399,
+        "toughness": 0.28,
+        "weakness": 7.4,
+        "critical": false,
+        "pinStrength": null,
+        "locked": false,
+        "brace": true
+      },
+      {
+        "name": "hipR",
+        "a": "pelvis",
+        "b": "thighR",
+        "pointA": {
+          "x": 1713.8,
+          "y": 839.68
+        },
+        "pointB": {
+          "x": 1694.69,
+          "y": 848.62
+        },
+        "distance": 21.103,
+        "length": 0,
+        "stretch": 21.103,
+        "stiffness": 0.8,
+        "damping": 0.082,
+        "breakLimit": 63.698,
+        "toughness": 12,
+        "weakness": 0,
+        "critical": false,
+        "pinStrength": null,
+        "locked": true,
+        "brace": false
+      },
+      {
+        "name": "hipBraceR",
+        "a": "pelvis",
+        "b": "thighR",
+        "pointA": {
+          "x": 1708.35,
+          "y": 833.75
+        },
+        "pointB": {
+          "x": 1711.79,
+          "y": 839.65
+        },
+        "distance": 6.829,
+        "length": 20.283,
+        "stretch": -13.454,
+        "stiffness": 0.135,
+        "damping": 0.04,
+        "breakLimit": 56.348,
+        "toughness": 12,
+        "weakness": 0,
+        "critical": false,
+        "pinStrength": null,
+        "locked": true,
+        "brace": true
+      },
+      {
+        "name": "kneeR",
+        "a": "thighR",
+        "b": "shinR",
+        "pointA": {
+          "x": 1725.25,
+          "y": 813.57
+        },
+        "pointB": {
+          "x": 1693.51,
+          "y": 835.79
+        },
+        "distance": 38.745,
+        "length": 0,
+        "stretch": 38.745,
+        "stiffness": 0.74,
+        "damping": 0.052,
+        "breakLimit": 53.898,
+        "toughness": 0.76,
+        "weakness": 1.9,
+        "critical": false,
+        "pinStrength": null,
+        "locked": false,
+        "brace": false
+      },
+      {
+        "name": "kneeBraceR",
+        "a": "thighR",
+        "b": "shinR",
+        "pointA": {
+          "x": 1718.88,
+          "y": 811.93
+        },
+        "pointB": {
+          "x": 1688.28,
+          "y": 831.88
+        },
+        "distance": 36.536,
+        "length": 13.416,
+        "stretch": 23.12,
+        "stiffness": 0.15,
+        "damping": 0.03,
+        "breakLimit": 47.773,
+        "toughness": 0.76,
+        "weakness": 1.9,
+        "critical": false,
+        "pinStrength": null,
+        "locked": false,
+        "brace": true
+      }
+    ]
+  }
+}

@@ -226,3 +226,7 @@ body.controls-dimmed .page-btn:not(.is-hidden) {
   border-radius: 6px;
   font: 11px/1.35 Consolas, monospace;
 }
+
+.control-ui__debug-pre {
+  max-height: 360px;
+}
