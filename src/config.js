@@ -3,9 +3,12 @@
   const assetRoot = new URL("./assets/", window.location.href).href;
 
   CT.Config = {
-    build: "2026-07-03-v0.1.163-win-panel-tuning",
-    gameVersion: "v0.1.163",
+    build: "2026-07-03-v0.1.171-props-wall-lock",
+    gameVersion: "v0.1.171",
     phaserVersion: "3.88.2",
+    fontFamily: "RoadRage",
+    fontLetterSpacing: 0,
+    fontResolution: 2,
     width: 720,
     height: 1280,
     startBalance: 1000,

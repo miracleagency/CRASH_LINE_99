@@ -1,6 +1,6 @@
-(function () {const CT = window.CrashTest = window.CrashTest || {};
+﻿(function () {const CT = window.CrashTest = window.CrashTest || {};
 
-class GameScene extends Phaser.Scene {constructor() {super("GameScene");this.wallet = null;this.hud = null;this.state = "ready";this.round = 0;this.multiplier = 0;this.speed = 0;this.turbo = false;this.turboPower = 0;this.engineBreakAt = 0;this.roadOffset = 0;this.fenceOffset = 0;this.testBgOffset = 0;this.visualSpeed = 0;this.flightRoadSpeed = 0;this.pendingPayout = 0;this.autoCrash = false;this.safeMode = false;this.bonusAdd = 0;this.bonusItems = [];this.bonusPauseToken = 0;this.lastMultiplierDisplay = -1;this.lastMultiplierPulseAt = 0;this.rareBounceCount = 0;this.nextRareBounceAt = 0;this.remainingBounces = null;this.extraBounceAdder = null;this.extraBounceBonusCount = 0;this.sfx = {};this.engineAudioToken = 0;this.engineLoopTimer = null;this.engineLoopIndex = 0;this.roadTiles = [];this.testBgTiles = [];this.fenceTiles = [];this.loopObjectLayers = [];this.crashDebrisActive = false;this.fencePoleItems = [];this.fencePoleLayer = null;this.fenceOverlayItems = [];this.fenceOverlayLayer = null;this.fenceOverlayKeys = [];this.sceneTuningConfig = null;this.sceneControlRoot = null;this.sceneControlJson = null;this.refOverlay = null;this.roadArtX = 0;this.roadArtY = 0;this.roadArtScale = 1;this.fenceArtX = 0;this.fenceArtY = 0;this.fenceArtScale = 1;this.fencePoleX = 0;this.fencePoleY = 0;this.fencePoleSpacing = 247;this.fencePoleScale = 0.5;this.fenceLightOffsetY = -29;this.fenceLightScale = 0.4;this.fenceLightIntensity = 0.79;this.fenceLightDelay = 0.085;this.fenceOverlayX = 0;this.fenceOverlayY = 760;this.fenceOverlayHeight = 64;this.fenceOverlaySpacing = 420;this.fenceOverlayJitterX = 110;this.fenceOverlayCount = 24;this.fenceOverlayChance = 0.36;this.fenceOverlayScaleMin = 0.42;this.fenceOverlayScaleMax = 0.62;this.fenceOverlayAlpha = 0.96;this.hitWallX = 570;this.hitWallY = 888;this.hitWallVisualOffsetX = 0;this.hitWallScale = 0.34;this.hitWallAlpha = 1;this.hitWallImage = null;this.hitWallPreview = false;this.carControlConfig = null;this.turboFireTintStops = null;this.nextCarLightSweepAt = 0;this.nextFenceLightUpdateAt = 0;this.Matter = null;this.mobilePerfMode = null;this.ragdollMatterReady = false;this.ragdollGround = null;this.ragdollCollisionLayers = null;this.flightRagdoll = null;}
+class GameScene extends Phaser.Scene {constructor() {super("GameScene");this.wallet = null;this.hud = null;this.state = "ready";this.round = 0;this.multiplier = 0;this.speed = 0;this.turbo = false;this.turboPower = 0;this.engineBreakAt = 0;this.roadOffset = 0;this.fenceOffset = 0;this.testBgOffset = 0;this.testBgPropOffset = 0;this.testBgProps = null;this.testBgPropTileIndex = null;this.testBgPropSignature = "";this.visualSpeed = 0;this.flightRoadSpeed = 0;this.pendingPayout = 0;this.autoCrash = false;this.safeMode = false;this.bonusAdd = 0;this.bonusItems = [];this.bonusPauseToken = 0;this.lastMultiplierDisplay = -1;this.lastMultiplierPulseAt = 0;this.rareBounceCount = 0;this.nextRareBounceAt = 0;this.remainingBounces = null;this.extraBounceAdder = null;this.extraBounceBonusCount = 0;this.sfx = {};this.engineAudioToken = 0;this.engineLoopTimer = null;this.engineLoopIndex = 0;this.roadTiles = [];this.testBgTiles = [];this.fenceTiles = [];this.loopObjectLayers = [];this.crashDebrisActive = false;this.fencePoleItems = [];this.fencePoleLayer = null;this.fenceOverlayItems = [];this.fenceOverlayLayer = null;this.fenceOverlayKeys = [];this.sceneTuningConfig = null;this.sceneControlRoot = null;this.sceneControlJson = null;this.refOverlay = null;this.roadArtX = 0;this.roadArtY = 0;this.roadArtScale = 1;this.fenceArtX = 0;this.fenceArtY = 0;this.fenceArtScale = 1;this.fencePoleX = 0;this.fencePoleY = 0;this.fencePoleSpacing = 247;this.fencePoleScale = 0.5;this.fenceLightOffsetY = -29;this.fenceLightScale = 0.4;this.fenceLightIntensity = 0.79;this.fenceLightDelay = 0.085;this.fenceOverlayX = 0;this.fenceOverlayY = 760;this.fenceOverlayHeight = 64;this.fenceOverlaySpacing = 420;this.fenceOverlayJitterX = 110;this.fenceOverlayCount = 24;this.fenceOverlayChance = 0.36;this.fenceOverlayScaleMin = 0.42;this.fenceOverlayScaleMax = 0.62;this.fenceOverlayAlpha = 0.96;this.hitWallX = 570;this.hitWallY = 888;this.hitWallVisualOffsetX = 0;this.hitWallScale = 0.34;this.hitWallAlpha = 1;this.hitWallImage = null;this.hitWallPreview = false;this.carControlConfig = null;this.turboFireTintStops = null;this.nextCarLightSweepAt = 0;this.nextFenceLightUpdateAt = 0;this.Matter = null;this.mobilePerfMode = null;this.ragdollMatterReady = false;this.ragdollGround = null;this.ragdollCollisionLayers = null;this.flightRagdoll = null;}
 
 create() {
   this.wallet = new CT.Wallet();
@@ -186,43 +186,34 @@ createPlayfield() {
   this.multiplierGlow = this.add.circle(0, 0, 178, 0xffcf30, 0.12).setBlendMode(Phaser.BlendModes.ADD);
   this.multiplierPanelBg = this.add.rectangle(0, 0, 438, 188, 0x071012, 0.84)
     .setStrokeStyle(7, 0xffcf30, 0.9);
-  this.multiplierPanelInner = this.add.rectangle(0, 0, 396, 146, 0x1b2327, 0.58)
-    .setStrokeStyle(3, 0xffffff, 0.28);
-  this.multiplierPanelLabel = this.add.text(0, -72, "MULTIPLIER", {
-    fontFamily: "Arial",
-    fontSize: "20px",
+  this.multiplierPanelInner = this.add.rectangle(0, 0, 396, 146, 0x1b2327, 0.58);
+  this.multiplierPanelLabel = this.add.text(0, -72, "", {
+    fontFamily: cfg.fontFamily || "Arial",
+    fontSize: "30px",
     color: "#EEFE0D",
-    fontStyle: "bold"
-  }).setOrigin(0.5).setAlpha(0.85);
-  this.finalWinText = this.add.text(0, -42, "LAST WIN +$0.00", {
-    fontFamily: "Arial",
-    fontSize: "34px",
+    letterSpacing: cfg.fontLetterSpacing || 0,
+    resolution: cfg.fontResolution || 1
+  }).setOrigin(0.5).setAlpha(0);
+  this.finalWinText = this.add.text(0, -24, "$0.00", {
+    fontFamily: cfg.fontFamily || "Arial",
+    fontSize: "150px",
     color: "#29FF50",
-    fontStyle: "bold",
-    stroke: "#000000",
-    strokeThickness: 6
+    letterSpacing: cfg.fontLetterSpacing || 0,
+    resolution: cfg.fontResolution || 1
   }).setOrigin(0.5).setAlpha(0).setVisible(false);
-  this.multiplierText = this.add.text(0, 15, "0x", {
-    fontFamily: "Arial",
-    fontSize: "114px",
+  this.multiplierText = this.add.text(0, 0, "0x", {
+    fontFamily: cfg.fontFamily || "Arial",
+    fontSize: "171px",
     color: "#F6FFC3",
-    fontStyle: "bold",
-    stroke: "#000000",
-    strokeThickness: 14,
-    shadow: {
-      offsetX: 0,
-      offsetY: 4,
-      color: "#7a3600",
-      blur: 0,
-      fill: true
-    }
+    letterSpacing: cfg.fontLetterSpacing || 0,
+    resolution: cfg.fontResolution || 1
   }).setOrigin(0.5);
   this.multiplierPanel.add([this.multiplierGlow, this.multiplierPanelBg, this.multiplierPanelInner, this.multiplierPanelLabel, this.finalWinText, this.multiplierText]);
   this.createBounceBadge();
   this.createRefOverlay();
   this.applySceneTuningConfig(false);
   this.createSceneControlUI();
-  this.applyMultiplierTheme("idle");
+  this.applyMultiplierTheme("idle", true);
 }
 
 createRoadLoop() {
@@ -260,6 +251,10 @@ createRoadLoop() {
 
 createTestBackgroundLoop() {
   this.testBgTiles = [];
+  this.testBgProps = null;
+  this.testBgPropOffset = 0;
+  this.testBgPropTileIndex = null;
+  this.testBgPropSignature = "";
   if (!this.textures.exists("backTestBg")) return;
   for (let i = 0; i < 5; i++) {
     const bg = this.add.image(0, 0, "backTestBg")
@@ -267,27 +262,29 @@ createTestBackgroundLoop() {
     const bgItem = this.add.container(0, 0, [bg])
       .setDepth(-12)
       .setScrollFactor(0);
-    const fire = this.add.sprite(0, 0, "barrelFire1")
-      .setOrigin(0.5, 1)
-      .setBlendMode(Phaser.BlendModes.ADD);
-    if (fire.anims) {
-      fire.play("barrelFireLoop");
-      fire.anims.timeScale = 0.67;
-    }
-    const fireItem = this.add.container(0, 0, [fire])
-      .setDepth(-11)
-      .setScrollFactor(0);
-    const barrel = this.add.image(0, 0, "barrel")
-      .setOrigin(0.5, 1);
-    const barrelItem = this.add.container(0, 0, [barrel])
-      .setDepth(-10)
-      .setScrollFactor(0);
-    const item = { bgItem, fireItem, barrelItem, bg, fire, barrel };
-    item.bg = bg;
-    item.fire = fire;
-    item.barrel = barrel;
-    this.testBgTiles.push(item);
+    this.testBgTiles.push({ bgItem, bg });
   }
+  const fire = this.add.sprite(0, 0, "barrelFire1")
+    .setOrigin(0.5, 1)
+    .setBlendMode(Phaser.BlendModes.ADD);
+  if (fire.anims) {
+    fire.play("barrelFireLoop");
+    fire.anims.timeScale = 0.67;
+  }
+  const fireItem = this.add.container(0, 0, [fire])
+    .setDepth(-11)
+    .setScrollFactor(0);
+  const barrel = this.add.image(0, 0, "barrel")
+    .setOrigin(0.5, 1);
+  const barrelChildren = [barrel];
+  const girl = this.textures.exists("girl")
+    ? this.add.image(0, 0, "girl").setOrigin(0.5, 1)
+    : null;
+  if (girl) barrelChildren.push(girl);
+  const barrelItem = this.add.container(0, 0, barrelChildren)
+    .setDepth(-10)
+    .setScrollFactor(0);
+  this.testBgProps = { fireItem, barrelItem, fire, barrel, girl };
   this.updateTestBackgroundLayout();
 }
 
@@ -314,25 +311,89 @@ updateTestBackgroundLayout() {
     const tileX = (Number(bgCfg.x) || 0) + i * tileWidth - tileWidth - this.testBgOffset;
     const tileY = (Number(bgCfg.y) || 0) + worldY;
     if (item.bgItem) item.bgItem.setPosition(tileX, tileY);
-    if (item.fireItem) item.fireItem.setPosition(tileX, tileY);
-    if (item.barrelItem) item.barrelItem.setPosition(tileX, tileY);
     if (item.bg) item.bg.setScale(scale);
-    if (item.fire) {
-      item.fire
-        .setPosition(Number(fireCfg.x) || 0, Number(fireCfg.y) || 0)
-        .setScale(Math.max(0.01, Number(fireCfg.scale) || 1));
-    }
-    if (item.barrel) {
-      item.barrel
-        .setPosition(Number(barrelCfg.x) || 0, Number(barrelCfg.y) || 0)
-        .setScale(Math.max(0.01, Number(barrelCfg.scale) || 1));
-    }
   });
+  this.updateTestBackgroundPropsLayout(tileWidth, bgCfg, barrelCfg, fireCfg, worldY);
+}
+
+pickTestBackgroundPropTileIndex(tileWidth, bgX, barrelX) {
+  const center = CT.Config.width * 0.5;
+  let bestIndex = 0;
+  let bestScore = Infinity;
+  for (let i = 0; i < 5; i++) {
+    const x = bgX + i * tileWidth - tileWidth + barrelX;
+    const visibleBias = x > -260 && x < CT.Config.width + 260 ? 0 : 100000;
+    const score = visibleBias + Math.abs(x - center);
+    if (score < bestScore) {
+      bestScore = score;
+      bestIndex = i;
+    }
+  }
+  return bestIndex;
+}
+
+updateTestBackgroundPropsLayout(tileWidth, bgCfg, barrelCfg, fireCfg, worldY) {
+  const props = this.testBgProps;
+  if (!props) return;
+  const bgX = Number(bgCfg.x) || 0;
+  const barrelX = Number(barrelCfg.x) || 0;
+  const fireX = Number(fireCfg.x) || 0;
+  const signature = [Math.round(tileWidth), bgX, barrelX, fireX].join(":");
+  if (this.testBgPropSignature !== signature || !this.testBgPropTileIndex) {
+    this.testBgPropTileIndex = {
+      barrel: this.pickTestBackgroundPropTileIndex(tileWidth, bgX, barrelX),
+      fire: this.pickTestBackgroundPropTileIndex(tileWidth, bgX, fireX)
+    };
+    this.testBgPropSignature = signature;
+  }
+  const barrelTileX = bgX + this.testBgPropTileIndex.barrel * tileWidth - tileWidth - (this.testBgPropOffset || 0);
+  const fireTileX = bgX + this.testBgPropTileIndex.fire * tileWidth - tileWidth - (this.testBgPropOffset || 0);
+  const tileY = (Number(bgCfg.y) || 0) + worldY;
+  if (props.fireItem) props.fireItem.setPosition(fireTileX, tileY);
+  if (props.barrelItem) props.barrelItem.setPosition(barrelTileX, tileY);
+  if (props.fire) {
+    props.fire
+      .setPosition(fireX, Number(fireCfg.y) || 0)
+      .setScale(Math.max(0.01, Number(fireCfg.scale) || 1));
+  }
+  const barrelScale = Math.max(0.01, Number(barrelCfg.scale) || 1);
+  const barrelY = Number(barrelCfg.y) || 0;
+  if (props.barrel) {
+    props.barrel
+      .setPosition(barrelX, barrelY)
+      .setScale(barrelScale);
+  }
+  if (props.girl) {
+    props.girl
+      .setPosition(barrelX + 110, barrelY)
+      .setScale(barrelScale);
+  }
+}
+
+setTestBackgroundPropsVisible(visible) {
+  if (!this.testBgProps) return;
+  if (this.testBgProps.fireItem) this.testBgProps.fireItem.setVisible(visible);
+  if (this.testBgProps.barrelItem) this.testBgProps.barrelItem.setVisible(visible);
+}
+
+resetTestBackgroundProps() {
+  this.testBgPropOffset = 0;
+  this.updateTestBackgroundLayout();
+  this.setTestBackgroundPropsVisible(true);
+}
+
+prepareTestBackgroundPropsForReturn(targetScrollX) {
+  const currentScrollX = Number(this.cameras.main.scrollX) || 0;
+  const returnDistance = Math.max(0, currentScrollX - targetScrollX);
+  this.testBgPropOffset = returnDistance;
+  this.updateTestBackgroundLayout();
+  this.setTestBackgroundPropsVisible(true);
 }
 
 advanceTestBackground(dx) {
   if (!this.testBgTiles || !this.testBgTiles.length) return;
   this.testBgOffset += dx;
+  this.testBgPropOffset += dx;
   this.updateTestBackgroundLayout();
 }
 
@@ -657,7 +718,7 @@ createSceneTuningConfig() {
   const defaults = JSON.parse(JSON.stringify(CT.Config.gameplay.sceneTest || {}));
   let saved = null;
   try {
-    saved = JSON.parse(localStorage.getItem("crashLineSceneTuningV2") || "null");
+    saved = JSON.parse(localStorage.getItem("crashLineSceneTuningV3") || "null");
   } catch (e) {
     saved = null;
   }
@@ -733,7 +794,7 @@ applySceneTuningConfig(save) {
   }
   if (save) {
     try {
-      localStorage.setItem("crashLineSceneTuningV2", JSON.stringify(this.sceneTuningConfig));
+      localStorage.setItem("crashLineSceneTuningV3", JSON.stringify(this.sceneTuningConfig));
     } catch (e) {}
   }
   this.updateSceneControlJson();
@@ -805,7 +866,7 @@ createSceneControlUI() {
   reset.type = "button";
   reset.textContent = "RESET";
   reset.onclick = () => {
-    localStorage.removeItem("crashLineSceneTuningV2");
+    localStorage.removeItem("crashLineSceneTuningV3");
     this.sceneTuningConfig = JSON.parse(JSON.stringify(CT.Config.gameplay.sceneTest || {}));
     this.applySceneTuningConfig(true);
     this.createSceneControlUI();
@@ -932,42 +993,102 @@ applyCarControlConfig(save) {
 }
 
 createBounceBadge() {
-  this.bounceBadge = this.add.container(170, 78).setVisible(false).setAlpha(0).setScale(0.45);
+  this.bounceBadge = this.add.container(170, 96).setVisible(false).setAlpha(0).setScale(0.45).setAngle(-7);
   this.bounceBadgeIcon = this.add.image(0, 0, "bounceIcon").setScale(0.56);
   this.bounceBadgeExtraIcon = this.add.image(0, 0, "bounceIconExtra").setScale(0.56).setAlpha(0);
   this.bounceBadgeText = this.add.text(34, 2, "0", {
-    fontFamily: "Arial",
+    fontFamily: CT.Config.fontFamily || "Arial",
     fontSize: "60px",
-    color: "#000000",
-    fontStyle: "bold"
+    color: "#ffffff",
+    letterSpacing: CT.Config.fontLetterSpacing || 0,
+    resolution: CT.Config.fontResolution || 1
   }).setOrigin(0.5);
   this.bounceBadge.add([this.bounceBadgeIcon, this.bounceBadgeExtraIcon, this.bounceBadgeText]);
   this.bounceBadge.lastCount = 0;
   this.multiplierPanel.add(this.bounceBadge);
 }
 
-applyMultiplierTheme(theme) {
-  if (!this.multiplierText || !this.multiplierPanelBg) return;
-  const themes = {
-    idle: { main: 0x8f969b, text: "#8f969b", label: "#8f969b", glow: 0x8f969b, shadow: "#303538", bg: 0x071012, inner: 0x1b2327, bgAlpha: 0.62, innerAlpha: 0.34 },
-    running: { main: 0xeefe0d, text: "#F6FFC3", label: "#EEFE0D", glow: 0xeefe0d, shadow: "#6a7000", bg: 0x171a00, inner: 0x2a2d00, bgAlpha: 0.72, innerAlpha: 0.42 },
-    fail: { main: 0xff2929, text: "#FF2929", label: "#FF6A6A", glow: 0xff2929, shadow: "#4a0707", bg: 0x210505, inner: 0x350808, bgAlpha: 0.76, innerAlpha: 0.42 },
-    win: { main: 0x29ff50, text: "#29FF50", label: "#D8FFD8", glow: 0x29ff50, shadow: "#063a10", bg: 0x031b09, inner: 0x063311, bgAlpha: 0.78, innerAlpha: 0.44 }
+getMultiplierThemes() {
+  return {
+    idle: { main: 0x8f969b, text: 0x8f969b, label: 0x8f969b, glow: 0x8f969b, shadow: 0x303538, bg: 0x071012, inner: 0x1b2327, bgAlpha: 0.62, innerAlpha: 0.34, glowAlpha: 0.08, strokeAlpha: 0.62 },
+    running: { main: 0xeefe0d, text: 0xf6ffc3, label: 0xeefe0d, glow: 0xeefe0d, shadow: 0x6a7000, bg: 0x171a00, inner: 0x2a2d00, bgAlpha: 0.72, innerAlpha: 0.42, glowAlpha: 0.16, strokeAlpha: 0.92 },
+    fail: { main: 0xff2929, text: 0xff2929, label: 0xff6a6a, glow: 0xff2929, shadow: 0x4a0707, bg: 0x210505, inner: 0x350808, bgAlpha: 0.76, innerAlpha: 0.42, glowAlpha: 0.16, strokeAlpha: 0.92 },
+    win: { main: 0x29ff50, text: 0x29ff50, label: 0xd8ffd8, glow: 0x29ff50, shadow: 0x063a10, bg: 0x031b09, inner: 0x063311, bgAlpha: 0.78, innerAlpha: 0.44, glowAlpha: 0.18, strokeAlpha: 0.94 }
   };
+}
+
+colorToCss(color) {
+  return "#" + Math.round(color).toString(16).padStart(6, "0").slice(-6);
+}
+
+lerpColorNumber(from, to, t) {
+  const a = Phaser.Display.Color.IntegerToColor(from);
+  const b = Phaser.Display.Color.IntegerToColor(to);
+  return Phaser.Display.Color.GetColor(
+    Math.round(Phaser.Math.Linear(a.red, b.red, t)),
+    Math.round(Phaser.Math.Linear(a.green, b.green, t)),
+    Math.round(Phaser.Math.Linear(a.blue, b.blue, t))
+  );
+}
+
+mixMultiplierTheme(from, to, t) {
+  const colorKeys = ["main", "text", "label", "glow", "shadow", "bg", "inner"];
+  const numberKeys = ["bgAlpha", "innerAlpha", "glowAlpha", "strokeAlpha"];
+  const mixed = {};
+  colorKeys.forEach((key) => { mixed[key] = this.lerpColorNumber(from[key], to[key], t); });
+  numberKeys.forEach((key) => { mixed[key] = Phaser.Math.Linear(from[key], to[key], t); });
+  return mixed;
+}
+
+setMultiplierThemeVisual(themeState) {
+  if (!this.multiplierText || !this.multiplierPanelBg) return;
+  this.multiplierGlow.setFillStyle(themeState.glow, themeState.glowAlpha);
+  this.multiplierPanelBg.setFillStyle(themeState.bg, themeState.bgAlpha);
+  this.multiplierPanelBg.setStrokeStyle(7, themeState.main, themeState.strokeAlpha);
+  this.multiplierPanelInner.setFillStyle(themeState.inner, themeState.innerAlpha);
+  this.multiplierPanelInner.isStroked = false;
+  this.multiplierPanelLabel.setColor(this.colorToCss(themeState.label));
+  this.multiplierText.setColor(this.colorToCss(themeState.text));
+  if (this.finalWinText) {
+    this.finalWinText.setColor(this.colorToCss(themeState.text));
+  }
+}
+
+applyMultiplierTheme(theme, instant, keepWinLayout) {
+  if (!this.multiplierText || !this.multiplierPanelBg) return;
+  const themes = this.getMultiplierThemes();
   const next = themes[theme] || themes.idle;
-  this.multiplierGlow.setFillStyle(next.glow, theme === "idle" ? 0.08 : 0.16);
-  this.multiplierPanelBg.setFillStyle(next.bg, next.bgAlpha);
-  this.multiplierPanelBg.setStrokeStyle(7, next.main, theme === "idle" ? 0.62 : 0.92);
-  this.multiplierPanelInner.setFillStyle(next.inner, next.innerAlpha);
-  this.multiplierPanelInner.setStrokeStyle(3, next.main, theme === "idle" ? 0.18 : 0.32);
-  this.multiplierPanelLabel.setColor(next.label);
-  this.multiplierText.setColor(next.text);
-  this.multiplierText.setShadow(0, 4, next.shadow, 0, true, true);
-  if (theme !== "win") {
+  const from = this.multiplierThemeCurrent || next;
+  if (this.multiplierThemeTween) {
+    this.multiplierThemeTween.stop();
+    this.multiplierThemeTween = null;
+  }
+  if (instant) {
+    this.multiplierThemeCurrent = Object.assign({}, next);
+    this.setMultiplierThemeVisual(next);
+  } else {
+    const mix = { t: 0 };
+    this.multiplierThemeTween = this.tweens.add({
+      targets: mix,
+      t: 1,
+      duration: 260,
+      ease: "Sine.inOut",
+      onUpdate: () => {
+        this.multiplierThemeCurrent = this.mixMultiplierTheme(from, next, mix.t);
+        this.setMultiplierThemeVisual(this.multiplierThemeCurrent);
+      },
+      onComplete: () => {
+        this.multiplierThemeCurrent = Object.assign({}, next);
+        this.setMultiplierThemeVisual(next);
+        this.multiplierThemeTween = null;
+      }
+    });
+  }
+  if (theme !== "win" && !keepWinLayout) {
     if (this.finalWinText) this.finalWinText.setVisible(false).setAlpha(0);
     if (this.multiplierPanel) this.multiplierPanel.setScale(1).setAlpha(1);
-    this.multiplierText.setPosition(0, 15).setScale(1).setAlpha(1).setAngle(0);
-    this.multiplierPanelLabel.setText("MULTIPLIER").setAlpha(0.85);
+    this.multiplierText.setPosition(0, 0).setScale(1).setAlpha(1).setAngle(0);
+    this.multiplierPanelLabel.setText("").setPosition(0, -72).setAlpha(0);
   }
 }
 
@@ -989,10 +1110,10 @@ showBounceBadge(count) {
       duration: 240,
       ease: "Back.in",
       onComplete: () => {
-        this.bounceBadge.setVisible(false).setScale(0.45).setAngle(0);
+        this.bounceBadge.setVisible(false).setScale(0.45).setAngle(-7);
         this.bounceBadgeIcon.setAlpha(1);
         this.bounceBadgeExtraIcon.setAlpha(0);
-        this.bounceBadgeText.setColor("#000000");
+        this.bounceBadgeText.setColor("#ffffff");
         this.bounceBadge.lastCount = 0;
       }
     });
@@ -1000,14 +1121,14 @@ showBounceBadge(count) {
   }
 
   if (!this.bounceBadge.visible) {
-    this.bounceBadge.setVisible(true).setAlpha(0).setScale(0.45).setAngle(-10);
+    this.bounceBadge.setVisible(true).setAlpha(0).setScale(0.45).setAngle(-16);
     this.tweens.killTweensOf(this.bounceBadge);
     this.tweens.add({
       targets: this.bounceBadge,
       alpha: 1,
       scaleX: 1,
       scaleY: 1,
-      angle: 0,
+      angle: -7,
       duration: 360,
       ease: "Back.out"
     });
@@ -1018,6 +1139,7 @@ showBounceBadge(count) {
       targets: this.bounceBadge,
       scaleX: 1,
       scaleY: 1,
+      angle: -7,
       duration: 220,
       ease: "Back.out"
     });
@@ -4372,15 +4494,16 @@ createDoubleBounceCoin(x, y) {
 createBonusCoin(x, y, value) {
   const root = this.add.container(x, y).setDepth(14);
   const palette = this.getBonusPalette(value);
-  const bg = this.add.circle(0, 0, 34, palette.fill, 0.96).setStrokeStyle(4, palette.stroke, 0.94);
-  const shine = this.add.circle(-10, -11, 9, 0xffffff, 0.34);
+  const fx = this.createBonusCoinFx(value, palette.stroke);
+  const bg = this.add.circle(0, 0, 34, 0x20262b, 0.98).setStrokeStyle(6, palette.stroke, 1);
   const txt = this.add.text(0, 0, value + "x", {
-    fontFamily: "Arial",
-    fontSize: value < 1 || value >= 100 ? "20px" : "23px",
-    color: palette.text,
-    fontStyle: "bold"
+    fontFamily: CT.Config.fontFamily || "Arial",
+    fontSize: value < 1 || value >= 100 ? "40px" : "46px",
+    color: "#ffffff",
+    letterSpacing: CT.Config.fontLetterSpacing || 0,
+    resolution: CT.Config.fontResolution || 1
   }).setOrigin(0.5);
-  root.add([bg, shine, txt]);
+  root.add(fx.concat([bg, txt]));
   root.bonusValue = value;
   this.bonusItems.push(root);
   if (this.isMobilePerfMode()) {
@@ -4397,6 +4520,52 @@ createBonusCoin(x, y, value) {
     });
   }
   return root;
+}
+
+createBonusCoinFx(value, color) {
+  if (value < 10) return [];
+  const high = value >= 100;
+  const jackpot = value >= 1000;
+  const glow = this.add.circle(0, 0, jackpot ? 58 : high ? 51 : 45, color, jackpot ? 0.24 : high ? 0.18 : 0.12)
+    .setBlendMode(Phaser.BlendModes.ADD);
+  const ring = this.add.circle(0, 0, jackpot ? 47 : high ? 43 : 39, 0x000000, 0)
+    .setStrokeStyle(jackpot ? 5 : high ? 4 : 3, color, jackpot ? 0.92 : 0.72)
+    .setBlendMode(Phaser.BlendModes.ADD);
+  const items = [glow, ring];
+  if (high) {
+    const sparks = this.add.container(0, 0);
+    const count = jackpot ? 8 : 5;
+    const radius = jackpot ? 51 : 45;
+    for (let i = 0; i < count; i++) {
+      const angle = (Math.PI * 2 * i) / count;
+      const spark = this.add.circle(Math.cos(angle) * radius, Math.sin(angle) * radius, jackpot ? 4 : 3, color, jackpot ? 0.95 : 0.78)
+        .setBlendMode(Phaser.BlendModes.ADD);
+      sparks.add(spark);
+    }
+    items.push(sparks);
+    if (!this.isMobilePerfMode()) {
+      this.tweens.add({
+        targets: sparks,
+        angle: jackpot ? 360 : 180,
+        duration: jackpot ? 1800 : 2400,
+        repeat: -1,
+        ease: "Linear"
+      });
+    }
+  }
+  if (!this.isMobilePerfMode()) {
+    this.tweens.add({
+      targets: glow,
+      scaleX: jackpot ? 1.28 : 1.16,
+      scaleY: jackpot ? 1.28 : 1.16,
+      alpha: jackpot ? 0.1 : 0.07,
+      duration: jackpot ? 420 : 620,
+      yoyo: true,
+      repeat: -1,
+      ease: "Sine.inOut"
+    });
+  }
+  return items;
 }
 
 pickBonusMultiplier(tier) {
@@ -4431,23 +4600,23 @@ pickBonusMultiplier(tier) {
 }
 
 getBonusPalette(value) {
-  if (value >= 5000) return { fill: 0xffffff, stroke: 0xff38e8, text: "#5c004e" };
-  if (value >= 4000) return { fill: 0xff38e8, stroke: 0xffffff, text: "#3a0035" };
-  if (value >= 3000) return { fill: 0x7c4dff, stroke: 0xffffff, text: "#140038" };
-  if (value >= 2000) return { fill: 0x318dff, stroke: 0xffffff, text: "#001f4d" };
-  if (value >= 1000) return { fill: 0xfff36b, stroke: 0xffffff, text: "#473900" };
-  if (value >= 500) return { fill: 0xff6b4a, stroke: 0xffffff, text: "#3d0900" };
-  if (value >= 200) return { fill: 0x00ffa8, stroke: 0xffffff, text: "#003829" };
-  if (value >= 100) return { fill: 0xf6f0ff, stroke: 0xc86bff, text: "#3b0061" };
-  if (value >= 50) return { fill: 0xd97cff, stroke: 0xffffff, text: "#21002f" };
-  if (value >= 20) return { fill: 0x47f2ff, stroke: 0xffffff, text: "#002f36" };
-  if (value >= 10) return { fill: 0x63ff9f, stroke: 0xffffff, text: "#063318" };
-  if (value >= 5) return { fill: 0xffea35, stroke: 0xffffff, text: "#392a00" };
-  if (value >= 2) return { fill: 0xff43a9, stroke: 0xffffff, text: "#3b001f" };
-  if (value >= 1) return { fill: 0x35d7ff, stroke: 0xffffff, text: "#002f3d" };
-  if (value >= 0.5) return { fill: 0x8cff57, stroke: 0xffffff, text: "#123000" };
-  if (value >= 0.25) return { fill: 0xff8a3d, stroke: 0xffffff, text: "#331100" };
-  return { fill: 0x9b7cff, stroke: 0xffffff, text: "#18004a" };
+  if (value >= 5000) return { stroke: 0xff38e8 };
+  if (value >= 4000) return { stroke: 0xff2d6f };
+  if (value >= 3000) return { stroke: 0xb15cff };
+  if (value >= 2000) return { stroke: 0x37caff };
+  if (value >= 1000) return { stroke: 0xfff36b };
+  if (value >= 500) return { stroke: 0xff6a00 };
+  if (value >= 200) return { stroke: 0x00ffa8 };
+  if (value >= 100) return { stroke: 0xc86bff };
+  if (value >= 50) return { stroke: 0xd97cff };
+  if (value >= 20) return { stroke: 0x47f2ff };
+  if (value >= 10) return { stroke: 0x63ff9f };
+  if (value >= 5) return { stroke: 0xffea35 };
+  if (value >= 2) return { stroke: 0xff43a9 };
+  if (value >= 1) return { stroke: 0x35d7ff };
+  if (value >= 0.5) return { stroke: 0x8cff57 };
+  if (value >= 0.25) return { stroke: 0xff8a3d };
+  return { stroke: 0x9b7cff };
 }
 
 collectBonusesOnCurve(bonuses, t) {
@@ -4510,12 +4679,11 @@ collectExtraBounceCoin(bonus) {
 
 showExtraBouncePop(x, y) {
   const pop = this.add.text(x, y - 58, "+1 BOUNCE", {
-    fontFamily: "Arial",
+    fontFamily: CT.Config.fontFamily || "Arial",
     fontSize: "42px",
     color: "#c58cff",
-    fontStyle: "bold",
-    stroke: "#000000",
-    strokeThickness: 8
+    letterSpacing: CT.Config.fontLetterSpacing || 0,
+    resolution: CT.Config.fontResolution || 1
   }).setOrigin(0.5).setDepth(18);
   this.tweens.add({
     targets: pop,
@@ -4539,12 +4707,11 @@ pauseForBonus(value) {
 
 showBonusPop(x, y, value) {
   const pop = this.add.text(x, y - 54, "+" + this.formatX(value) + "x", {
-    fontFamily: "Arial",
+    fontFamily: CT.Config.fontFamily || "Arial",
     fontSize: value >= 10 ? "54px" : "46px",
     color: "#ffcf30",
-    fontStyle: "bold",
-    stroke: "#000000",
-    strokeThickness: 8
+    letterSpacing: CT.Config.fontLetterSpacing || 0,
+    resolution: CT.Config.fontResolution || 1
   }).setOrigin(0.5).setDepth(18);
   this.tweens.add({
     targets: pop,
@@ -4615,32 +4782,32 @@ showFinalWinCounter(finalPayout, onComplete) {
     return;
   }
 
-  this.applyMultiplierTheme("win");
+  this.applyMultiplierTheme("win", false, true);
+  this.transitionMultiplierLabel("YOUR WIN", "#D8FFD8");
   this.tweens.killTweensOf([this.multiplierPanel, this.multiplierText, this.multiplierGlow, this.finalWinText]);
-  this.multiplierPanelLabel.setText("TOTAL MULTIPLIER").setAlpha(0.78);
   this.finalWinText
-    .setText("LAST WIN +$0.00")
+    .setText("$0.00")
     .setColor("#29FF50")
     .setVisible(true)
     .setAlpha(0)
-    .setScale(0.72)
-    .setPosition(0, -48);
-  this.multiplierText.setAlpha(1).setPosition(0, 15).setScale(1).setAngle(0);
+    .setScale(0.42)
+    .setPosition(0, 0);
+  this.multiplierText.setAlpha(1).setPosition(0, 0).setScale(1).setAngle(0);
 
   this.tweens.add({
     targets: this.multiplierText,
-    y: 48,
-    scaleX: 0.58,
-    scaleY: 0.58,
-    duration: 260,
-    ease: "Back.out"
+    y: 62,
+    scaleX: 0.24,
+    scaleY: 0.24,
+    duration: 330,
+    ease: "Cubic.out"
   });
   this.tweens.add({
     targets: this.finalWinText,
     alpha: 1,
     scaleX: 1,
     scaleY: 1,
-    duration: 240,
+    duration: 280,
     ease: "Back.out"
   });
   this.tweens.add({
@@ -4661,10 +4828,10 @@ showFinalWinCounter(finalPayout, onComplete) {
     duration: 720,
     ease: "Cubic.out",
     onUpdate: () => {
-      this.finalWinText.setText("LAST WIN +$" + this.wallet.format(counter.value));
+      this.finalWinText.setText("$" + this.wallet.format(counter.value));
     },
     onComplete: () => {
-      this.finalWinText.setText("LAST WIN +$" + this.wallet.format(finalPayout));
+      this.finalWinText.setText("$" + this.wallet.format(finalPayout));
       this.tweens.add({
         targets: this.multiplierPanel,
         scaleX: 1.08,
@@ -4674,9 +4841,116 @@ showFinalWinCounter(finalPayout, onComplete) {
         ease: "Sine.inOut",
         onComplete: () => {
           this.multiplierPanel.setScale(1);
-          this.time.delayedCall(140, () => onComplete && onComplete());
+          this.time.delayedCall(110, () => this.animateFinalWinPanelReset(onComplete));
         }
       });
+    }
+  });
+}
+
+transitionMultiplierLabel(nextText, color) {
+  if (!this.multiplierPanel || !this.multiplierPanelLabel) return;
+  const labelY = -72;
+  const family = CT.Config.fontFamily || "Arial";
+  this.tweens.killTweensOf(this.multiplierPanelLabel);
+  if (this.multiplierLabelGhost) {
+    this.multiplierLabelGhost.destroy();
+    this.multiplierLabelGhost = null;
+  }
+  if (this.multiplierPanelLabel.text === nextText && this.multiplierPanelLabel.alpha > 0.7) {
+    this.multiplierPanelLabel.setColor(color).setPosition(0, labelY).setAlpha(0.86);
+    return;
+  }
+  const ghost = this.add.text(0, labelY - 28, nextText, {
+    fontFamily: family,
+    fontSize: "34px",
+    color,
+    letterSpacing: CT.Config.fontLetterSpacing || 0,
+    resolution: CT.Config.fontResolution || 1
+  }).setOrigin(0.5).setAlpha(0);
+  this.multiplierPanel.add(ghost);
+  this.multiplierLabelGhost = ghost;
+  this.tweens.add({
+    targets: this.multiplierPanelLabel,
+    y: labelY + 28,
+    alpha: 0,
+    duration: 170,
+    ease: "Cubic.in"
+  });
+  this.tweens.add({
+    targets: ghost,
+    y: labelY,
+    alpha: 0.86,
+    duration: 240,
+    ease: "Cubic.out",
+    onComplete: () => {
+      this.multiplierPanelLabel
+        .setText(nextText)
+        .setColor(color)
+        .setPosition(0, labelY)
+        .setAlpha(0.86);
+      ghost.destroy();
+      if (this.multiplierLabelGhost === ghost) this.multiplierLabelGhost = null;
+    }
+  });
+}
+
+animateFinalWinPanelReset(onComplete) {
+  const startMultiplier = this.getDisplayedMultiplier();
+  const counter = { value: startMultiplier };
+  this.applyMultiplierTheme("idle", false, true);
+  this.hideMultiplierLabel();
+  this.tweens.killTweensOf([this.multiplierText, this.finalWinText]);
+  this.tweens.add({
+    targets: this.finalWinText,
+    alpha: 0,
+    scaleX: 0.58,
+    scaleY: 0.58,
+    duration: 260,
+    ease: "Cubic.in",
+    onComplete: () => {
+      this.finalWinText.setVisible(false).setText("$0.00");
+    }
+  });
+  this.tweens.add({
+    targets: this.multiplierText,
+    y: 0,
+    scaleX: 1,
+    scaleY: 1,
+    duration: 460,
+    ease: "Cubic.inOut"
+  });
+  this.tweens.add({
+    targets: counter,
+    value: 0,
+    duration: 460,
+    ease: "Cubic.inOut",
+    onUpdate: () => {
+      const value = Math.max(0, counter.value);
+      this.multiplierText.setText(value <= 0.01 ? "0x" : value.toFixed(2) + "x");
+    },
+    onComplete: () => {
+      this.multiplierText.setText("0x").setPosition(0, 0).setScale(1).setAlpha(1);
+      onComplete && onComplete();
+    }
+  });
+}
+
+hideMultiplierLabel() {
+  if (!this.multiplierPanelLabel) return;
+  this.tweens.killTweensOf(this.multiplierPanelLabel);
+  if (this.multiplierLabelGhost) {
+    this.multiplierLabelGhost.destroy();
+    this.multiplierLabelGhost = null;
+  }
+  this.tweens.add({
+    targets: this.multiplierPanelLabel,
+    y: -44,
+    alpha: 0,
+    duration: 220,
+    ease: "Cubic.in",
+    onComplete: () => {
+      this.multiplierPanelLabel.setText("").setPosition(0, -72).setAlpha(0);
     }
   });
 }
@@ -4733,6 +5007,7 @@ returnCameraToStart(spawnNewCar) {
     this.updateCarGroundShadow();
     const cfg = CT.Config;
     const awayScrollX = -Phaser.Math.Clamp(cfg.width * 1.85, 980, 1580);
+    this.prepareTestBackgroundPropsForReturn(awayScrollX);
     const awayMotion = { scrollX: this.cameras.main.scrollX };
     let lastAwayScrollX = awayMotion.scrollX;
     const launchCar = () => {
@@ -4766,6 +5041,12 @@ returnCameraToStart(spawnNewCar) {
         this.advanceRoad(diff);
       },
       onComplete: () => {
+        const finalDiff = awayScrollX - lastAwayScrollX;
+        if (Math.abs(finalDiff) > 0.01) {
+          lastAwayScrollX = awayScrollX;
+          this.cameras.main.scrollX = awayScrollX;
+          this.advanceRoad(finalDiff);
+        }
         launchCar();
       }
     });
@@ -4828,6 +5109,7 @@ resetRunVisuals(launchPosition) {
   this.nextCarLightSweepAt = 0;
   this.updateCarFlame();
   this.updateCarGroundShadow();
+  this.resetTestBackgroundProps();
   this.applyMultiplierTheme("idle");
   this.updateBounceText();
   this.smokeLayer.removeAll(true);
@@ -4868,6 +5150,7 @@ resetRunStateOnly() {
   this.nextCarLightSweepAt = 0;
   this.updateCarFlame();
   this.updateCarGroundShadow();
+  this.resetTestBackgroundProps();
   this.applyMultiplierTheme("idle");
   this.updateBounceText();
   this.smokeLayer.removeAll(true);
@@ -4992,7 +5275,7 @@ flashRareBounce() {
   if (!this.bounceBadge) return;
   const x = this.multiplierPanel.x + this.bounceBadge.x;
   const y = this.multiplierPanel.y + this.bounceBadge.y;
-  this.bounceBadge.setVisible(true).setAlpha(1).setScale(1.28);
+  this.bounceBadge.setVisible(true).setAlpha(1).setScale(1.28).setAngle(-7);
   this.bounceBadgeIcon.setAlpha(0);
   this.bounceBadgeExtraIcon.setAlpha(1);
   this.bounceBadgeText.setColor("#ffffff");
@@ -5001,6 +5284,7 @@ flashRareBounce() {
     targets: this.bounceBadge,
     scaleX: 1,
     scaleY: 1,
+    angle: -7,
     duration: 360,
     ease: "Back.out"
   });
@@ -5017,16 +5301,15 @@ flashRareBounce() {
     ease: "Sine.inOut"
   });
   this.time.delayedCall(620, () => {
-    if (this.bounceBadgeText && this.bounceBadgeText.active) this.bounceBadgeText.setColor("#000000");
+    if (this.bounceBadgeText && this.bounceBadgeText.active) this.bounceBadgeText.setColor("#ffffff");
   });
 
   const label = this.add.text(x, y - 58, "+1 RARE BOUNCE", {
-    fontFamily: "Arial",
+    fontFamily: CT.Config.fontFamily || "Arial",
     fontSize: "28px",
     color: "#d97cff",
-    fontStyle: "bold",
-    stroke: "#000000",
-    strokeThickness: 6
+    letterSpacing: CT.Config.fontLetterSpacing || 0,
+    resolution: CT.Config.fontResolution || 1
   }).setOrigin(0.5).setDepth(18).setScrollFactor(0);
   this.tweens.add({
     targets: label,

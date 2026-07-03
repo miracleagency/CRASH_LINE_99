@@ -1,4 +1,4 @@
-(function () {
+﻿(function () {
   const CT = window.CrashTest = window.CrashTest || {};
 
   class Hud {
@@ -19,54 +19,60 @@
       this.top = this.scene.add.container(0, 0).setDepth(10);
       this.top.setScrollFactor(0);
       const title = this.scene.add.text(W / 2, 25, "CRASHLINE 99", {
-        fontFamily: "Arial",
+        fontFamily: CT.Config.fontFamily || "Arial",
         fontSize: "28px",
         color: cfg.colors.text,
-        fontStyle: "bold"
+        letterSpacing: cfg.fontLetterSpacing || 0,
+        resolution: cfg.fontResolution || 1
       }).setOrigin(0.5);
       const gameVersion = this.scene.add.text(W / 2, 58, "GAME " + cfg.gameVersion + " / " + cfg.build, {
-        fontFamily: "Arial",
+        fontFamily: CT.Config.fontFamily || "Arial",
         fontSize: "14px",
         color: "#6f8088",
-        fontStyle: "bold"
+        letterSpacing: cfg.fontLetterSpacing || 0,
+        resolution: cfg.fontResolution || 1
       }).setOrigin(0.5);
       this.resultText = this.scene.add.text(W / 2, 104, "LAST RESULT --", {
-        fontFamily: "Arial",
+        fontFamily: CT.Config.fontFamily || "Arial",
         fontSize: "30px",
         color: "#93a4ad",
-        fontStyle: "bold",
-        stroke: "#000000",
-        strokeThickness: 4
+        letterSpacing: cfg.fontLetterSpacing || 0,
+        resolution: cfg.fontResolution || 1
       }).setOrigin(0.5);
       this.top.add([title, gameVersion, this.resultText]);
 
       this.balanceText = this.scene.add.text(18, H - 60, "", {
-        fontFamily: "Arial",
-        fontSize: "25px",
+        fontFamily: CT.Config.fontFamily || "Arial",
+        fontSize: "38px",
         color: cfg.colors.text,
-        fontStyle: "bold"
+        letterSpacing: cfg.fontLetterSpacing || 0,
+        resolution: cfg.fontResolution || 1
       }).setDepth(10).setScrollFactor(0);
 
       this.betButton = this.scene.add.container(W - 108, H - 50).setDepth(10);
       this.betButton.setScrollFactor(0);
-      const betBg = this.scene.add.rectangle(0, 0, 148, 54, 0x2f2f2f, 0.92)
+      const betBg = this.scene.add.rectangle(0, 0, 168, 54, 0x2f2f2f, 0.92)
         .setStrokeStyle(3, cfg.colors.panelStroke, 0.75);
       this.betText = this.scene.add.text(0, 0, "", {
-        fontFamily: "Arial",
-        fontSize: "24px",
+        fontFamily: CT.Config.fontFamily || "Arial",
+        fontSize: "36px",
         color: cfg.colors.text,
-        fontStyle: "bold"
+        letterSpacing: cfg.fontLetterSpacing || 0,
+        resolution: cfg.fontResolution || 1
       }).setOrigin(0.5);
-      const betHit = this.scene.add.zone(0, 0, 148, 54).setInteractive({ useHandCursor: true });
+      const betHit = this.scene.add.zone(0, 0, 168, 54).setInteractive({ useHandCursor: true });
       betHit.on("pointerdown", () => this.showBetPopup());
       this.betButton.add([betBg, this.betText, betHit]);
       this.betButton.hit = betHit;
 
-      this.createLever(W / 2, H - 154);
+      this.createLever(W / 2, H - 224);
 
-      this.safeButton = this.createCommandButton(W - 88, 184, 128, 56, 0x2f2f2f, "SAFE", "#ffffff", () => {
+      this.safeButton = this.createCommandButton(W - 292, H - 50, 168, 54, 0x111719, "SAFE", "#8f969b", () => {
         if (this.callbacks.onSafeToggle) this.callbacks.onSafeToggle();
       });
+      this.safeButton.setAlpha(0.74);
+      this.safeButton.bg.setStrokeStyle(2, 0xffffff, 0.24);
+      this.safeButton.label.setFontSize("36px");
 
       this.createBetPopup();
       this.setRunning(false);
@@ -89,25 +95,23 @@
       this.turboFill = this.scene.add.rectangle(this.leverNeutralX, 28, 1, 14, cfg.colors.accent, 0.78)
         .setOrigin(0, 0.5);
       const neutralMark = this.scene.add.rectangle(this.leverNeutralX, 28, 12, 54, cfg.colors.gold, 0.8);
-      const releaseLabel = this.scene.add.text(this.leverNeutralX + 170, -42, "RELEASE = CRASH", {
-        fontFamily: "Arial",
-        fontSize: "18px",
+      const releaseLabel = this.scene.add.text(this.leverNeutralX + 190, -42, "RELEASE = CRASH", {
+        fontFamily: CT.Config.fontFamily || "Arial",
+        fontSize: "36px",
         color: "#ff6b6b",
-        fontStyle: "bold",
-        stroke: "#000000",
-        strokeThickness: 4
+        letterSpacing: cfg.fontLetterSpacing || 0,
+        resolution: cfg.fontResolution || 1
       }).setOrigin(0.5);
 
-      this.turboLight = this.scene.add.container(158, -44);
+      this.turboLight = this.scene.add.container(190, -44);
       this.turboGlow = this.scene.add.circle(0, 0, 43, cfg.colors.accent, 0.08).setBlendMode(Phaser.BlendModes.ADD);
       this.turboLamp = this.scene.add.circle(0, 0, 20, 0x123238, 1).setStrokeStyle(3, 0xffffff, 0.24);
       this.turboLabel = this.scene.add.text(0, 34, "TURBO", {
-        fontFamily: "Arial",
+        fontFamily: CT.Config.fontFamily || "Arial",
         fontSize: "22px",
         color: "#3a7880",
-        fontStyle: "bold",
-        stroke: "#000000",
-        strokeThickness: 4
+        letterSpacing: cfg.fontLetterSpacing || 0,
+        resolution: cfg.fontResolution || 1
       }).setOrigin(0.5);
       this.turboLight.add([this.turboGlow, this.turboLamp, this.turboLabel]);
 
@@ -118,10 +122,11 @@
       this.leverHandle = this.scene.add.circle(0, -62, 38, cfg.colors.gold, 1)
         .setStrokeStyle(5, 0xffffff, 0.9);
       this.leverHandleText = this.scene.add.text(0, -62, "GO", {
-        fontFamily: "Arial",
-        fontSize: "24px",
+        fontFamily: CT.Config.fontFamily || "Arial",
+        fontSize: "48px",
         color: "#171717",
-        fontStyle: "bold"
+        letterSpacing: cfg.fontLetterSpacing || 0,
+        resolution: cfg.fontResolution || 1
       }).setOrigin(0.5);
       this.leverKnob.add([this.leverStem, this.leverHandleGlow, this.leverHandle, this.leverHandleText]);
 
@@ -191,6 +196,7 @@
       this.leverHandleGlow.setAlpha(0.14 + value * 0.34);
       this.leverHandle.setFillStyle(value > 0.03 ? CT.Config.colors.accent : CT.Config.colors.gold, 1);
       this.leverHandleText.setColor("#171717");
+      this.leverHandleText.setFontSize(value > 0.03 ? "34px" : "48px");
       this.leverHandleText.setText(value > 0.03 ? Math.round(value * 100) + "%" : "GO");
       if (!silent && this.callbacks.onLeverPower) this.callbacks.onLeverPower(value);
     }
@@ -201,10 +207,11 @@
       const bg = this.scene.add.rectangle(0, 0, width, height, color, 1)
         .setStrokeStyle(5, 0xffffff, 0.88);
       const text = this.scene.add.text(0, 0, label, {
-        fontFamily: "Arial",
+        fontFamily: CT.Config.fontFamily || "Arial",
         fontSize: label.length > 5 ? "30px" : "34px",
         color: textColor,
-        fontStyle: "bold"
+        letterSpacing: CT.Config.fontLetterSpacing || 0,
+        resolution: CT.Config.fontResolution || 1
       }).setOrigin(0.5);
       const hit = this.scene.add.zone(0, 0, width, height).setInteractive({ useHandCursor: true });
       const releaseHold = () => {
@@ -275,10 +282,12 @@
     }
 
     setSafeMode(enabled) {
-      this.safeButton.bg.setFillStyle(enabled ? 0x7cff55 : 0x2f2f2f, 1);
+      this.safeButton.bg.setFillStyle(enabled ? 0x1f7f36 : 0x111719, enabled ? 0.86 : 0.72);
+      this.safeButton.bg.setStrokeStyle(2, enabled ? 0x29ff50 : 0xffffff, enabled ? 0.54 : 0.24);
       this.safeButton.label.setText(enabled ? "SAFE ON" : "SAFE");
-      this.safeButton.label.setFontSize(enabled ? "20px" : "24px");
-      this.safeButton.label.setColor(enabled ? "#071012" : "#ffffff");
+      this.safeButton.label.setFontSize(enabled ? "32px" : "36px");
+      this.safeButton.label.setColor(enabled ? "#d8ffd8" : "#8f969b");
+      this.safeButton.setAlpha(enabled ? 0.92 : 0.74);
     }
 
     pressButton(target, scale) {
@@ -313,10 +322,11 @@
       const panel = this.scene.add.rectangle(0, 0, 420, 420, 0x242424, 0.98)
         .setStrokeStyle(4, cfg.colors.panelStroke, 0.8);
       const title = this.scene.add.text(0, -166, "BET", {
-        fontFamily: "Arial",
+        fontFamily: CT.Config.fontFamily || "Arial",
         fontSize: "38px",
         color: cfg.colors.text,
-        fontStyle: "bold"
+        letterSpacing: cfg.fontLetterSpacing || 0,
+        resolution: cfg.fontResolution || 1
       }).setOrigin(0.5);
       this.betPopup.add([shade, panel, title]);
 
@@ -325,15 +335,16 @@
         const y = -84 + Math.floor(i / 2) * 98;
         const opt = this.scene.add.container(x, y);
         const active = value === this.wallet.currentBet;
-        const bg = this.scene.add.rectangle(0, 0, 150, 70, active ? cfg.colors.accent : 0xc89a22, 1)
+        const bg = this.scene.add.rectangle(0, 0, 178, 78, active ? cfg.colors.accent : 0xc89a22, 1)
           .setStrokeStyle(3, cfg.colors.panelStroke, 0.95);
         const txt = this.scene.add.text(0, 0, String(value), {
-          fontFamily: "Arial",
-          fontSize: "32px",
+          fontFamily: CT.Config.fontFamily || "Arial",
+          fontSize: "64px",
           color: cfg.colors.text,
-          fontStyle: "bold"
+          letterSpacing: cfg.fontLetterSpacing || 0,
+          resolution: cfg.fontResolution || 1
         }).setOrigin(0.5);
-        const hit = this.scene.add.zone(0, 0, 150, 70).setInteractive({ useHandCursor: true });
+        const hit = this.scene.add.zone(0, 0, 178, 78).setInteractive({ useHandCursor: true });
         hit.on("pointerdown", () => {
           this.wallet.setBet(value);
           this.update();
@@ -358,12 +369,11 @@
 
     floatText(x, y, text, color, size) {
       const label = this.scene.add.text(x, y, text, {
-        fontFamily: "Arial",
+        fontFamily: CT.Config.fontFamily || "Arial",
         fontSize: (size || 30) + "px",
         color: color || CT.Config.colors.text,
-        fontStyle: "bold",
-        stroke: "#000000",
-        strokeThickness: 5
+        letterSpacing: CT.Config.fontLetterSpacing || 0,
+        resolution: CT.Config.fontResolution || 1
       }).setOrigin(0.5).setDepth(30).setScrollFactor(0);
 
       this.scene.tweens.add({

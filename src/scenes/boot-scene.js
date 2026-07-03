@@ -19,6 +19,7 @@
       const roadFenceUrl = CT.asset("images/ROAD_bg1_3.png");
       const backTestBgUrl = CT.asset("images/BACK_TEST_BG.png");
       const barrelUrl = CT.asset("images/barrol.png");
+      const girlUrl = CT.asset("images/girl.png");
       const mainScreenRefOverlayUrl = CT.asset("images/Main_screen_ref_overlay.png");
       const fencePoleUrl = CT.asset("images/stolb_lamp_1.png");
       const fenceLightUrl = CT.asset("images/yelow_light_1.png");
@@ -96,6 +97,7 @@
       this.load.image("roadFence", roadFenceUrl);
       this.load.image("backTestBg", backTestBgUrl);
       this.load.image("barrel", barrelUrl);
+      this.load.image("girl", girlUrl);
       this.load.image("mainScreenRefOverlay", mainScreenRefOverlayUrl);
       this.load.image("fencePole", fencePoleUrl);
       this.load.image("fenceLight", fenceLightUrl);

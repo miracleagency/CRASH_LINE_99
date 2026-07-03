@@ -126,14 +126,14 @@
     }
   }
 
-  function boot() {
-    if (!window.Phaser || Phaser.VERSION !== cfg.phaserVersion) {
-      showBootError("Phaser 3.88.2 failed to load. Current version: " + (window.Phaser && Phaser.VERSION ? Phaser.VERSION : "none"));
-      return;
-    }
+  function waitForGameFont() {
+    if (!document.fonts || !cfg.fontFamily) return Promise.resolve();
+    return document.fonts.load("32px " + cfg.fontFamily)
+      .then(() => document.fonts.ready)
+      .catch(() => {});
+  }
 
-    bindPageControls();
-
+  function startPhaserGame() {
     window.__game = new Phaser.Game({
       type: Phaser.AUTO,
       parent: "gameWrap",
@@ -157,6 +157,17 @@
         postBoot: applySoundMute
       }
     });
+  }
+
+  function boot() {
+    if (!window.Phaser || Phaser.VERSION !== cfg.phaserVersion) {
+      showBootError("Phaser 3.88.2 failed to load. Current version: " + (window.Phaser && Phaser.VERSION ? Phaser.VERSION : "none"));
+      return;
+    }
+
+    bindPageControls();
+
+    waitForGameFont().then(startPhaserGame);
   }
 
   boot();

@@ -1,3 +1,11 @@
+@font-face {
+  font-family: "RoadRage";
+  src: url("../assets/fonts/RoadRage-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+
 html,
 body {
   width: 100%;
@@ -9,7 +17,9 @@ body {
 }
 
 body {
-  font-family: Arial, sans-serif;
+  font-family: "RoadRage", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
 }
 
 #gameWrap {
@@ -35,7 +45,7 @@ canvas {
   background: #3a1010;
   border: 2px solid #ff7070;
   border-radius: 8px;
-  font: 18px/1.4 Arial, sans-serif;
+  font: 18px/1.4 "RoadRage", Arial, sans-serif;
 }
 
 .page-btn {
@@ -48,7 +58,7 @@ canvas {
   border-radius: 8px;
   color: #ffffff;
   background: rgba(0, 0, 0, 0.44);
-  font: 700 15px/1 Arial, sans-serif;
+  font: 400 15px/1 "RoadRage", Arial, sans-serif;
   letter-spacing: 0;
   opacity: 0.82;
   transition: opacity 160ms ease, transform 120ms ease;
@@ -137,7 +147,7 @@ body.controls-dimmed .page-btn:not(.is-hidden) {
   color: #ffffff;
   background: rgba(3, 9, 12, 0.88);
   box-shadow: 0 14px 40px rgba(0, 0, 0, 0.42);
-  font: 700 11px/1.2 Arial, sans-serif;
+  font: 400 11px/1.2 "RoadRage", Arial, sans-serif;
   letter-spacing: 0;
 }
 
@@ -186,7 +196,7 @@ body.controls-dimmed .page-btn:not(.is-hidden) {
   border-radius: 6px;
   color: #ffffff;
   background: rgba(255, 255, 255, 0.08);
-  font: 700 10px/1 Arial, sans-serif;
+  font: 400 10px/1 "RoadRage", Arial, sans-serif;
 }
 
 .control-ui__actions {
@@ -202,7 +212,7 @@ body.controls-dimmed .page-btn:not(.is-hidden) {
   border-radius: 7px;
   color: #061009;
   background: #41ce44;
-  font: 800 10px/1 Arial, sans-serif;
+  font: 400 10px/1 "RoadRage", Arial, sans-serif;
 }
 
 .control-ui__json {
