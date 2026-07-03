@@ -3,8 +3,8 @@
   const assetRoot = new URL("./assets/", window.location.href).href;
 
   CT.Config = {
-    build: "2026-07-02-v0.1.146-ragdoll-cleanup",
-    gameVersion: "v0.1.146",
+    build: "2026-07-03-v0.1.163-win-panel-tuning",
+    gameVersion: "v0.1.163",
     phaserVersion: "3.88.2",
     width: 720,
     height: 1280,
@@ -75,6 +75,17 @@
           purple: "#b15cff"
         }
       },
+      sceneTest: {
+        world: { y: -56 },
+        background: { x: -1809, y: -36, scale: 0.659 },
+        road: { x: 0, y: 881, scale: 0.752 },
+        fence: { x: 0, y: 788, scale: 0.65 },
+        poles: { spacing: 360, y: 711, scale: 0.576 },
+        barrel: { x: 5550, y: 784, scale: 0.61 },
+        fire: { x: 1874, y: 739, scale: 0.96 },
+        refOverlay: { alpha: 0 },
+        multiplierPanel: { x: 360, y: 320 }
+      },
       carVisualScale: 1.2,
       worldWidth: 24000,
       minBounces: 0,
@@ -88,7 +99,8 @@
       bounceHeight: 330
     },
     storage: {
-      muted: "crashTestMuted"
+      muted: "crashTestMuted",
+      controlsOpen: "crashLineControlUiOpen"
     },
     colors: {
       bg: 0x071012,
@@ -103,6 +115,8 @@
   };
 
   CT.asset = function asset(path) {
-    return new URL(String(path || "").replace(/^\/+/, ""), CT.Config.assets.root).href;
+    const url = new URL(String(path || "").replace(/^\/+/, ""), CT.Config.assets.root);
+    url.searchParams.set("v", CT.Config.build);
+    return url.href;
   };
 })();

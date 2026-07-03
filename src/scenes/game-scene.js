@@ -1,11 +1,12 @@
 (function () {const CT = window.CrashTest = window.CrashTest || {};
 
-class GameScene extends Phaser.Scene {constructor() {super("GameScene");this.wallet = null;this.hud = null;this.state = "ready";this.round = 0;this.multiplier = 0;this.speed = 0;this.turbo = false;this.turboPower = 0;this.engineBreakAt = 0;this.roadOffset = 0;this.fenceOffset = 0;this.visualSpeed = 0;this.flightRoadSpeed = 0;this.pendingPayout = 0;this.autoCrash = false;this.safeMode = false;this.bonusAdd = 0;this.bonusItems = [];this.bonusPauseToken = 0;this.lastMultiplierDisplay = -1;this.lastMultiplierPulseAt = 0;this.rareBounceCount = 0;this.nextRareBounceAt = 0;this.remainingBounces = null;this.extraBounceAdder = null;this.extraBounceBonusCount = 0;this.sfx = {};this.engineAudioToken = 0;this.engineLoopTimer = null;this.engineLoopIndex = 0;this.roadTiles = [];this.fenceTiles = [];this.loopObjectLayers = [];this.crashDebrisActive = false;this.fencePoleItems = [];this.fencePoleLayer = null;this.fenceOverlayItems = [];this.fenceOverlayLayer = null;this.fenceOverlayKeys = [];this.roadArtY = 0;this.roadArtScale = 1;this.fenceArtY = 0;this.fenceArtScale = 1;this.fencePoleX = 0;this.fencePoleY = 0;this.fencePoleSpacing = 247;this.fencePoleScale = 0.5;this.fenceLightOffsetY = -29;this.fenceLightScale = 0.4;this.fenceLightIntensity = 0.79;this.fenceLightDelay = 0.085;this.fenceOverlayX = 0;this.fenceOverlayY = 760;this.fenceOverlayHeight = 64;this.fenceOverlaySpacing = 420;this.fenceOverlayJitterX = 110;this.fenceOverlayCount = 24;this.fenceOverlayChance = 0.36;this.fenceOverlayScaleMin = 0.42;this.fenceOverlayScaleMax = 0.62;this.fenceOverlayAlpha = 0.96;this.hitWallX = 570;this.hitWallY = 888;this.hitWallVisualOffsetX = 0;this.hitWallScale = 0.34;this.hitWallAlpha = 1;this.hitWallImage = null;this.hitWallPreview = false;this.carControlConfig = null;this.carControlRoot = null;this.carControlJson = null;this.turboFireTintStops = null;this.nextCarLightSweepAt = 0;this.nextFenceLightUpdateAt = 0;this.Matter = null;this.ragdollMatterReady = false;this.ragdollGround = null;this.ragdollCollisionLayers = null;this.flightRagdoll = null;}
+class GameScene extends Phaser.Scene {constructor() {super("GameScene");this.wallet = null;this.hud = null;this.state = "ready";this.round = 0;this.multiplier = 0;this.speed = 0;this.turbo = false;this.turboPower = 0;this.engineBreakAt = 0;this.roadOffset = 0;this.fenceOffset = 0;this.testBgOffset = 0;this.visualSpeed = 0;this.flightRoadSpeed = 0;this.pendingPayout = 0;this.autoCrash = false;this.safeMode = false;this.bonusAdd = 0;this.bonusItems = [];this.bonusPauseToken = 0;this.lastMultiplierDisplay = -1;this.lastMultiplierPulseAt = 0;this.rareBounceCount = 0;this.nextRareBounceAt = 0;this.remainingBounces = null;this.extraBounceAdder = null;this.extraBounceBonusCount = 0;this.sfx = {};this.engineAudioToken = 0;this.engineLoopTimer = null;this.engineLoopIndex = 0;this.roadTiles = [];this.testBgTiles = [];this.fenceTiles = [];this.loopObjectLayers = [];this.crashDebrisActive = false;this.fencePoleItems = [];this.fencePoleLayer = null;this.fenceOverlayItems = [];this.fenceOverlayLayer = null;this.fenceOverlayKeys = [];this.sceneTuningConfig = null;this.sceneControlRoot = null;this.sceneControlJson = null;this.refOverlay = null;this.roadArtX = 0;this.roadArtY = 0;this.roadArtScale = 1;this.fenceArtX = 0;this.fenceArtY = 0;this.fenceArtScale = 1;this.fencePoleX = 0;this.fencePoleY = 0;this.fencePoleSpacing = 247;this.fencePoleScale = 0.5;this.fenceLightOffsetY = -29;this.fenceLightScale = 0.4;this.fenceLightIntensity = 0.79;this.fenceLightDelay = 0.085;this.fenceOverlayX = 0;this.fenceOverlayY = 760;this.fenceOverlayHeight = 64;this.fenceOverlaySpacing = 420;this.fenceOverlayJitterX = 110;this.fenceOverlayCount = 24;this.fenceOverlayChance = 0.36;this.fenceOverlayScaleMin = 0.42;this.fenceOverlayScaleMax = 0.62;this.fenceOverlayAlpha = 0.96;this.hitWallX = 570;this.hitWallY = 888;this.hitWallVisualOffsetX = 0;this.hitWallScale = 0.34;this.hitWallAlpha = 1;this.hitWallImage = null;this.hitWallPreview = false;this.carControlConfig = null;this.turboFireTintStops = null;this.nextCarLightSweepAt = 0;this.nextFenceLightUpdateAt = 0;this.Matter = null;this.mobilePerfMode = null;this.ragdollMatterReady = false;this.ragdollGround = null;this.ragdollCollisionLayers = null;this.flightRagdoll = null;}
 
 create() {
   this.wallet = new CT.Wallet();
   this.cameras.main.setBounds(-1800, 0, CT.Config.gameplay.worldWidth + 1800, CT.Config.height);
   this.cameras.main.setScroll(0, 0);
+  this.createSceneTuningConfig();
   this.setupRagdollMatterWorld();
   this.createBackground();
   this.createPlayfield();
@@ -116,19 +117,44 @@ stopEngineAudio() {
   if (this.sfx && this.sfx.carEngineLoopB) this.sfx.carEngineLoopB.stop();
 }
 
+getWorldOffsetY() {
+  const cfg = this.sceneTuningConfig && this.sceneTuningConfig.world ? this.sceneTuningConfig.world : {};
+  const y = Number(cfg.y);
+  return Number.isFinite(y) ? y : 0;
+}
+
+offsetGameplayY(y) {
+  return (Number(y) || 0) + this.getWorldOffsetY();
+}
+
+getGameplayRoadY() {
+  return this.offsetGameplayY(CT.Config.gameplay.roadY);
+}
+
+getGameplayGroundY() {
+  return this.getGameplayRoadY() + 8;
+}
+
 createBackground() {
+  const cfg = CT.Config;
+  this.cameras.main.setBackgroundColor(cfg.colors.bg);
+  this.backgroundGraphics = this.add.graphics().setDepth(-20);
+  this.backgroundGraphics.setScrollFactor(0);
+  this.redrawBackground();
+}
+
+redrawBackground() {
   const cfg = CT.Config;
   const W = cfg.width;
   const H = cfg.height;
-  this.cameras.main.setBackgroundColor(cfg.colors.bg);
-
-  const g = this.add.graphics().setDepth(-20);
-  g.setScrollFactor(0);
+  const g = this.backgroundGraphics;
+  if (!g) return;
+  g.clear();
   g.fillStyle(0x071012, 1).fillRect(0, 0, W, H);
   g.fillStyle(0x132126, 1).fillRect(0, 170, W, H - 406);
   g.fillStyle(0x1f2426, 1).fillRect(0, H - 326, W, 148);
   g.fillStyle(0x0b171a, 1).fillRect(0, H - 178, W, 178);
-  g.fillStyle(0x293237, 1).fillRect(0, CT.Config.gameplay.roadY - 36, W, 118);
+  g.fillStyle(0x293237, 1).fillRect(0, this.getGameplayRoadY() - 36, W, 118);
   g.lineStyle(2, 0x37e5ff, 0.16);
   for (let y = 246; y < H - 410; y += 86) {
     g.lineBetween(52, y, W - 52, y);
@@ -139,10 +165,11 @@ createPlayfield() {
   const cfg = CT.Config;
   const W = cfg.width;
   const H = cfg.height;
+  if (!this.sceneTuningConfig) this.createSceneTuningConfig();
   this.createCarControlConfig();
   this.createRoadLoop();
 
-  this.barrier = this.add.container(this.hitWallX, this.hitWallY).setDepth(6).setVisible(false);
+  this.barrier = this.add.container(this.hitWallX, this.offsetGameplayY(this.hitWallY)).setDepth(6).setVisible(false);
   this.hitWallImage = this.add.image(0, 0, "hitWall")
       .setOrigin(0.5, 1)
       .setScale(this.hitWallScale);
@@ -164,13 +191,21 @@ createPlayfield() {
   this.multiplierPanelLabel = this.add.text(0, -72, "MULTIPLIER", {
     fontFamily: "Arial",
     fontSize: "20px",
-    color: "#baf7ff",
+    color: "#EEFE0D",
     fontStyle: "bold"
   }).setOrigin(0.5).setAlpha(0.85);
+  this.finalWinText = this.add.text(0, -42, "LAST WIN +$0.00", {
+    fontFamily: "Arial",
+    fontSize: "34px",
+    color: "#29FF50",
+    fontStyle: "bold",
+    stroke: "#000000",
+    strokeThickness: 6
+  }).setOrigin(0.5).setAlpha(0).setVisible(false);
   this.multiplierText = this.add.text(0, 15, "0x", {
     fontFamily: "Arial",
     fontSize: "114px",
-    color: "#ffcf30",
+    color: "#F6FFC3",
     fontStyle: "bold",
     stroke: "#000000",
     strokeThickness: 14,
@@ -182,8 +217,11 @@ createPlayfield() {
       fill: true
     }
   }).setOrigin(0.5);
-  this.multiplierPanel.add([this.multiplierGlow, this.multiplierPanelBg, this.multiplierPanelInner, this.multiplierPanelLabel, this.multiplierText]);
+  this.multiplierPanel.add([this.multiplierGlow, this.multiplierPanelBg, this.multiplierPanelInner, this.multiplierPanelLabel, this.finalWinText, this.multiplierText]);
   this.createBounceBadge();
+  this.createRefOverlay();
+  this.applySceneTuningConfig(false);
+  this.createSceneControlUI();
   this.applyMultiplierTheme("idle");
 }
 
@@ -191,12 +229,14 @@ createRoadLoop() {
   const cfg = CT.Config;
   this.applyRoadArtDefaults();
   this.roadTiles = [];
+  this.testBgTiles = [];
   this.fenceTiles = [];
   this.loopObjectLayers = [];
   this.fencePoleItems = [];
   this.fencePoleLayer = null;
   this.fenceOverlayItems = [];
   this.fenceOverlayLayer = null;
+  this.createTestBackgroundLoop();
 
   for (let i = 0; i < 8; i++) {
     const fence = this.add.image(0, this.fenceArtY, "roadFence")
@@ -218,6 +258,84 @@ createRoadLoop() {
   this.updateRoadTilesLayout();
 }
 
+createTestBackgroundLoop() {
+  this.testBgTiles = [];
+  if (!this.textures.exists("backTestBg")) return;
+  for (let i = 0; i < 5; i++) {
+    const bg = this.add.image(0, 0, "backTestBg")
+      .setOrigin(0, 0);
+    const bgItem = this.add.container(0, 0, [bg])
+      .setDepth(-12)
+      .setScrollFactor(0);
+    const fire = this.add.sprite(0, 0, "barrelFire1")
+      .setOrigin(0.5, 1)
+      .setBlendMode(Phaser.BlendModes.ADD);
+    if (fire.anims) {
+      fire.play("barrelFireLoop");
+      fire.anims.timeScale = 0.67;
+    }
+    const fireItem = this.add.container(0, 0, [fire])
+      .setDepth(-11)
+      .setScrollFactor(0);
+    const barrel = this.add.image(0, 0, "barrel")
+      .setOrigin(0.5, 1);
+    const barrelItem = this.add.container(0, 0, [barrel])
+      .setDepth(-10)
+      .setScrollFactor(0);
+    const item = { bgItem, fireItem, barrelItem, bg, fire, barrel };
+    item.bg = bg;
+    item.fire = fire;
+    item.barrel = barrel;
+    this.testBgTiles.push(item);
+  }
+  this.updateTestBackgroundLayout();
+}
+
+getTestBackgroundTileWidth() {
+  const texture = this.textures.get("backTestBg");
+  const source = texture && texture.getSourceImage ? texture.getSourceImage() : null;
+  const cfg = this.sceneTuningConfig && this.sceneTuningConfig.background ? this.sceneTuningConfig.background : {};
+  const width = source && source.width ? source.width : CT.Config.width;
+  return Math.max(1, width * (Number(cfg.scale) || 1));
+}
+
+updateTestBackgroundLayout() {
+  if (!this.testBgTiles || !this.testBgTiles.length) return;
+  const cfg = this.sceneTuningConfig || {};
+  const bgCfg = cfg.background || {};
+  const barrelCfg = cfg.barrel || {};
+  const fireCfg = cfg.fire || {};
+  const scale = Math.max(0.01, Number(bgCfg.scale) || 1);
+  const tileWidth = this.getTestBackgroundTileWidth();
+  const worldY = this.getWorldOffsetY();
+  this.testBgOffset = Phaser.Math.Wrap(this.testBgOffset, 0, tileWidth);
+
+  this.testBgTiles.forEach((item, i) => {
+    const tileX = (Number(bgCfg.x) || 0) + i * tileWidth - tileWidth - this.testBgOffset;
+    const tileY = (Number(bgCfg.y) || 0) + worldY;
+    if (item.bgItem) item.bgItem.setPosition(tileX, tileY);
+    if (item.fireItem) item.fireItem.setPosition(tileX, tileY);
+    if (item.barrelItem) item.barrelItem.setPosition(tileX, tileY);
+    if (item.bg) item.bg.setScale(scale);
+    if (item.fire) {
+      item.fire
+        .setPosition(Number(fireCfg.x) || 0, Number(fireCfg.y) || 0)
+        .setScale(Math.max(0.01, Number(fireCfg.scale) || 1));
+    }
+    if (item.barrel) {
+      item.barrel
+        .setPosition(Number(barrelCfg.x) || 0, Number(barrelCfg.y) || 0)
+        .setScale(Math.max(0.01, Number(barrelCfg.scale) || 1));
+    }
+  });
+}
+
+advanceTestBackground(dx) {
+  if (!this.testBgTiles || !this.testBgTiles.length) return;
+  this.testBgOffset += dx;
+  this.updateTestBackgroundLayout();
+}
+
 createFenceOverlayLoop() {
   this.fenceOverlayItems = [];
   this.fenceOverlayKeys = ["roadBgOverlay1", "roadBgOverlay2", "roadBgOverlay3", "roadBgOverlay4", "roadBgOverlay5"]
@@ -229,9 +347,9 @@ createFenceOverlayLoop() {
     count: 48,
     depth: 1.6,
     getLayout: () => ({
-      x: this.fenceOverlayX,
-      y: this.fenceOverlayY,
-      spacing: this.fenceOverlaySpacing
+      x: this.getFenceAttachedX(this.fenceOverlayX),
+      y: this.getFenceAttachedY(this.fenceOverlayY),
+      spacing: this.fenceOverlaySpacing * this.getFenceScaleRatio()
     }),
     createItem: () => {
       const image = this.add.image(0, 0, this.fenceOverlayKeys[0])
@@ -253,7 +371,7 @@ createFencePoleLoop() {
 
   this.fencePoleLayer = this.createLoopObjectLayer({
     id: "fencePoles",
-    count: 32,
+    count: 64,
     depth: 2,
     getLayout: () => ({
       x: this.fencePoleX,
@@ -274,16 +392,38 @@ createFencePoleLoop() {
       return item;
     },
     onLayout: (item) => {
+      item.setVisible(true);
+      const poleRatio = this.getPoleScaleRatio();
       item.pole.setScale(this.fencePoleScale);
-      item.light.setPosition(0, this.fenceLightOffsetY);
-      item.light.baseScale = this.fenceLightScale;
+      item.light.setPosition(0, this.fenceLightOffsetY * poleRatio);
+      item.light.baseScale = this.fenceLightScale * poleRatio;
     }
   });
   this.fencePoleItems = this.fencePoleLayer.items;
 }
 
+getFenceScaleRatio() {
+  const baseScale = Math.max(0.01, Number(CT.Config.gameplay.fenceArtScale) || 1);
+  return Math.max(0.01, Number(this.fenceArtScale) || baseScale) / baseScale;
+}
+
+getPoleScaleRatio() {
+  const baseScale = Math.max(0.01, Number(CT.Config.gameplay.fencePoleScale) || 1);
+  return Math.max(0.01, Number(this.fencePoleScale) || baseScale) / baseScale;
+}
+
+getFenceAttachedX(localX) {
+  return this.fenceArtX + (Number(localX) || 0) * this.getFenceScaleRatio();
+}
+
+getFenceAttachedY(localY) {
+  const baseY = Number(CT.Config.gameplay.fenceArtY) || 0;
+  return this.fenceArtY + ((Number(localY) || 0) - baseY) * this.getFenceScaleRatio();
+}
+
 layoutFenceOverlayItem(item) {
   const activeCount = Math.round(Phaser.Math.Clamp(this.fenceOverlayCount, 0, 48));
+  const fenceRatio = this.getFenceScaleRatio();
   item.loopXJitter = 0;
   item.loopYOffset = 0;
   if (item.loopIndex >= activeCount) {
@@ -305,11 +445,11 @@ layoutFenceOverlayItem(item) {
     item.image.setTexture(key);
   }
 
-  const yOffset = this.seededUnit(logicalIndex, 37) * this.fenceOverlayHeight;
-  const xJitter = (this.seededUnit(logicalIndex, 41) * 2 - 1) * this.fenceOverlayJitterX;
+  const yOffset = this.seededUnit(logicalIndex, 37) * this.fenceOverlayHeight * fenceRatio;
+  const xJitter = (this.seededUnit(logicalIndex, 41) * 2 - 1) * this.fenceOverlayJitterX * fenceRatio;
   const scaleLow = Math.min(this.fenceOverlayScaleMin, this.fenceOverlayScaleMax);
   const scaleHigh = Math.max(this.fenceOverlayScaleMin, this.fenceOverlayScaleMax);
-  const scale = Phaser.Math.Linear(scaleLow, scaleHigh, this.seededUnit(logicalIndex, 53));
+  const scale = Phaser.Math.Linear(scaleLow, scaleHigh, this.seededUnit(logicalIndex, 53)) * fenceRatio;
 
   item.setVisible(true);
   item.loopXJitter = xJitter;
@@ -358,6 +498,7 @@ layoutLoopObjectLayer(layer) {
   const spacing = Math.max(24, Number(layout.spacing) || 24);
   const baseX = Number(layout.x) || 0;
   const baseY = Number.isFinite(Number(layout.y)) ? Number(layout.y) : 0;
+  const worldY = this.getWorldOffsetY();
   layer.offset = Phaser.Math.Wrap(layer.travel, 0, spacing);
   const baseIndex = Math.floor(layer.travel / spacing);
 
@@ -370,7 +511,7 @@ layoutLoopObjectLayer(layer) {
       item.layoutDirty = false;
     }
     item.x = baseX + i * spacing - spacing - layer.offset + (Number(item.loopXJitter) || 0);
-    item.y = baseY + (Number(item.loopYOffset) || 0);
+    item.y = baseY + worldY + (Number(item.loopYOffset) || 0);
   });
   layer.layoutDirty = false;
 }
@@ -389,8 +530,10 @@ advanceLoopObjectLayers(dx) {
 
 applyRoadArtDefaults() {
   const gp = CT.Config.gameplay;
+  this.roadArtX = Number(gp.roadArtX) || 0;
   this.roadArtY = gp.roadArtY;
   this.roadArtScale = gp.roadArtScale;
+  this.fenceArtX = Number(gp.fenceArtX) || 0;
   this.fenceArtY = gp.fenceArtY;
   this.fenceArtScale = gp.fenceArtScale;
   this.fencePoleX = gp.fencePoleX;
@@ -420,7 +563,7 @@ applyRoadArtDefaults() {
 
 updateHitWallLayout() {
   if (!this.barrier) return;
-  this.barrier.setPosition(this.hitWallX, this.hitWallY).setAlpha(this.hitWallAlpha);
+  this.barrier.setPosition(this.hitWallX, this.offsetGameplayY(this.hitWallY)).setAlpha(this.hitWallAlpha);
   if (this.hitWallImage) this.hitWallImage.setPosition(this.hitWallVisualOffsetX, 0).setScale(this.hitWallScale);
   if (this.hitWallPreview && this.state === "ready") this.barrier.setVisible(true);
 }
@@ -452,14 +595,15 @@ updateRoadTilesLayout() {
   if (!this.roadTiles || !this.roadTiles.length) return;
   const tileWidth = this.getRoadTileWidth();
   const patternWidth = tileWidth * 3;
+  const worldY = this.getWorldOffsetY();
   this.roadOffset = Phaser.Math.Wrap(this.roadOffset, 0, patternWidth);
   this.roadTiles.forEach((tile, i) => {
     if (tile._appliedRoadScale !== this.roadArtScale) {
       tile.setScale(this.roadArtScale);
       tile._appliedRoadScale = this.roadArtScale;
     }
-    tile.y = this.roadArtY;
-    tile.x = i * tileWidth - tileWidth - this.roadOffset;
+    tile.y = this.roadArtY + worldY;
+    tile.x = this.roadArtX + i * tileWidth - tileWidth - this.roadOffset;
   });
   if (this.fenceTiles && this.fenceTiles.length) {
     const fenceWidth = this.getFenceTileWidth();
@@ -469,8 +613,8 @@ updateRoadTilesLayout() {
         tile.setScale(this.fenceArtScale);
         tile._appliedFenceScale = this.fenceArtScale;
       }
-      tile.y = this.fenceArtY;
-      tile.x = i * fenceWidth - fenceWidth - this.fenceOffset;
+      tile.y = this.fenceArtY + worldY;
+      tile.x = this.fenceArtX + i * fenceWidth - fenceWidth - this.fenceOffset;
     });
   }
   this.updateLoopObjectLayersLayout();
@@ -482,6 +626,7 @@ updateFenceLights(time) {
   const peakAlpha = Phaser.Math.Clamp(0.22 + intensity * 0.78, 0.22, 1);
   const delayStep = this.fenceLightDelay || 0;
   this.fencePoleItems.forEach((item) => {
+    if (!item || !item.visible) return;
     const logicalIndex = item.logicalIndex || 0;
     const cycle = Phaser.Math.Wrap(time * 0.00062 + logicalIndex * delayStep, 0, 1);
     const darkHold = 0.58;
@@ -490,31 +635,238 @@ updateFenceLights(time) {
     const alpha = pulse <= 0 ? 0 : peakAlpha * pulse;
     const pulseScale = 1 + pulse * intensity * 0.13;
     item.light.setAlpha(alpha);
-    item.light.setScale(this.fenceLightScale * pulseScale);
+    item.light.setScale((item.light.baseScale || this.fenceLightScale) * pulseScale);
   });
+}
+
+createRefOverlay() {
+  if (!this.textures.exists("mainScreenRefOverlay")) return;
+  const texture = this.textures.get("mainScreenRefOverlay");
+  const source = texture && texture.getSourceImage ? texture.getSourceImage() : null;
+  const scale = source && source.width ? CT.Config.width / source.width : 1;
+  this.refOverlay = this.add.image(0, 0, "mainScreenRefOverlay")
+    .setOrigin(0, 0)
+    .setDepth(100)
+    .setScrollFactor(0)
+    .setScale(scale)
+    .setAlpha(0)
+    .setVisible(false);
+}
+
+createSceneTuningConfig() {
+  const defaults = JSON.parse(JSON.stringify(CT.Config.gameplay.sceneTest || {}));
+  let saved = null;
+  try {
+    saved = JSON.parse(localStorage.getItem("crashLineSceneTuningV2") || "null");
+  } catch (e) {
+    saved = null;
+  }
+  this.sceneTuningConfig = this.mergeSceneTuningConfig(defaults, saved);
+}
+
+mergeSceneTuningConfig(defaults, saved) {
+  const result = JSON.parse(JSON.stringify(defaults || {}));
+  if (!saved || typeof saved !== "object") return result;
+  Object.keys(result).forEach((groupKey) => {
+    const source = saved[groupKey];
+    if (!source || typeof source !== "object") return;
+    Object.keys(result[groupKey]).forEach((key) => {
+      const fallback = result[groupKey][key];
+      if (typeof fallback !== "number") return;
+      const value = Number(source[key]);
+      if (Number.isFinite(value)) result[groupKey][key] = value;
+    });
+  });
+  return result;
+}
+
+normalizeSceneTuningConfig() {
+  const defaults = CT.Config.gameplay.sceneTest || {};
+  if (!this.sceneTuningConfig) this.sceneTuningConfig = JSON.parse(JSON.stringify(defaults));
+  const cfg = this.sceneTuningConfig;
+  const normalizeGroup = (name) => {
+    const fallback = defaults[name] || {};
+    if (!cfg[name] || typeof cfg[name] !== "object") cfg[name] = JSON.parse(JSON.stringify(fallback));
+    Object.keys(fallback).forEach((key) => {
+      const value = Number(cfg[name][key]);
+      cfg[name][key] = Number.isFinite(value) ? value : fallback[key];
+    });
+  };
+  ["world", "background", "road", "fence", "poles", "barrel", "fire", "refOverlay", "multiplierPanel"].forEach(normalizeGroup);
+  cfg.background.scale = Math.max(0.01, cfg.background.scale);
+  cfg.road.scale = Math.max(0.01, cfg.road.scale);
+  cfg.fence.scale = Math.max(0.01, cfg.fence.scale);
+  cfg.poles.spacing = Math.max(24, Number(cfg.poles.spacing) || 180);
+  cfg.poles.scale = Math.max(0.01, cfg.poles.scale);
+  cfg.barrel.scale = Math.max(0.01, cfg.barrel.scale);
+  cfg.fire.scale = Math.max(0.01, cfg.fire.scale);
+  cfg.refOverlay.alpha = Phaser.Math.Clamp(cfg.refOverlay.alpha, 0, 1);
+}
+
+applySceneTuningConfig(save) {
+  this.normalizeSceneTuningConfig();
+  const cfg = this.sceneTuningConfig;
+  this.roadArtX = Number(cfg.road.x) || 0;
+  this.roadArtY = Number(cfg.road.y) || 0;
+  this.roadArtScale = Math.max(0.01, Number(cfg.road.scale) || 1);
+  this.fenceArtX = Number(cfg.fence.x) || 0;
+  this.fenceArtY = Number(cfg.fence.y) || 0;
+  this.fenceArtScale = Math.max(0.01, Number(cfg.fence.scale) || 1);
+  this.fencePoleSpacing = Math.max(24, Number(cfg.poles.spacing) || 180);
+  this.fencePoleY = Number(cfg.poles.y) || 0;
+  this.fencePoleScale = Math.max(0.01, Number(cfg.poles.scale) || 1);
+  if (this.fencePoleLayer) this.fencePoleLayer.layoutDirty = true;
+  if (this.fenceOverlayLayer) this.fenceOverlayLayer.layoutDirty = true;
+  this.redrawBackground();
+  this.updateTestBackgroundLayout();
+  this.updateRoadTilesLayout();
+  this.updateHitWallLayout();
+  this.updateRagdollGroundLayout();
+  this.applyWorldOffsetToDynamicObjects();
+  if (this.multiplierPanel) {
+    this.multiplierPanel.setPosition(cfg.multiplierPanel.x, cfg.multiplierPanel.y);
+  }
+  if (this.refOverlay) {
+    this.refOverlay
+      .setAlpha(cfg.refOverlay.alpha)
+      .setVisible(cfg.refOverlay.alpha > 0.001);
+  }
+  if (save) {
+    try {
+      localStorage.setItem("crashLineSceneTuningV2", JSON.stringify(this.sceneTuningConfig));
+    } catch (e) {}
+  }
+  this.updateSceneControlJson();
+}
+
+createSceneControlUI() {
+  const root = document.getElementById("control-ui");
+  if (!root || !this.sceneTuningConfig) return;
+  this.sceneControlRoot = root;
+  root.innerHTML = "";
+
+  root.appendChild(this.makeSceneControlTitle("WORLD"));
+  root.appendChild(this.makeSceneSlider("world y", this.sceneTuningConfig.world, "y", -1600, 1600, 1));
+
+  root.appendChild(this.makeSceneControlTitle("BG TEST"));
+  root.appendChild(this.makeSceneSlider("bg x", this.sceneTuningConfig.background, "x", -3000, 3000, 1));
+  root.appendChild(this.makeSceneSlider("bg y", this.sceneTuningConfig.background, "y", -1400, 1400, 1));
+  root.appendChild(this.makeSceneSlider("bg scale", this.sceneTuningConfig.background, "scale", 0.05, 2.2, 0.001));
+
+  root.appendChild(this.makeSceneControlTitle("ROAD"));
+  root.appendChild(this.makeSceneSlider("road x", this.sceneTuningConfig.road, "x", -3000, 3000, 1));
+  root.appendChild(this.makeSceneSlider("road y", this.sceneTuningConfig.road, "y", -800, 2200, 1));
+  root.appendChild(this.makeSceneSlider("road scale", this.sceneTuningConfig.road, "scale", 0.05, 2.2, 0.001));
+
+  root.appendChild(this.makeSceneControlTitle("FENCE"));
+  root.appendChild(this.makeSceneSlider("fence x", this.sceneTuningConfig.fence, "x", -3000, 3000, 1));
+  root.appendChild(this.makeSceneSlider("fence y", this.sceneTuningConfig.fence, "y", -800, 2200, 1));
+  root.appendChild(this.makeSceneSlider("fence scale", this.sceneTuningConfig.fence, "scale", 0.05, 2.2, 0.001));
+
+  root.appendChild(this.makeSceneControlTitle("POLES"));
+  root.appendChild(this.makeSceneSlider("poles spacing", this.sceneTuningConfig.poles, "spacing", 24, 900, 1));
+  root.appendChild(this.makeSceneSlider("poles y", this.sceneTuningConfig.poles, "y", -800, 2200, 1));
+  root.appendChild(this.makeSceneSlider("poles scale", this.sceneTuningConfig.poles, "scale", 0.05, 2.2, 0.001));
+
+  root.appendChild(this.makeSceneControlTitle("BARREL"));
+  root.appendChild(this.makeSceneSlider("barrel x", this.sceneTuningConfig.barrel, "x", -1000, 6500, 1));
+  root.appendChild(this.makeSceneSlider("barrel y", this.sceneTuningConfig.barrel, "y", -800, 2200, 1));
+  root.appendChild(this.makeSceneSlider("barrel scale", this.sceneTuningConfig.barrel, "scale", 0.01, 5, 0.01));
+
+  root.appendChild(this.makeSceneControlTitle("FIRE"));
+  root.appendChild(this.makeSceneSlider("fire x", this.sceneTuningConfig.fire, "x", -1000, 6500, 1));
+  root.appendChild(this.makeSceneSlider("fire y", this.sceneTuningConfig.fire, "y", -800, 2200, 1));
+  root.appendChild(this.makeSceneSlider("fire scale", this.sceneTuningConfig.fire, "scale", 0.01, 5, 0.01));
+
+  root.appendChild(this.makeSceneControlTitle("OVERLAY"));
+  root.appendChild(this.makeSceneSlider("alpha", this.sceneTuningConfig.refOverlay, "alpha", 0, 1, 0.01));
+
+  root.appendChild(this.makeSceneControlTitle("MULTIPLIER"));
+  root.appendChild(this.makeSceneSlider("panel x", this.sceneTuningConfig.multiplierPanel, "x", -400, 1100, 1));
+  root.appendChild(this.makeSceneSlider("panel y", this.sceneTuningConfig.multiplierPanel, "y", -400, 1500, 1));
+
+  const actions = document.createElement("div");
+  actions.className = "control-ui__actions";
+  const copy = document.createElement("button");
+  copy.type = "button";
+  copy.textContent = "COPY JSON";
+  copy.onclick = async () => {
+    const text = JSON.stringify(this.sceneTuningConfig, null, 2);
+    try {
+      await navigator.clipboard.writeText(text);
+      copy.textContent = "COPIED";
+      window.setTimeout(() => { copy.textContent = "COPY JSON"; }, 700);
+    } catch (e) {
+      copy.textContent = "COPY FAIL";
+      window.setTimeout(() => { copy.textContent = "COPY JSON"; }, 900);
+    }
+  };
+  const reset = document.createElement("button");
+  reset.type = "button";
+  reset.textContent = "RESET";
+  reset.onclick = () => {
+    localStorage.removeItem("crashLineSceneTuningV2");
+    this.sceneTuningConfig = JSON.parse(JSON.stringify(CT.Config.gameplay.sceneTest || {}));
+    this.applySceneTuningConfig(true);
+    this.createSceneControlUI();
+  };
+  actions.appendChild(copy);
+  actions.appendChild(reset);
+  root.appendChild(actions);
+
+  this.sceneControlJson = document.createElement("pre");
+  this.sceneControlJson.className = "control-ui__json";
+  root.appendChild(this.sceneControlJson);
+  this.updateSceneControlJson();
+}
+
+makeSceneControlTitle(text) {
+  const title = document.createElement("div");
+  title.className = "control-ui__title";
+  title.textContent = text;
+  return title;
+}
+
+makeSceneSlider(labelText, target, key, min, max, step) {
+  const label = document.createElement("label");
+  label.className = "control-ui__row";
+  const name = document.createElement("span");
+  name.textContent = labelText;
+  const range = document.createElement("input");
+  range.type = "range";
+  range.min = min;
+  range.max = max;
+  range.step = step;
+  range.value = target[key];
+  const value = document.createElement("input");
+  value.type = "number";
+  value.min = min;
+  value.max = max;
+  value.step = step;
+  value.value = target[key];
+  const sync = (next) => {
+    const parsed = Number(next);
+    if (!Number.isFinite(parsed)) return;
+    target[key] = parsed;
+    range.value = target[key];
+    value.value = target[key];
+    this.applySceneTuningConfig(true);
+  };
+  range.oninput = () => sync(range.value);
+  value.oninput = () => sync(value.value);
+  label.appendChild(name);
+  label.appendChild(range);
+  label.appendChild(value);
+  return label;
+}
+
+updateSceneControlJson() {
+  if (!this.sceneControlJson || !this.sceneTuningConfig) return;
+  this.sceneControlJson.textContent = JSON.stringify(this.sceneTuningConfig, null, 2);
 }
 
 createCarControlConfig() {
   this.carControlConfig = JSON.parse(JSON.stringify(CT.Config.gameplay.carArt || {}));
-}
-
-mergeCarControlConfig(defaults, saved) {
-  const result = JSON.parse(JSON.stringify(defaults));
-  if (!saved || typeof saved !== "object") return result;
-  Object.keys(result).forEach((groupKey) => {
-    const group = saved[groupKey];
-    if (!group || typeof group !== "object") return;
-    Object.keys(result[groupKey]).forEach((key) => {
-      const fallback = result[groupKey][key];
-      if (typeof fallback === "number") {
-        const value = Number(group[key]);
-        if (Number.isFinite(value)) result[groupKey][key] = value;
-      } else if (typeof fallback === "string") {
-        result[groupKey][key] = this.normalizeHexColor(group[key], fallback);
-      }
-    });
-  });
-  return result;
 }
 
 applyCarControlConfig(save) {
@@ -579,352 +931,8 @@ applyCarControlConfig(save) {
   void save;
 }
 
-createCarControlUI() {
-  const root = document.getElementById("control-ui");
-  if (!root || !this.carControlConfig) return;
-  this.carControlRoot = root;
-  root.innerHTML = "";
-
-  root.appendChild(this.makeCarControlTitle("Whole car"));
-  root.appendChild(this.makeCarSlider("x", this.carControlConfig.root, "x", -360, 360, 1));
-  root.appendChild(this.makeCarSlider("y", this.carControlConfig.root, "y", -260, 260, 1));
-  root.appendChild(this.makeCarSlider("scale", this.carControlConfig.root, "scale", 0.05, 2.5, 0.01));
-  root.appendChild(this.makeCarControlTitle("Car body"));
-  root.appendChild(this.makeCarSlider("x", this.carControlConfig.body, "x", -360, 360, 1));
-  root.appendChild(this.makeCarSlider("y", this.carControlConfig.body, "y", -260, 260, 1));
-  root.appendChild(this.makeCarSlider("scale", this.carControlConfig.body, "scale", 0.01, 1.5, 0.01));
-  root.appendChild(this.makeCarControlTitle("Rear wheel"));
-  root.appendChild(this.makeCarSlider("x", this.carControlConfig.rearWheel, "x", -360, 360, 1));
-  root.appendChild(this.makeCarSlider("y", this.carControlConfig.rearWheel, "y", -260, 260, 1));
-  root.appendChild(this.makeCarSlider("scale", this.carControlConfig.rearWheel, "scale", 0.01, 1.5, 0.01));
-  root.appendChild(this.makeCarControlTitle("Front wheel"));
-  root.appendChild(this.makeCarSlider("x", this.carControlConfig.frontWheel, "x", -360, 360, 1));
-  root.appendChild(this.makeCarSlider("y", this.carControlConfig.frontWheel, "y", -260, 260, 1));
-  root.appendChild(this.makeCarSlider("scale", this.carControlConfig.frontWheel, "scale", 0.01, 1.5, 0.01));
-  root.appendChild(this.makeCarControlTitle("Wheel shadow"));
-  root.appendChild(this.makeCarSlider("x", this.carControlConfig.wheelShadow, "x", -360, 360, 1));
-  root.appendChild(this.makeCarSlider("y", this.carControlConfig.wheelShadow, "y", -260, 260, 1));
-  root.appendChild(this.makeCarSlider("scale", this.carControlConfig.wheelShadow, "scale", 0.01, 1.5, 0.01));
-  root.appendChild(this.makeCarSlider("alpha", this.carControlConfig.wheelShadow, "alpha", 0, 1, 0.01));
-  root.appendChild(this.makeCarControlTitle("Turbo fire"));
-  root.appendChild(this.makeCarSlider("x", this.carControlConfig.turboFire, "x", -420, 260, 1));
-  root.appendChild(this.makeCarSlider("y", this.carControlConfig.turboFire, "y", -220, 220, 1));
-  root.appendChild(this.makeCarSlider("scale", this.carControlConfig.turboFire, "scale", 0.01, 1.5, 0.01));
-  root.appendChild(this.makeCarSlider("alpha", this.carControlConfig.turboFire, "alpha", 0, 1, 0.01));
-  root.appendChild(this.makeCarControlTitle("Turbo tint"));
-  root.appendChild(this.makeCarSlider("phase", this.carControlConfig.turboFireTint, "preview", 0, 1, 0.01));
-  root.appendChild(this.makeCarColor("orange", this.carControlConfig.turboFireTint, "orange"));
-  root.appendChild(this.makeCarColor("yellow", this.carControlConfig.turboFireTint, "yellow"));
-  root.appendChild(this.makeCarColor("green", this.carControlConfig.turboFireTint, "green"));
-  root.appendChild(this.makeCarColor("blue", this.carControlConfig.turboFireTint, "blue"));
-  root.appendChild(this.makeCarColor("purple", this.carControlConfig.turboFireTint, "purple"));
-
-  const actions = document.createElement("div");
-  actions.className = "control-ui__actions";
-
-  const copy = document.createElement("button");
-  copy.type = "button";
-  copy.textContent = "Copy JSON";
-  copy.onclick = async () => {
-    const text = JSON.stringify(this.carControlConfig, null, 2);
-    try {
-      await navigator.clipboard.writeText(text);
-      copy.textContent = "Copied!";
-      window.setTimeout(() => { copy.textContent = "Copy JSON"; }, 700);
-    } catch (e) {
-      copy.textContent = "Copy failed";
-      window.setTimeout(() => { copy.textContent = "Copy JSON"; }, 900);
-    }
-  };
-
-  const reset = document.createElement("button");
-  reset.type = "button";
-  reset.textContent = "Reset";
-  reset.onclick = () => this.resetCarArt();
-
-  actions.appendChild(copy);
-  actions.appendChild(reset);
-  root.appendChild(actions);
-
-  this.carControlJson = document.createElement("pre");
-  root.appendChild(this.carControlJson);
-  this.updateCarControlJson();
-
-  this.createRagdollDebugUI(root);
-}
-
-resetCarArt() {
-  this.carControlConfig = JSON.parse(JSON.stringify(CT.Config.gameplay.carArt || {}));
-  localStorage.removeItem("crashTestCarArtV4");
-  this.applyCarControlConfig(false);
-  this.createCarControlUI();
-}
-
-makeCarControlTitle(text) {
-  const title = document.createElement("div");
-  title.className = "control-ui__title";
-  title.textContent = text;
-  return title;
-}
-
-makeCarSlider(labelText, target, key, min, max, step) {
-  const label = document.createElement("label");
-  label.className = "control-ui__row";
-
-  const name = document.createElement("span");
-  name.textContent = labelText;
-
-  const range = document.createElement("input");
-  range.type = "range";
-  range.min = min;
-  range.max = max;
-  range.step = step;
-  range.value = target[key];
-
-  const value = document.createElement("input");
-  value.type = "number";
-  value.min = min;
-  value.max = max;
-  value.step = step;
-  value.value = target[key];
-
-  const sync = (next) => {
-    target[key] = Number(next);
-    this.applyCarControlConfig(true);
-    range.value = target[key];
-    value.value = target[key];
-  };
-
-  range.oninput = () => sync(range.value);
-  value.oninput = () => sync(value.value);
-
-  label.appendChild(name);
-  label.appendChild(range);
-  label.appendChild(value);
-  return label;
-}
-
-makeCarColor(labelText, target, key) {
-  const label = document.createElement("label");
-  label.className = "control-ui__row control-ui__row--color";
-
-  const name = document.createElement("span");
-  name.textContent = labelText;
-
-  const color = document.createElement("input");
-  color.type = "color";
-  color.value = this.normalizeHexColor(target[key], CT.Config.gameplay.carArt.turboFireTint[key]);
-
-  const value = document.createElement("input");
-  value.type = "text";
-  value.value = color.value;
-
-  const sync = (next) => {
-    target[key] = this.normalizeHexColor(next, target[key]);
-    color.value = target[key];
-    value.value = target[key];
-    this.applyCarControlConfig(true);
-  };
-
-  color.oninput = () => sync(color.value);
-  value.onchange = () => sync(value.value);
-
-  label.appendChild(name);
-  label.appendChild(color);
-  label.appendChild(value);
-  return label;
-}
-
-updateCarControlJson() {
-  if (!this.carControlJson || !this.carControlConfig) return;
-  this.carControlJson.textContent = JSON.stringify(this.carControlConfig, null, 2);
-}
-
-createRagdollDebugUI(root) {
-  if (!root) return;
-  root.appendChild(this.makeCarControlTitle("Ragdoll flight debug"));
-
-  const actions = document.createElement("div");
-  actions.className = "control-ui__actions";
-
-  const copy = document.createElement("button");
-  copy.type = "button";
-  copy.textContent = "Copy flight debug";
-  copy.onclick = async () => {
-    const text = JSON.stringify(this.collectRagdollFlightDebug(), null, 2);
-    try {
-      await navigator.clipboard.writeText(text);
-      copy.textContent = "Copied!";
-      window.setTimeout(() => { copy.textContent = "Copy flight debug"; }, 700);
-    } catch (e) {
-      copy.textContent = "Copy failed";
-      window.setTimeout(() => { copy.textContent = "Copy flight debug"; }, 900);
-    }
-  };
-
-  const refresh = document.createElement("button");
-  refresh.type = "button";
-  refresh.textContent = "Refresh";
-  refresh.onclick = () => this.updateRagdollDebugUI(true);
-
-  actions.appendChild(copy);
-  actions.appendChild(refresh);
-  root.appendChild(actions);
-
-  this.ragdollDebugPre = document.createElement("pre");
-  this.ragdollDebugPre.className = "control-ui__debug-pre";
-  root.appendChild(this.ragdollDebugPre);
-  this.updateRagdollDebugUI(true);
-}
-
-collectRagdollFlightDebug() {
-  const round = (value, digits) => {
-    const number = Number(value);
-    return Number.isFinite(number) ? Number(number.toFixed(digits === undefined ? 3 : digits)) : null;
-  };
-  const deg = (value) => round(Phaser.Math.RadToDeg(Number(value) || 0), 2);
-  const vector = (point) => ({
-    x: round(point && point.x, 2),
-    y: round(point && point.y, 2)
-  });
-  const rig = this.flightRagdoll;
-  const base = {
-    version: (CT.Config && CT.Config.gameVersion) || "",
-    build: (CT.Config && CT.Config.build) || "",
-    timeMs: this.time ? Math.round(this.time.now) : 0,
-    state: this.state,
-    multiplier: round(this.multiplier, 3),
-    remainingBounces: this.remainingBounces,
-    flightRoadSpeed: round(this.flightRoadSpeed, 2)
-  };
-  if (!rig || !rig.parts) {
-    return Object.assign(base, {
-      ragdoll: null,
-      note: "No active flight ragdoll. Crash the car first, then copy again."
-    });
-  }
-
-  const connected = rig.torso ? this.getFlightRagdollConnectedParts(rig.torso) : new Set();
-  const anchorsForBody = (body) => {
-    const anchors = body.ragdollAnchorPoints || {};
-    const result = {};
-    Object.keys(anchors).forEach((name) => {
-      result[name] = {
-        local: vector(anchors[name]),
-        world: vector(this.ragdollWorldPoint(body, anchors[name]))
-      };
-    });
-    return result;
-  };
-  const parts = rig.parts
-    .slice()
-    .sort((a, b) => String(a.ragdollPart || "").localeCompare(String(b.ragdollPart || "")))
-    .map((body) => {
-      const pose = body.poseInfo || null;
-      const parent = pose && pose.anchor ? pose.anchor : null;
-      const relAngle = parent ? this.wrapRagdollAngle(body.angle - parent.angle) : 0;
-      const targetRel = pose ? pose.angleOffset : 0;
-      return {
-        name: body.ragdollPart || "",
-        connectedToTorso: connected.has(body),
-        detached: !!body.detachedRagdoll,
-        position: vector(body.position),
-        velocity: vector(body.velocity),
-        angleDeg: deg(body.angle),
-        angularVelocity: round(body.angularVelocity, 4),
-        bottomY: round(this.getFlightRagdollBottomY(body), 2),
-        parent: parent ? (parent.ragdollPart || "") : null,
-        relativeAngleDeg: deg(relAngle),
-        targetRelativeAngleDeg: deg(targetRel),
-        relativeErrorDeg: deg(this.wrapRagdollAngle(relAngle - targetRel)),
-        legFoldGuard: round(body.legFoldGuard, 3),
-        legHingeError: round(body.legHingeError, 3),
-        legAngleGuard: round(body.legAngleGuard, 3),
-        legPoseSpread: round(body.legPoseSpread, 3),
-        maxSpin: round(body.renderInfo && body.renderInfo.maxSpin, 3),
-        collision: {
-          category: body.collisionFilter ? body.collisionFilter.category : null,
-          mask: body.collisionFilter ? body.collisionFilter.mask : null
-        },
-        anchors: anchorsForBody(body)
-      };
-    });
-
-  const joints = (rig.joints || [])
-    .filter((joint) => joint && joint !== rig.anchorConstraint)
-    .map((joint) => {
-      const pointA = this.ragdollWorldPoint(joint.bodyA, joint.pointA || { x: 0, y: 0 });
-      const pointB = this.ragdollWorldPoint(joint.bodyB, joint.pointB || { x: 0, y: 0 });
-      const distance = Phaser.Math.Distance.Between(pointA.x, pointA.y, pointB.x, pointB.y);
-      const info = joint.ragdollJoint || {};
-      return {
-        name: info.name || "",
-        a: joint.bodyA && joint.bodyA.ragdollPart ? joint.bodyA.ragdollPart : "",
-        b: joint.bodyB && joint.bodyB.ragdollPart ? joint.bodyB.ragdollPart : "",
-        pointA: vector(pointA),
-        pointB: vector(pointB),
-        distance: round(distance, 3),
-        length: round(joint.length || 0, 3),
-        stretch: round(distance - (joint.length || 0), 3),
-        stiffness: round(joint.stiffness, 4),
-        damping: round(joint.damping, 4),
-        breakLimit: round(info.breakLimit, 3),
-        toughness: round(info.toughness, 3),
-        weakness: round(info.weakness, 3),
-        critical: !!info.critical,
-        pinStrength: round(info.pinStrength, 3),
-        locked: !!info.locked,
-        brace: !!info.brace
-      };
-    });
-
-  const dummy = this.dummy ? {
-    x: round(this.dummy.x, 2),
-    y: round(this.dummy.y, 2),
-    angleDeg: round(this.dummy.angle, 2)
-  } : null;
-  const burstT = rig.wheelSpinBurstUntil
-    ? Phaser.Math.Clamp((rig.wheelSpinBurstUntil - this.time.now) / Math.max(1, rig.wheelSpinBurstDuration || 1), 0, 1)
-    : 0;
-
-  return Object.assign(base, {
-    dummy,
-    ragdoll: {
-      createdAt: Math.round(rig.createdAt || 0),
-      settling: !!rig.settling,
-      settleLocked: !!rig.settleLocked,
-      allowJointBreaks: !!rig.allowJointBreaks,
-      partCount: parts.length,
-      jointCount: joints.length,
-      connectedCount: connected.size,
-      wheelSpin: {
-        active: !!rig.wheelSpinActive,
-        speedDeg: round(rig.wheelSpinSpeedDeg, 2),
-        smoothDeg: round(rig.wheelSpinSmoothDeg, 2),
-        cruiseDeg: round(rig.wheelSpinCruiseDeg, 2),
-        minDeg: round(rig.wheelSpinMinDeg, 2),
-        maxDeg: round(rig.wheelSpinMaxDeg, 2),
-        burstT: round(burstT, 3),
-        burstDeg: round(rig.wheelSpinBurstDeg, 2),
-        burstFrameDeg: round(rig.wheelSpinBurstFrameDeg, 2),
-        burstStepDeg: round(rig.wheelSpinBurstStepDeg, 2)
-      },
-      parts,
-      joints
-    }
-  });
-}
-
-updateRagdollDebugUI(force) {
-  if (!this.ragdollDebugPre) return;
-  const now = this.time ? this.time.now : 0;
-  if (!force && this.lastRagdollDebugAt && now - this.lastRagdollDebugAt < 180) return;
-  this.lastRagdollDebugAt = now;
-  this.ragdollDebugPre.textContent = JSON.stringify(this.collectRagdollFlightDebug(), null, 2);
-}
-
 createBounceBadge() {
-  this.bounceBadge = this.add.container(170, -88).setVisible(false).setAlpha(0).setScale(0.45);
+  this.bounceBadge = this.add.container(170, 78).setVisible(false).setAlpha(0).setScale(0.45);
   this.bounceBadgeIcon = this.add.image(0, 0, "bounceIcon").setScale(0.56);
   this.bounceBadgeExtraIcon = this.add.image(0, 0, "bounceIconExtra").setScale(0.56).setAlpha(0);
   this.bounceBadgeText = this.add.text(34, 2, "0", {
@@ -941,17 +949,26 @@ createBounceBadge() {
 applyMultiplierTheme(theme) {
   if (!this.multiplierText || !this.multiplierPanelBg) return;
   const themes = {
-    idle: { main: 0x8f969b, text: "#8f969b", label: "#8f969b", glow: 0x8f969b, shadow: "#303538" },
-    running: { main: 0x41ce44, text: "#41CE44", label: "#41CE44", glow: 0x41ce44, shadow: "#0f4a19" },
-    fail: { main: 0xff3f3f, text: "#ff3f3f", label: "#ff6b6b", glow: 0xff3f3f, shadow: "#4a0f0f" }
+    idle: { main: 0x8f969b, text: "#8f969b", label: "#8f969b", glow: 0x8f969b, shadow: "#303538", bg: 0x071012, inner: 0x1b2327, bgAlpha: 0.62, innerAlpha: 0.34 },
+    running: { main: 0xeefe0d, text: "#F6FFC3", label: "#EEFE0D", glow: 0xeefe0d, shadow: "#6a7000", bg: 0x171a00, inner: 0x2a2d00, bgAlpha: 0.72, innerAlpha: 0.42 },
+    fail: { main: 0xff2929, text: "#FF2929", label: "#FF6A6A", glow: 0xff2929, shadow: "#4a0707", bg: 0x210505, inner: 0x350808, bgAlpha: 0.76, innerAlpha: 0.42 },
+    win: { main: 0x29ff50, text: "#29FF50", label: "#D8FFD8", glow: 0x29ff50, shadow: "#063a10", bg: 0x031b09, inner: 0x063311, bgAlpha: 0.78, innerAlpha: 0.44 }
   };
   const next = themes[theme] || themes.idle;
   this.multiplierGlow.setFillStyle(next.glow, theme === "idle" ? 0.08 : 0.16);
+  this.multiplierPanelBg.setFillStyle(next.bg, next.bgAlpha);
   this.multiplierPanelBg.setStrokeStyle(7, next.main, theme === "idle" ? 0.62 : 0.92);
+  this.multiplierPanelInner.setFillStyle(next.inner, next.innerAlpha);
   this.multiplierPanelInner.setStrokeStyle(3, next.main, theme === "idle" ? 0.18 : 0.32);
   this.multiplierPanelLabel.setColor(next.label);
   this.multiplierText.setColor(next.text);
   this.multiplierText.setShadow(0, 4, next.shadow, 0, true, true);
+  if (theme !== "win") {
+    if (this.finalWinText) this.finalWinText.setVisible(false).setAlpha(0);
+    if (this.multiplierPanel) this.multiplierPanel.setScale(1).setAlpha(1);
+    this.multiplierText.setPosition(0, 15).setScale(1).setAlpha(1).setAngle(0);
+    this.multiplierPanelLabel.setText("MULTIPLIER").setAlpha(0.85);
+  }
 }
 
 showBounceBadge(count) {
@@ -1009,7 +1026,7 @@ showBounceBadge(count) {
 }
 
 createCar() {
-  const car = this.add.container(CT.Config.gameplay.carStartX, CT.Config.gameplay.roadY - 54).setDepth(5);
+  const car = this.add.container(CT.Config.gameplay.carStartX, this.getGameplayRoadY() - 54).setDepth(5);
   const carGroundShadow = this.add.image(0, 0, "carGroundShadow")
     .setOrigin(0.5)
     .setDepth(4.5);
@@ -1142,6 +1159,20 @@ createDummy() {
   return dummy;
 }
 
+isMobilePerfMode() {
+  if (this.mobilePerfMode !== null) return this.mobilePerfMode;
+  if (typeof window === "undefined") {
+    this.mobilePerfMode = false;
+    return this.mobilePerfMode;
+  }
+  const nav = window.navigator || {};
+  const ua = String(nav.userAgent || "");
+  const coarsePointer = !!(window.matchMedia && window.matchMedia("(pointer: coarse)").matches);
+  const lowMemory = Number(nav.deviceMemory || 8) <= 4;
+  this.mobilePerfMode = /Android|iPhone|iPad|iPod/i.test(ua) || (coarsePointer && lowMemory);
+  return this.mobilePerfMode;
+}
+
 setupRagdollMatterWorld() {
   if (!this.matter) {
     console.warn("RAGDOLL: Matter physics is not available in GameScene.");
@@ -1172,7 +1203,7 @@ setupRagdollMatterWorld() {
   const groundHeight = 96;
   this.ragdollGround = this.matter.add.rectangle(
     gp.worldWidth / 2,
-    gp.roadY + 8 + groundHeight / 2,
+    this.getGameplayGroundY() + groundHeight / 2,
     groundWidth,
     groundHeight,
     {
@@ -1189,6 +1220,25 @@ setupRagdollMatterWorld() {
   this.ragdollMatterReady = true;
 }
 
+updateRagdollGroundLayout() {
+  if (!this.ragdollGround || !this.Matter) return;
+  const gp = CT.Config.gameplay;
+  const groundHeight = 96;
+  this.Matter.Body.setPosition(this.ragdollGround, {
+    x: gp.worldWidth / 2,
+    y: this.getGameplayGroundY() + groundHeight / 2
+  });
+}
+
+applyWorldOffsetToDynamicObjects() {
+  if (this.car && this.state !== "crashing" && this.state !== "dummyFlight") {
+    const leverLift = Phaser.Math.Easing.Cubic.Out(this.turboPower || 0);
+    const lift = this.state === "running" ? leverLift * 5.04 : 0;
+    this.car.y = this.getGameplayRoadY() - 54 - lift;
+    this.updateCarGroundShadow();
+  }
+}
+
 getFlightRagdollLegacyPose() {
   return {
     matterScale: 0.61248,
@@ -1196,7 +1246,7 @@ getFlightRagdollLegacyPose() {
     parts: {
       upperArmL: { x: 0, y: 6, rotation: 0, scale: 0.484, alpha: 1, layer: 10, anchors: { shoulder: { x: -0.75, y: -14.5 }, elbow: { x: 0.75, y: 17 } } },
       lowerArmL: { x: -1, y: 38.24, rotation: 0, scale: 0.484, alpha: 1, layer: 9, anchors: { elbow: { x: 1, y: -13.5 }, wrist: { x: 0.5, y: 10.75 } } },
-      handL: { x: 1.71, y: 58.47, rotation: 0, scale: 0.484, alpha: 1, layer: 8, anchors: { wrist: { x: -0.75, y: -7 } } },
+      handL: { x: 1.71, y: 58.47, rotation: 0, scale: 0.484, alpha: 1, layer: 8, anchors: { wrist: { x: -0.75, y: -13.5 } } },
       thighL: { x: -4.22, y: 72.9, rotation: 0, scale: 0.484, alpha: 1, layer: 13, anchors: { hip: { x: 0.75, y: -22 }, knee: { x: 0.75, y: 25.75 } } },
       shinL: { x: -1.72, y: 120.48, rotation: -3.44, scale: 0.484, alpha: 1, layer: 12, anchors: { knee: { x: 0, y: -20.21 }, ankle: { x: 0, y: 20.21 } } },
       footL: { x: 4.78, y: 145.98, rotation: -2.29, scale: 0.484, alpha: 1, layer: 11, anchors: { ankle: { x: -5.51, y: -4.29 } } },
@@ -1208,7 +1258,7 @@ getFlightRagdollLegacyPose() {
       footR: { x: 4, y: 146.5, rotation: 0, scale: 0.484, alpha: 1, layer: 48, anchors: { ankle: { x: -7, y: -8.25 } } },
       upperArmR: { x: -2.5, y: 8, rotation: 0, scale: 0.484, alpha: 1, layer: 60, anchors: { shoulder: { x: 0.75, y: -15.75 }, elbow: { x: -1, y: 18.25 } } },
       lowerArmR: { x: -3.5, y: 43.11, rotation: 0, scale: 0.484, alpha: 1, layer: 59, anchors: { elbow: { x: 0, y: -14.09 }, wrist: { x: 0, y: 14.09 } } },
-      handR: { x: -0.1, y: 62.5, rotation: -3.44, scale: 0.484, alpha: 1, layer: 58, anchors: { wrist: { x: -3.06, y: -4.29 } } }
+      handR: { x: -0.1, y: 62.5, rotation: -3.44, scale: 0.484, alpha: 1, layer: 58, anchors: { wrist: { x: -3.06, y: -9.8 } } }
     }
   };
 }
@@ -1289,7 +1339,11 @@ createFlightRagdollLegacySkin(trackX, trackY, trackAngle) {
     limbChaosUntil: this.time.now + 1100,
     limbChaosDuration: 1100,
     limbChaosPower: 0.88,
-    allowJointBreaks: true
+    allowJointBreaks: true,
+    jointGraphVersion: 0,
+    connectedPartsCacheRoot: null,
+    connectedPartsCacheVersion: -1,
+    connectedPartsCache: null
   };
   this.flightRagdoll = rig;
 
@@ -2560,7 +2614,7 @@ settleFlightRagdoll(delta) {
 
   const dt = Phaser.Math.Clamp((delta || 16.6667) / 16.6667, 0.4, 2);
   const elapsed = this.time.now - (rig.settleStartedAt || this.time.now);
-  const floorY = rig.settleFloorY || (CT.Config.gameplay.roadY + 8);
+  const floorY = rig.settleFloorY || this.getGameplayGroundY();
   const lockDelay = rig.settleLockDelay || 420;
   const finalPop = !!rig.finalLandingPopActive;
   const settleT = Phaser.Math.Clamp(elapsed / lockDelay, 0, 1);
@@ -2850,7 +2904,7 @@ keepFlightRagdollLegHinges(delta, options) {
   const parts = rig.poseParts || this.getFlightRagdollPartMap(rig);
   const connected = this.getFlightRagdollConnectedParts(rig.torso);
   const dt = Phaser.Math.Clamp((delta || 16.6667) / 16.6667, 0.45, 1.8);
-  const floorY = rig.settleFloorY || (CT.Config.gameplay.roadY + 8);
+  const floorY = rig.settleFloorY || this.getGameplayGroundY();
   const legBodies = ["thighL", "shinL", "footL", "thighR", "shinR", "footR"].map((name) => parts[name]).filter(Boolean);
   const maxLegBottom = legBodies.reduce((bottom, body) => Math.max(bottom, this.getFlightRagdollBottomY(body)), -Infinity);
   const groundT = opts.forceGround
@@ -3177,32 +3231,6 @@ checkFlightRagdollJointStress() {
   });
 }
 
-pinFlightRagdollJoints() {
-  const rig = this.flightRagdoll;
-  if (!rig || !rig.joints || rig.settling || rig.settleLocked) return;
-  for (let pass = 0; pass < 3; pass++) {
-    rig.joints.forEach((joint) => {
-      if (!joint || joint === rig.anchorConstraint || !joint.bodyA || !joint.bodyB) return;
-      const info = joint.ragdollJoint || {};
-      if (info.brace) return;
-      if (!info.critical) return;
-      const a = this.ragdollWorldPoint(joint.bodyA, joint.pointA);
-      const b = this.ragdollWorldPoint(joint.bodyB, joint.pointB);
-      const dx = b.x - a.x;
-      const dy = b.y - a.y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      const targetLength = Math.max(0, Number(joint.length) || 0);
-      const error = dist - targetLength;
-      if (Math.abs(error) <= 0.35 || dist <= 0.001) return;
-      const strength = info.pinStrength || 0.42;
-      const correctionX = (dx / dist) * error * strength;
-      const correctionY = (dy / dist) * error * strength;
-      this.Matter.Body.translate(joint.bodyA, { x: correctionX * 0.5, y: correctionY * 0.5 });
-      this.Matter.Body.translate(joint.bodyB, { x: -correctionX * 0.5, y: -correctionY * 0.5 });
-    });
-  }
-}
-
 kickFlightRagdollFromGround(power, options) {
   const rig = this.flightRagdoll;
   if (!rig || !rig.parts) return;
@@ -3415,6 +3443,14 @@ getFlightRagdollConnectedParts(root) {
   const rig = this.flightRagdoll;
   const connected = new Set();
   if (!rig || !root) return connected;
+  const graphVersion = Number(rig.jointGraphVersion) || 0;
+  if (
+    rig.connectedPartsCache &&
+    rig.connectedPartsCacheRoot === root &&
+    rig.connectedPartsCacheVersion === graphVersion
+  ) {
+    return rig.connectedPartsCache;
+  }
   const queue = [root];
   connected.add(root);
   while (queue.length) {
@@ -3429,6 +3465,9 @@ getFlightRagdollConnectedParts(root) {
       queue.push(next);
     });
   }
+  rig.connectedPartsCacheRoot = root;
+  rig.connectedPartsCacheVersion = graphVersion;
+  rig.connectedPartsCache = connected;
   return connected;
 }
 
@@ -3437,7 +3476,7 @@ updateDetachedFlightRagdollParts(delta) {
   if (!rig || !rig.parts || !rig.torso) return;
   const connected = this.getFlightRagdollConnectedParts(rig.torso);
   const dt = Phaser.Math.Clamp((delta || 16.6667) / 16.6667, 0.4, 2);
-  const floorY = rig.settleFloorY || (CT.Config.gameplay.roadY + 8);
+  const floorY = rig.settleFloorY || this.getGameplayGroundY();
   const settling = !!rig.settling;
   const settleT = settling
     ? Phaser.Math.Clamp((this.time.now - (rig.settleStartedAt || this.time.now)) / Math.max(1, rig.settleLockDelay || 720), 0, 1)
@@ -3554,7 +3593,7 @@ startFlightRagdollSettle() {
   rig.settling = true;
   rig.settleStartedAt = this.time.now;
   rig.settleTarget = this.dummy ? this.getRagdollTorsoTarget(this.dummy.x, this.dummy.y) : null;
-  rig.settleFloorY = CT.Config.gameplay.roadY + 8;
+  rig.settleFloorY = this.getGameplayGroundY();
   rig.settleLockDelay = finalPop ? 860 : 420;
   rig.settleLocked = false;
   rig.finalLandingPopActive = finalPop;
@@ -3628,6 +3667,10 @@ breakFlightRagdollJoint(joint, impact) {
     rig.joints.splice(index, 1);
     this.Matter.Composite.remove(this.matter.world.localWorld, item);
   });
+  rig.jointGraphVersion = (Number(rig.jointGraphVersion) || 0) + 1;
+  rig.connectedPartsCacheRoot = null;
+  rig.connectedPartsCacheVersion = -1;
+  rig.connectedPartsCache = null;
   this.spawnSmoke(
     (joint.bodyA.position.x + joint.bodyB.position.x) * 0.5,
     (joint.bodyA.position.y + joint.bodyB.position.y) * 0.5,
@@ -3867,7 +3910,7 @@ updateCarGroundShadow() {
   const wheelShadow = cfg.wheelShadow || CT.Config.gameplay.carArt.wheelShadow;
   const carVisualScale = Number(CT.Config.gameplay.carVisualScale) || 1;
   const rootScale = Math.max(0.01, Number(root.scale) || 1) * carVisualScale;
-  const baseCarY = CT.Config.gameplay.roadY - 54;
+  const baseCarY = this.getGameplayRoadY() - 54;
   const alpha = Phaser.Math.Clamp(Number(wheelShadow.alpha), 0, 1) * Phaser.Math.Clamp(this.car.alpha, 0, 1);
   this.car.carGroundShadow
     .setScrollFactor(this.car.scrollFactorX, this.car.scrollFactorY)
@@ -3885,7 +3928,7 @@ recycleFailedCarToStart(animate, onComplete, cameraScrollX) {
   const cfg = CT.Config;
   this.stopCrashDebrisRoadLock();
   const viewScrollX = Number.isFinite(cameraScrollX) ? cameraScrollX : 0;
-  this.car.setPosition(viewScrollX + cfg.gameplay.carStartX, cfg.gameplay.roadY - 54).setAngle(0).setAlpha(1);
+  this.car.setPosition(viewScrollX + cfg.gameplay.carStartX, this.getGameplayRoadY() - 54).setAngle(0).setAlpha(1);
   this.car.setDepth(5);
   if (this.car.bodyRig) this.car.bodyRig.y = this.car.bodyBaseY || 0;
   if (this.car.bodyRig) this.car.bodyRig.angle = 0;
@@ -4019,7 +4062,7 @@ cashOutCrash() {
   this.hud.setLocked(true);
   this.hud.setResult(this.autoCrash ? "WALL HIT!" : "CRASH!", "#ffffff");
   this.barrier.setVisible(true);
-  this.barrier.setPosition(wallStartX, this.hitWallY).setAlpha(this.hitWallAlpha).setScale(1);
+  this.barrier.setPosition(wallStartX, this.offsetGameplayY(this.hitWallY)).setAlpha(this.hitWallAlpha).setScale(1);
   const carStartX = this.car.x;
   this.tweens.killTweensOf(this.car);
   this.tweens.killTweensOf(this.barrier);
@@ -4133,7 +4176,7 @@ advanceCrashDebris(dx) {
 
 playDummyFlight(payout) {
   const cfg = CT.Config;
-  const groundY = cfg.gameplay.roadY + 8;
+  const groundY = this.getGameplayGroundY();
   const bounceCount = this.getBounceCount(this.multiplier);
   this.remainingBounces = bounceCount;
   this.updateBounceText();
@@ -4170,7 +4213,7 @@ playDummyFlight(payout) {
 }
 
 playDummyBounces(payout, count) {
-  const groundY = CT.Config.gameplay.roadY + 8;
+  const groundY = this.getGameplayGroundY();
   const cfg = CT.Config;
   const hopDistance = cfg.gameplay.bounceDistance;
   const firstHeight = cfg.gameplay.bounceHeight;
@@ -4308,16 +4351,21 @@ createDoubleBounceCoin(x, y) {
   root.add([glow, icon]);
   root.bonusKind = "extraBounce";
   this.bonusItems.push(root);
-  this.tweens.add({
-    targets: root,
-    scaleX: 1.12,
-    scaleY: 1.12,
-    angle: 8,
-    duration: 320,
-    ease: "Sine.inOut",
-    yoyo: true,
-    repeat: -1
-  });
+  if (this.isMobilePerfMode()) {
+    root.setScale(1.05);
+    root.angle = 3;
+  } else {
+    this.tweens.add({
+      targets: root,
+      scaleX: 1.12,
+      scaleY: 1.12,
+      angle: 8,
+      duration: 320,
+      ease: "Sine.inOut",
+      yoyo: true,
+      repeat: -1
+    });
+  }
   return root;
 }
 
@@ -4335,15 +4383,19 @@ createBonusCoin(x, y, value) {
   root.add([bg, shine, txt]);
   root.bonusValue = value;
   this.bonusItems.push(root);
-  this.tweens.add({
-    targets: root,
-    scaleX: 1.12,
-    scaleY: 1.12,
-    duration: 260,
-    ease: "Sine.inOut",
-    yoyo: true,
-    repeat: -1
-  });
+  if (this.isMobilePerfMode()) {
+    root.setScale(1.04);
+  } else {
+    this.tweens.add({
+      targets: root,
+      scaleX: 1.12,
+      scaleY: 1.12,
+      duration: 260,
+      ease: "Sine.inOut",
+      yoyo: true,
+      repeat: -1
+    });
+  }
   return root;
 }
 
@@ -4528,7 +4580,7 @@ getBounceCount(multiplier) {
 }
 
 settleDummy(payout) {
-  const groundY = CT.Config.gameplay.roadY + 8;
+  const groundY = this.getGameplayGroundY();
   this.flightRoadSpeed = 0;
 
   // Every final landing gets a tiny finishing pop, then hard freeze.
@@ -4558,71 +4610,71 @@ showCrashFinal(payout) {
 }
 
 showFinalWinCounter(finalPayout, onComplete) {
-  const centerX = this.cameras.main.scrollX + CT.Config.width / 2;
-  const centerY = CT.Config.height / 2 - 20;
-  const box = this.add.container(centerX, centerY).setDepth(40);
-  const glow = this.add.circle(0, 0, 142, 0x63ff9f, 0.18).setBlendMode(Phaser.BlendModes.ADD);
-  const bg = this.add.rectangle(0, 0, 430, 178, 0x071012, 0.88)
-    .setStrokeStyle(5, 0x63ff9f, 0.92);
-  const label = this.add.text(0, -52, "FINAL WIN", {
-    fontFamily: "Arial",
-    fontSize: "28px",
-    color: "#ffffff",
-    fontStyle: "bold"
-  }).setOrigin(0.5);
-  const valueText = this.add.text(0, 26, "$0.00", {
-    fontFamily: "Arial",
-    fontSize: "58px",
-    color: "#63ff9f",
-    fontStyle: "bold",
-    stroke: "#000000",
-    strokeThickness: 8
-  }).setOrigin(0.5);
-  box.add([glow, bg, label, valueText]);
-  box.setScale(0.55).setAlpha(0);
+  if (!this.multiplierPanel || !this.multiplierText || !this.finalWinText) {
+    onComplete && onComplete();
+    return;
+  }
+
+  this.applyMultiplierTheme("win");
+  this.tweens.killTweensOf([this.multiplierPanel, this.multiplierText, this.multiplierGlow, this.finalWinText]);
+  this.multiplierPanelLabel.setText("TOTAL MULTIPLIER").setAlpha(0.78);
+  this.finalWinText
+    .setText("LAST WIN +$0.00")
+    .setColor("#29FF50")
+    .setVisible(true)
+    .setAlpha(0)
+    .setScale(0.72)
+    .setPosition(0, -48);
+  this.multiplierText.setAlpha(1).setPosition(0, 15).setScale(1).setAngle(0);
 
   this.tweens.add({
-    targets: box,
+    targets: this.multiplierText,
+    y: 48,
+    scaleX: 0.58,
+    scaleY: 0.58,
+    duration: 260,
+    ease: "Back.out"
+  });
+  this.tweens.add({
+    targets: this.finalWinText,
     alpha: 1,
     scaleX: 1,
     scaleY: 1,
-    duration: 220,
+    duration: 240,
     ease: "Back.out"
+  });
+  this.tweens.add({
+    targets: this.multiplierGlow,
+    alpha: 0.32,
+    scaleX: 1.18,
+    scaleY: 1.18,
+    duration: 220,
+    yoyo: true,
+    repeat: 1,
+    ease: "Sine.inOut"
   });
 
   const counter = { value: 0 };
   this.tweens.add({
     targets: counter,
     value: finalPayout,
-    duration: 650,
+    duration: 720,
     ease: "Cubic.out",
     onUpdate: () => {
-      valueText.setText("$" + this.wallet.format(counter.value));
+      this.finalWinText.setText("LAST WIN +$" + this.wallet.format(counter.value));
     },
     onComplete: () => {
-      valueText.setText("$" + this.wallet.format(finalPayout));
+      this.finalWinText.setText("LAST WIN +$" + this.wallet.format(finalPayout));
       this.tweens.add({
-        targets: [box, glow],
+        targets: this.multiplierPanel,
         scaleX: 1.08,
         scaleY: 1.08,
         duration: 130,
         yoyo: true,
         ease: "Sine.inOut",
         onComplete: () => {
-          this.time.delayedCall(160, () => {
-            this.tweens.add({
-              targets: box,
-              alpha: 0,
-              scaleX: 0.86,
-              scaleY: 0.86,
-              duration: 150,
-              ease: "Cubic.in",
-              onComplete: () => {
-                box.destroy();
-                onComplete && onComplete();
-              }
-            });
-          });
+          this.multiplierPanel.setScale(1);
+          this.time.delayedCall(140, () => onComplete && onComplete());
         }
       });
     }
@@ -4631,7 +4683,7 @@ showFinalWinCounter(finalPayout, onComplete) {
 
 engineFail() {
   if (this.state !== "running") return;
-  const baseCarY = CT.Config.gameplay.roadY - 54;
+  const baseCarY = this.getGameplayRoadY() - 54;
   this.state = "failed";
   this.turbo = false;
   this.turboPower = 0;
@@ -4742,7 +4794,7 @@ resetRunVisuals(launchPosition) {
   this.barrier.setVisible(false);
   this.barrier.setAlpha(this.hitWallAlpha).setScale(1);
   this.updateHitWallLayout();
-  this.car.setPosition(launchPosition ? cfg.gameplay.carStartX : cfg.gameplay.carReadyX, cfg.gameplay.roadY - 54).setAngle(0).setAlpha(1);
+  this.car.setPosition(launchPosition ? cfg.gameplay.carStartX : cfg.gameplay.carReadyX, this.getGameplayRoadY() - 54).setAngle(0).setAlpha(1);
   this.dummy.setPosition(-22, -45).setAngle(0).setScale(1).setDepth(0);
   if (this.dummy.parentContainer !== this.car) {
     this.car.add(this.dummy);
@@ -4822,7 +4874,10 @@ resetRunStateOnly() {
 }
 
 spawnSmoke(x, y, count, color) {
-  for (let i = 0; i < count; i++) {
+  const puffCount = this.isMobilePerfMode()
+    ? Math.max(1, Math.ceil((Number(count) || 1) * 0.42))
+    : count;
+  for (let i = 0; i < puffCount; i++) {
     const puff = this.add.circle(x + Phaser.Math.Between(-8, 12), y + Phaser.Math.Between(-18, 18), Phaser.Math.Between(10, 24), color, 0.34)
       .setDepth(8);
     this.smokeLayer.add(puff);
@@ -4881,7 +4936,7 @@ update(_time, delta) {
   }
   const leverLift = Phaser.Math.Easing.Cubic.Out(this.turboPower);
   const lift = leverLift * 5.04;
-  this.car.y = cfg.gameplay.roadY - 54 - lift;
+  this.car.y = this.getGameplayRoadY() - 54 - lift;
   this.car.angle = this.turboPower > 0.03 ? -Phaser.Math.Linear(0.25, 3.57, leverLift) : 0;
   this.updateCarBodyBounce(this.time.now);
   this.setWheelPlayback(true, Phaser.Math.Linear(0.38, 1.65, Phaser.Math.Clamp(roadSpeed / 980, 0, 1)));
@@ -4902,6 +4957,7 @@ update(_time, delta) {
 
 advanceRoad(dx) {
   if (!this.roadTiles || !this.roadTiles.length) return;
+  this.advanceTestBackground(dx);
   const patternWidth = this.getRoadTileWidth() * 3;
   this.roadOffset = Phaser.Math.Wrap(this.roadOffset + dx, 0, patternWidth);
   if (this.fenceTiles && this.fenceTiles.length) {

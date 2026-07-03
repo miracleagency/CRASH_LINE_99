@@ -18,9 +18,6 @@
 
       this.top = this.scene.add.container(0, 0).setDepth(10);
       this.top.setScrollFactor(0);
-      const topBg = this.scene.add.rectangle(W / 2, 0, W, 142, cfg.colors.panel, 0.94)
-        .setOrigin(0.5, 0)
-        .setStrokeStyle(2, cfg.colors.panelStroke, 0.2);
       const title = this.scene.add.text(W / 2, 25, "CRASHLINE 99", {
         fontFamily: "Arial",
         fontSize: "28px",
@@ -41,7 +38,7 @@
         stroke: "#000000",
         strokeThickness: 4
       }).setOrigin(0.5);
-      this.top.add([topBg, title, gameVersion, this.resultText]);
+      this.top.add([title, gameVersion, this.resultText]);
 
       this.balanceText = this.scene.add.text(18, H - 60, "", {
         fontFamily: "Arial",

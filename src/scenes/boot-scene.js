@@ -17,8 +17,16 @@
         CT.asset("images/ROAD LOOP_3.png")
       ];
       const roadFenceUrl = CT.asset("images/ROAD_bg1_3.png");
+      const backTestBgUrl = CT.asset("images/BACK_TEST_BG.png");
+      const barrelUrl = CT.asset("images/barrol.png");
+      const mainScreenRefOverlayUrl = CT.asset("images/Main_screen_ref_overlay.png");
       const fencePoleUrl = CT.asset("images/stolb_lamp_1.png");
       const fenceLightUrl = CT.asset("images/yelow_light_1.png");
+      const barrelFireFrameCount = 25;
+      const barrelFireUrls = Array.from({ length: barrelFireFrameCount }, (_, index) => {
+        const frame = String(index + 1).padStart(2, "0");
+        return CT.asset("images/FIRE_from_barrol_seq/fire1_ " + frame + ".png");
+      });
       const carBodyUrl = CT.asset("images/car_body.png");
       const carCrashBodyFrames = 9;
       const carCrashBodyUrls = Array.from({ length: carCrashBodyFrames }, (_, index) => {
@@ -86,8 +94,14 @@
         this.load.image("roadLoop" + (index + 1), url);
       });
       this.load.image("roadFence", roadFenceUrl);
+      this.load.image("backTestBg", backTestBgUrl);
+      this.load.image("barrel", barrelUrl);
+      this.load.image("mainScreenRefOverlay", mainScreenRefOverlayUrl);
       this.load.image("fencePole", fencePoleUrl);
       this.load.image("fenceLight", fenceLightUrl);
+      barrelFireUrls.forEach((url, index) => {
+        this.load.image("barrelFire" + (index + 1), url);
+      });
       this.load.image("carBody", carBodyUrl);
       carCrashBodyUrls.forEach((url, index) => {
         this.load.image("carCrashBody" + (index + 1), url);
@@ -145,6 +159,14 @@
           frames: Array.from({ length: 5 }, (_, index) => ({ key: "carLightSweep" + (index + 1) })),
           frameRate: 24,
           repeat: 0
+        });
+      }
+      if (!this.anims.exists("barrelFireLoop")) {
+        this.anims.create({
+          key: "barrelFireLoop",
+          frames: Array.from({ length: 25 }, (_, index) => ({ key: "barrelFire" + (index + 1) })),
+          frameRate: 24,
+          repeat: -1
         });
       }
       this.scene.start("GameScene");

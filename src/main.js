@@ -8,7 +8,11 @@
 
   const fullscreenBtn = document.getElementById("fullscreenBtn");
   const soundBtn = document.getElementById("soundBtn");
+  const controlBtn = document.getElementById("controlBtn");
+  const controlUi = document.getElementById("control-ui");
+  const controlsOpenKey = (cfg.storage && cfg.storage.controlsOpen) || "crashLineControlUiOpen";
   let soundMuted = localStorage.getItem(cfg.storage.muted) === "1";
+  let controlsOpen = false;
 
   function hideBootLoader() {
     const loader = document.getElementById("bootLoader");
@@ -52,6 +56,17 @@
     if (soundBtn) {
       soundBtn.innerHTML = soundMuted ? "&#215;" : "&#9835;";
       soundBtn.setAttribute("aria-label", soundMuted ? "Sound off" : "Sound on");
+    }
+  }
+
+  function applyControlUiVisibility() {
+    if (controlUi) {
+      controlUi.classList.toggle("is-hidden", !controlsOpen);
+    }
+
+    if (controlBtn) {
+      controlBtn.classList.toggle("is-active", controlsOpen);
+      controlBtn.setAttribute("aria-label", controlsOpen ? "Hide controls" : "Show controls");
     }
   }
 
@@ -101,6 +116,14 @@
       applySoundMute();
     }
 
+    if (controlBtn) {
+      controlBtn.addEventListener("click", () => {
+        controlsOpen = !controlsOpen;
+        localStorage.setItem(controlsOpenKey, controlsOpen ? "1" : "0");
+        applyControlUiVisibility();
+      });
+      applyControlUiVisibility();
+    }
   }
 
   function boot() {

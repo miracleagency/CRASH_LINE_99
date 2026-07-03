@@ -86,6 +86,11 @@ body.controls-dimmed .page-btn:not(.is-hidden) {
   right: calc(max(12px, env(safe-area-inset-right)) + 59px);
 }
 
+.control-btn {
+  right: calc(max(12px, env(safe-area-inset-right)) + 108px);
+  font-size: 11px;
+}
+
 .boot-loader {
   position: fixed;
   inset: 0;
@@ -115,4 +120,99 @@ body.controls-dimmed .page-btn:not(.is-hidden) {
 
 @keyframes boot-spin {
   to { transform: rotate(360deg); }
+}
+
+.control-ui {
+  position: fixed;
+  top: max(56px, calc(env(safe-area-inset-top) + 56px));
+  right: max(10px, env(safe-area-inset-right));
+  z-index: 35;
+  width: 286px;
+  max-height: calc(100vh - 74px);
+  overflow: auto;
+  box-sizing: border-box;
+  padding: 12px;
+  border: 1px solid rgba(99, 255, 159, 0.46);
+  border-radius: 8px;
+  color: #ffffff;
+  background: rgba(3, 9, 12, 0.88);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.42);
+  font: 700 11px/1.2 Arial, sans-serif;
+  letter-spacing: 0;
+}
+
+.control-ui:empty {
+  display: none;
+}
+
+.control-ui.is-hidden {
+  display: none;
+}
+
+.control-ui__title {
+  margin: 11px 0 7px;
+  color: #41ce44;
+  font-size: 12px;
+}
+
+.control-ui__title:first-child {
+  margin-top: 0;
+}
+
+.control-ui__row {
+  display: grid;
+  grid-template-columns: 72px 1fr 58px;
+  gap: 8px;
+  align-items: center;
+  margin: 6px 0;
+}
+
+.control-ui__row span {
+  min-width: 0;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 10px;
+}
+
+.control-ui input[type="range"] {
+  width: 100%;
+  accent-color: #41ce44;
+}
+
+.control-ui input[type="number"] {
+  width: 58px;
+  box-sizing: border-box;
+  padding: 4px 5px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 6px;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+  font: 700 10px/1 Arial, sans-serif;
+}
+
+.control-ui__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 12px 0 10px;
+}
+
+.control-ui button {
+  height: 30px;
+  border: 1px solid rgba(65, 206, 68, 0.66);
+  border-radius: 7px;
+  color: #061009;
+  background: #41ce44;
+  font: 800 10px/1 Arial, sans-serif;
+}
+
+.control-ui__json {
+  max-height: 160px;
+  overflow: auto;
+  margin: 0;
+  padding: 8px;
+  border-radius: 7px;
+  color: rgba(255, 255, 255, 0.86);
+  background: rgba(255, 255, 255, 0.06);
+  font: 10px/1.35 Consolas, monospace;
+  white-space: pre-wrap;
 }
