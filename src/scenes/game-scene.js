@@ -271,20 +271,17 @@ createTestBackgroundLoop() {
     fire.play("barrelFireLoop");
     fire.anims.timeScale = 0.67;
   }
-  const fireItem = this.add.container(0, 0, [fire])
-    .setDepth(-11)
-    .setScrollFactor(0);
   const barrel = this.add.image(0, 0, "barrel")
     .setOrigin(0.5, 1);
-  const barrelChildren = [barrel];
+  const propChildren = [fire, barrel];
   const girl = this.textures.exists("girl")
     ? this.add.image(0, 0, "girl").setOrigin(0.5, 1)
     : null;
-  if (girl) barrelChildren.push(girl);
-  const barrelItem = this.add.container(0, 0, barrelChildren)
+  if (girl) propChildren.push(girl);
+  const propItem = this.add.container(0, 0, propChildren)
     .setDepth(-10)
     .setScrollFactor(0);
-  this.testBgProps = { fireItem, barrelItem, fire, barrel, girl };
+  this.testBgProps = { propItem, fire, barrel, girl };
   this.updateTestBackgroundLayout();
 }
 
@@ -347,13 +344,12 @@ updateTestBackgroundPropsLayout(tileWidth, bgCfg, barrelCfg, fireCfg, worldY) {
     this.testBgPropSignature = signature;
   }
   const barrelTileX = bgX + this.testBgPropTileIndex.barrel * tileWidth - tileWidth - (this.testBgPropOffset || 0);
-  const fireTileX = bgX + this.testBgPropTileIndex.fire * tileWidth - tileWidth - (this.testBgPropOffset || 0);
   const tileY = (Number(bgCfg.y) || 0) + worldY;
-  if (props.fireItem) props.fireItem.setPosition(fireTileX, tileY);
-  if (props.barrelItem) props.barrelItem.setPosition(barrelTileX, tileY);
+  if (props.propItem) props.propItem.setPosition(barrelTileX, tileY);
   if (props.fire) {
+    const fireLocalX = (this.testBgPropTileIndex.fire - this.testBgPropTileIndex.barrel) * tileWidth + fireX;
     props.fire
-      .setPosition(fireX, Number(fireCfg.y) || 0)
+      .setPosition(fireLocalX, Number(fireCfg.y) || 0)
       .setScale(Math.max(0.01, Number(fireCfg.scale) || 1));
   }
   const barrelScale = Math.max(0.01, Number(barrelCfg.scale) || 1);
@@ -372,8 +368,7 @@ updateTestBackgroundPropsLayout(tileWidth, bgCfg, barrelCfg, fireCfg, worldY) {
 
 setTestBackgroundPropsVisible(visible) {
   if (!this.testBgProps) return;
-  if (this.testBgProps.fireItem) this.testBgProps.fireItem.setVisible(visible);
-  if (this.testBgProps.barrelItem) this.testBgProps.barrelItem.setVisible(visible);
+  if (this.testBgProps.propItem) this.testBgProps.propItem.setVisible(visible);
 }
 
 resetTestBackgroundProps() {

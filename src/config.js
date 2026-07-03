@@ -3,8 +3,8 @@
   const assetRoot = new URL("./assets/", window.location.href).href;
 
   CT.Config = {
-    build: "2026-07-03-v0.1.171-props-wall-lock",
-    gameVersion: "v0.1.171",
+    build: "2026-07-03-v0.1.173-fire-x-1888",
+    gameVersion: "v0.1.173",
     phaserVersion: "3.88.2",
     fontFamily: "RoadRage",
     fontLetterSpacing: 0,
@@ -85,7 +85,7 @@
         fence: { x: 0, y: 788, scale: 0.65 },
         poles: { spacing: 360, y: 711, scale: 0.576 },
         barrel: { x: 5550, y: 784, scale: 0.61 },
-        fire: { x: 1874, y: 739, scale: 0.96 },
+        fire: { x: 1888, y: 739, scale: 0.96 },
         refOverlay: { alpha: 0 },
         multiplierPanel: { x: 360, y: 320 }
       },
