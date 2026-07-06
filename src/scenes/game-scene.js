@@ -1,6 +1,6 @@
 ﻿(function () {const CT = window.CrashTest = window.CrashTest || {};
 
-class GameScene extends Phaser.Scene {constructor() {super("GameScene");this.wallet = null;this.hud = null;this.state = "ready";this.round = 0;this.multiplier = 0;this.speed = 0;this.turbo = false;this.turboPower = 0;this.engineBreakAt = 0;this.roadOffset = 0;this.fenceOffset = 0;this.testBgOffset = 0;this.testBgPropOffset = 0;this.testBgProps = null;this.testBgPropTileIndex = null;this.testBgPropSignature = "";this.visualSpeed = 0;this.flightRoadSpeed = 0;this.pendingPayout = 0;this.autoCrash = false;this.safeMode = false;this.bonusAdd = 0;this.bonusItems = [];this.bonusPauseToken = 0;this.lastMultiplierDisplay = -1;this.lastMultiplierPulseAt = 0;this.rareBounceCount = 0;this.nextRareBounceAt = 0;this.remainingBounces = null;this.extraBounceAdder = null;this.extraBounceBonusCount = 0;this.sfx = {};this.engineAudioToken = 0;this.engineLoopTimer = null;this.engineLoopIndex = 0;this.roadTiles = [];this.testBgTiles = [];this.fenceTiles = [];this.loopObjectLayers = [];this.crashDebrisActive = false;this.fencePoleItems = [];this.fencePoleLayer = null;this.fenceOverlayItems = [];this.fenceOverlayLayer = null;this.fenceOverlayKeys = [];this.sceneTuningConfig = null;this.sceneControlRoot = null;this.sceneControlJson = null;this.refOverlay = null;this.roadArtX = 0;this.roadArtY = 0;this.roadArtScale = 1;this.fenceArtX = 0;this.fenceArtY = 0;this.fenceArtScale = 1;this.fencePoleX = 0;this.fencePoleY = 0;this.fencePoleSpacing = 247;this.fencePoleScale = 0.5;this.fenceLightOffsetY = -29;this.fenceLightScale = 0.4;this.fenceLightIntensity = 0.79;this.fenceLightDelay = 0.085;this.fenceOverlayX = 0;this.fenceOverlayY = 760;this.fenceOverlayHeight = 64;this.fenceOverlaySpacing = 420;this.fenceOverlayJitterX = 110;this.fenceOverlayCount = 24;this.fenceOverlayChance = 0.36;this.fenceOverlayScaleMin = 0.42;this.fenceOverlayScaleMax = 0.62;this.fenceOverlayAlpha = 0.96;this.hitWallX = 570;this.hitWallY = 888;this.hitWallVisualOffsetX = 0;this.hitWallScale = 0.34;this.hitWallAlpha = 1;this.hitWallImage = null;this.hitWallPreview = false;this.carControlConfig = null;this.turboFireTintStops = null;this.nextCarLightSweepAt = 0;this.nextFenceLightUpdateAt = 0;this.Matter = null;this.mobilePerfMode = null;this.ragdollMatterReady = false;this.ragdollGround = null;this.ragdollCollisionLayers = null;this.flightRagdoll = null;}
+class GameScene extends Phaser.Scene {constructor() {super("GameScene");this.wallet = null;this.hud = null;this.state = "ready";this.round = 0;this.multiplier = 0;this.speed = 0;this.turbo = false;this.turboPower = 0;this.engineBreakAt = 0;this.roadOffset = 0;this.fenceOffset = 0;this.testBgOffset = 0;this.testBgPropOffset = 0;this.testBgProps = null;this.testBgPropTileIndex = null;this.testBgPropSignature = "";this.visualSpeed = 0;this.flightRoadSpeed = 0;this.pendingPayout = 0;this.autoCrash = false;this.safeMode = false;this.bonusAdd = 0;this.bonusItems = [];this.bonusPauseToken = 0;this.lastMultiplierDisplay = -1;this.lastMultiplierPulseAt = 0;this.rareBounceCount = 0;this.nextRareBounceAt = 0;this.remainingBounces = null;this.extraBounceAdder = null;this.extraBounceBonusCount = 0;this.sfx = {};this.engineAudioToken = 0;this.engineLoopTimer = null;this.engineLoopIndex = 0;this.roadTiles = [];this.testBgTiles = [];this.fenceTiles = [];this.loopObjectLayers = [];this.crashDebrisActive = false;this.fencePoleItems = [];this.fencePoleLayer = null;this.fenceOverlayItems = [];this.fenceOverlayLayer = null;this.fenceOverlayKeys = [];this.sceneTuningConfig = null;this.sceneControlRoot = null;this.sceneControlJson = null;this.refOverlay = null;this.roadArtX = 0;this.roadArtY = 0;this.roadArtScale = 1;this.fenceArtX = 0;this.fenceArtY = 0;this.fenceArtScale = 1;this.fencePoleX = 0;this.fencePoleY = 0;this.fencePoleSpacing = 247;this.fencePoleScale = 0.5;this.fenceLightOffsetY = -29;this.fenceLightScale = 0.4;this.fenceLightIntensity = 0.79;this.fenceLightDelay = 0.085;this.fenceOverlayX = 0;this.fenceOverlayY = 760;this.fenceOverlayHeight = 64;this.fenceOverlaySpacing = 420;this.fenceOverlayJitterX = 110;this.fenceOverlayCount = 24;this.fenceOverlayChance = 0.36;this.fenceOverlayScaleMin = 0.42;this.fenceOverlayScaleMax = 0.62;this.fenceOverlayAlpha = 0.96;this.hitWallX = 570;this.hitWallY = 888;this.hitWallVisualOffsetX = 0;this.hitWallScale = 0.34;this.hitWallAlpha = 1;this.hitWallImage = null;this.hitWallPreview = false;this.carControlConfig = null;this.turboFireTintStops = null;this.nextCarLightSweepAt = 0;this.nextFenceLightUpdateAt = 0;this.Matter = null;this.mobilePerfMode = null;this.ragdollMatterReady = false;this.ragdollGround = null;this.ragdollCollisionLayers = null;this.flightRagdoll = null;this.dummyFlightHistoryCount = 0;this.oldDummyTrailLayer = null;this.oldDummyTrailParts = [];this.oldDummyTrailTextureKeys = null;this.oldDummyTrailReturnMode = false;this.dummyFlightShadow = null;}
 
 create() {
   this.wallet = new CT.Wallet();
@@ -177,6 +177,8 @@ createPlayfield() {
   this.updateHitWallLayout();
 
   this.smokeLayer = this.add.container(0, 0).setDepth(8);
+  this.oldDummyTrailLayer = this.add.container(0, 0).setDepth(4.25).setScrollFactor(0);
+  this.dummyFlightShadow = this.createDummyFlightShadow();
   this.car = this.createCar();
   this.dummy = this.createDummy();
   this.car.add(this.dummy);
@@ -4291,6 +4293,62 @@ advanceCrashDebris(dx) {
   }
 }
 
+createDummyFlightShadow() {
+  let shadow = null;
+  if (this.textures.exists("monekenShadow")) {
+    shadow = this.add.image(0, 0, "monekenShadow").setOrigin(0.5);
+    shadow.isFallbackShadow = false;
+  } else {
+    shadow = this.add.ellipse(0, 0, 150, 42, 0x030405, 1).setOrigin(0.5);
+    shadow.isFallbackShadow = true;
+  }
+  return shadow
+    .setDepth(4.12)
+    .setVisible(false)
+    .setAlpha(0);
+}
+
+updateDummyFlightShadow() {
+  if (!this.dummyFlightShadow || !this.dummy || this.state !== "dummyFlight") return;
+  const groundY = this.getGameplayGroundY();
+  const cfg = CT.Config.gameplay;
+  const maxHeight = Math.max(1, Number(cfg.bounceHeight) || 0, Number(cfg.launchHeight) || 0);
+  const height = Phaser.Math.Clamp(groundY - this.dummy.y, 0, maxHeight);
+  const t = Phaser.Math.Clamp(height / maxHeight, 0, 1);
+  const scale = Phaser.Math.Linear(1, 2, Phaser.Math.Easing.Sine.Out(t));
+  const alpha = Phaser.Math.Linear(1, 0.1, Phaser.Math.Easing.Sine.Out(t));
+  const torso = this.flightRagdoll && this.flightRagdoll.torso ? this.flightRagdoll.torso : null;
+  const torsoSpine = torso
+    ? this.ragdollWorldPoint(torso, (torso.ragdollAnchorPoints || {}).spine || { x: 0, y: 26 })
+    : null;
+  const shadowX = torsoSpine ? torsoSpine.x : this.dummy.x - 22;
+  this.dummyFlightShadow
+    .setPosition(shadowX, groundY + 4)
+    .setScale(this.dummyFlightShadow.isFallbackShadow ? scale * 1.08 : scale)
+    .setAlpha(alpha)
+    .setVisible(true);
+}
+
+hideDummyFlightShadow() {
+  if (!this.dummyFlightShadow) return;
+  this.tweens.killTweensOf(this.dummyFlightShadow);
+  this.dummyFlightShadow.setVisible(false).setAlpha(0);
+}
+
+fadeDummyFlightShadow(duration) {
+  if (!this.dummyFlightShadow || !this.dummyFlightShadow.visible) return;
+  this.tweens.killTweensOf(this.dummyFlightShadow);
+  this.tweens.add({
+    targets: this.dummyFlightShadow,
+    alpha: 0,
+    duration: Math.max(80, Number(duration) || 260),
+    ease: "Sine.out",
+    onComplete: () => {
+      if (this.dummyFlightShadow) this.dummyFlightShadow.setVisible(false);
+    }
+  });
+}
+
 playDummyFlight(payout) {
   const cfg = CT.Config;
   const groundY = this.getGameplayGroundY();
@@ -4305,6 +4363,10 @@ playDummyFlight(payout) {
   const spinStart = this.dummy.angle;
   const spinEnd = spinStart + 760;
   const flight = { t: 0 };
+  const trailStartX = Math.max(CT.Config.width * 0.92, (this.barrier ? this.barrier.x : CT.Config.width * 0.72) + 190);
+  this.prepareOldDummyTrailParts({ startX, impactX, groundY, bounceCount, trailStartX });
+  this.dummyFlightHistoryCount = Math.min(30, (Math.floor(Number(this.dummyFlightHistoryCount) || 0) + 1));
+  this.updateDummyFlightShadow();
 
   this.tweens.add({
     targets: flight,
@@ -4317,13 +4379,16 @@ playDummyFlight(payout) {
       this.dummy.y = Phaser.Math.Linear(startY, groundY, t) - Math.sin(Math.PI * t) * arc;
       this.dummy.angle = Phaser.Math.Linear(spinStart, spinEnd, t);
       this.syncFlightRagdollToDummy(false);
+      this.updateDummyFlightShadow();
     },
     onComplete: () => {
       this.dummy.setPosition(impactX, groundY).setAngle(spinEnd);
       this.syncFlightRagdollToDummy(false);
+      this.updateDummyFlightShadow();
       this.kickFlightRagdollFromGround(1.12, { firstImpact: true, torsoSpin: bounceCount > 0 });
       this.cameras.main.shake(150, 0.006);
       this.spawnSmoke(this.dummy.x, groundY + 8, 8, 0xd7dde2);
+      this.bumpOldDummyTrailPartsAt(this.dummy.x, groundY, 1.16);
       this.playDummyBounces(payout, bounceCount);
     }
   });
@@ -4383,6 +4448,7 @@ playDummyBounces(payout, count) {
         this.dummy.y = groundY - Math.sin(Math.PI * u) * height;
         this.dummy.angle = Phaser.Math.Linear(startAngle, endAngle, u);
         this.syncFlightRagdollToDummy(false);
+        this.updateDummyFlightShadow();
         if (index >= totalBounces) {
           const brakeT = Phaser.Math.Clamp((u - 0.28) / 0.72, 0, 1);
           const brakeEase = Phaser.Math.Easing.Sine.InOut(brakeT);
@@ -4394,6 +4460,7 @@ playDummyBounces(payout, count) {
       onComplete: () => {
         this.dummy.setPosition(endX, groundY).setAngle(endAngle);
         this.syncFlightRagdollToDummy(false);
+        this.updateDummyFlightShadow();
         const hasMoreBounces = index < totalBounces;
         if (!hasMoreBounces && this.flightRagdoll) {
           this.flightRagdoll.legAirSpreadPosePower = 0;
@@ -4401,6 +4468,7 @@ playDummyBounces(payout, count) {
         }
         this.kickFlightRagdollFromGround(1 + index * 0.08, { torsoSpin: true, legSpread: hasMoreBounces });
         this.spawnSmoke(this.dummy.x, groundY + 6, 3, 0xd7dde2);
+        this.bumpOldDummyTrailPartsAt(this.dummy.x, groundY, hasMoreBounces ? 0.92 + index * 0.05 : 1.08);
         next();
       }
     });
@@ -4734,6 +4802,230 @@ clearBonusItems() {
   this.bonusItems = [];
 }
 
+getOldDummyTrailTextureKeys() {
+  if (this.oldDummyTrailTextureKeys) return this.oldDummyTrailTextureKeys;
+  this.oldDummyTrailTextureKeys = [
+    "dummyPart_torso",
+    "dummyPart_head",
+    "dummyPart_pelvis",
+    "dummyPart_upperArmL",
+    "dummyPart_lowerArmL",
+    "dummyPart_handL",
+    "dummyPart_thighL",
+    "dummyPart_shinL",
+    "dummyPart_footL",
+    "dummyPart_upperArmR",
+    "dummyPart_lowerArmR",
+    "dummyPart_handR",
+    "dummyPart_thighR",
+    "dummyPart_shinR",
+    "dummyPart_footR"
+  ].filter((key) => this.textures.exists(key));
+  return this.oldDummyTrailTextureKeys;
+}
+
+pickOldDummyTrailTextureKey(keys) {
+  const weights = [
+    ["dummyPart_torso", 7.2],
+    ["dummyPart_head", 6.4],
+    ["dummyPart_thighL", 4.7],
+    ["dummyPart_thighR", 4.7],
+    ["dummyPart_pelvis", 3.6],
+    ["dummyPart_shinL", 1.6],
+    ["dummyPart_shinR", 1.6],
+    ["dummyPart_upperArmL", 1.25],
+    ["dummyPart_upperArmR", 1.25],
+    ["dummyPart_lowerArmL", 0.9],
+    ["dummyPart_lowerArmR", 0.9],
+    ["dummyPart_handL", 0.42],
+    ["dummyPart_handR", 0.42],
+    ["dummyPart_footL", 0.34],
+    ["dummyPart_footR", 0.34]
+  ].filter((item) => keys.includes(item[0]));
+  if (!weights.length) return keys[Math.floor(Math.random() * keys.length) % keys.length];
+  const total = weights.reduce((sum, item) => sum + item[1], 0);
+  let roll = Math.random() * total;
+  for (const item of weights) {
+    roll -= item[1];
+    if (roll <= 0) return item[0];
+  }
+  return weights[0][0];
+}
+
+createOldDummyTrailPart(index) {
+  const image = this.add.image(0, 0, "dummyPart_head")
+    .setOrigin(0.5)
+    .setAlpha(0.96);
+  const part = this.add.container(0, 0, [image])
+    .setVisible(false)
+    .setActive(false);
+  part.image = image;
+  part.trailIndex = index;
+  part.oldTrailRestY = 0;
+  if (this.oldDummyTrailLayer) this.oldDummyTrailLayer.add(part);
+  return part;
+}
+
+clearOldDummyTrailParts() {
+  if (this.oldDummyTrailLayer) this.oldDummyTrailLayer.x = 0;
+  this.oldDummyTrailReturnMode = false;
+  if (!this.oldDummyTrailParts) return;
+  this.oldDummyTrailParts.forEach((part) => {
+    if (!part) return;
+    this.tweens.killTweensOf(part);
+    part.setAlpha(1).setScale(1).setVisible(false).setActive(false);
+  });
+}
+
+prepareOldDummyTrailParts(options) {
+  const previousFlights = Phaser.Math.Clamp(Math.floor(Number(this.dummyFlightHistoryCount) || 0), 0, 30);
+  const pieceCount = previousFlights * 4;
+  const keys = this.getOldDummyTrailTextureKeys();
+  if (this.oldDummyTrailLayer) this.oldDummyTrailLayer.x = 0;
+  this.oldDummyTrailReturnMode = false;
+  if (!keys.length || !pieceCount) {
+    this.clearOldDummyTrailParts();
+    return;
+  }
+
+  const groundY = Number(options && options.groundY) || this.getGameplayGroundY();
+  const bounceCount = Math.max(0, Number(options && options.bounceCount) || 0);
+  const roadTravelWidth = CT.Config.width * (4.6 + Math.max(1, bounceCount) * 0.92 + previousFlights * 0.04);
+  const pathStart = Math.max(CT.Config.width * 0.86, Number(options && options.trailStartX) || 0);
+  const pathEnd = pathStart + roadTravelWidth;
+
+  while (this.oldDummyTrailParts.length < pieceCount) {
+    this.oldDummyTrailParts.push(this.createOldDummyTrailPart(this.oldDummyTrailParts.length));
+  }
+
+  this.oldDummyTrailParts.forEach((part, i) => {
+    this.tweens.killTweensOf(part);
+    if (i >= pieceCount) {
+      part.setVisible(false).setActive(false);
+      return;
+    }
+
+    const laneT = (i + Math.random() * 1.8) / Math.max(1, pieceCount);
+    const cluster = Math.sin((i + 1) * 4.37) * 0.052;
+    const rawX = Phaser.Math.Linear(pathStart, pathEnd, Phaser.Math.Clamp(laneT + cluster, 0, 1))
+      + Phaser.Math.Between(-340, 340);
+    const x = Math.max(pathStart + Phaser.Math.Between(0, 220), rawX);
+    const y = groundY + Phaser.Math.Between(-8, 18);
+    const key = this.pickOldDummyTrailTextureKey(keys);
+    const heroPart = /torso|head|pelvis|thigh/i.test(key);
+    const midPart = /shin|upperArm/i.test(key);
+    const scale = heroPart
+      ? Phaser.Math.FloatBetween(0.38, 0.58)
+      : midPart
+        ? Phaser.Math.FloatBetween(0.3, 0.46)
+        : Phaser.Math.FloatBetween(0.22, 0.34);
+
+    part.image
+      .setTexture(key)
+      .setScale(scale)
+      .setAlpha(Phaser.Math.FloatBetween(0.78, 0.98));
+    part
+      .setPosition(x, y)
+      .setAngle(Phaser.Math.Between(-170, 170))
+      .setScale(1)
+      .setAlpha(1)
+      .setDepth(4.25 + (i % 7) * 0.01)
+      .setVisible(true)
+      .setActive(true);
+    part.oldTrailRestY = y;
+    part.oldTrailRestAngle = part.angle;
+    part.oldTrailImpactUntil = 0;
+  });
+}
+
+softenOldDummyTrailPartsForReturn() {
+  if (!this.oldDummyTrailParts || !this.oldDummyTrailParts.length) return;
+  this.oldDummyTrailReturnMode = true;
+  this.oldDummyTrailParts.forEach((part, i) => {
+    if (!part || !part.active || !part.visible) return;
+    this.tweens.killTweensOf(part);
+    const targetScale = Phaser.Math.FloatBetween(0.42, 0.58);
+    const targetAlpha = Phaser.Math.FloatBetween(0.34, 0.52);
+    this.tweens.add({
+      targets: part,
+      scaleX: targetScale,
+      scaleY: targetScale,
+      alpha: targetAlpha,
+      duration: 150 + (i % 5) * 14,
+      ease: "Sine.out"
+    });
+  });
+}
+
+bumpOldDummyTrailPartsAt(x, y, strength) {
+  if (!this.oldDummyTrailParts || !this.oldDummyTrailParts.length) return;
+  const cameraX = this.cameras && this.cameras.main ? (Number(this.cameras.main.scrollX) || 0) : 0;
+  const layerX = this.oldDummyTrailLayer ? (Number(this.oldDummyTrailLayer.x) || 0) : 0;
+  const hitX = (Number(x) || 0) - cameraX;
+  const hitY = Number(y) || this.getGameplayGroundY();
+  const now = this.time ? this.time.now : 0;
+  const radiusX = 138;
+  const radiusY = 54;
+  const maxImpacts = this.isMobilePerfMode() ? 4 : 7;
+  const power = Math.max(0.35, Number(strength) || 1);
+  const candidates = [];
+
+  this.oldDummyTrailParts.forEach((part) => {
+    if (!part || !part.active || !part.visible) return;
+    if (part.oldTrailImpactUntil && part.oldTrailImpactUntil > now) return;
+    const screenX = layerX + part.x;
+    const dx = screenX - hitX;
+    const dy = (part.oldTrailRestY || part.y) - hitY;
+    if (Math.abs(dx) > radiusX || Math.abs(dy) > radiusY) return;
+    const dist = Math.sqrt(Math.pow(dx / radiusX, 2) + Math.pow(dy / radiusY, 2));
+    if (dist > 1) return;
+    candidates.push({ part, dx, dist });
+  });
+
+  candidates
+    .sort((a, b) => a.dist - b.dist)
+    .slice(0, maxImpacts)
+    .forEach(({ part, dx, dist }) => {
+      this.tweens.killTweensOf(part);
+      const falloff = Phaser.Math.Clamp(1 - dist, 0.16, 1);
+      const impulse = power * falloff;
+      const dir = dx >= 0 ? 1 : -0.35;
+      const startX = part.x;
+      const startY = part.y;
+      const startAngle = part.angle;
+      const landX = part.x + (Phaser.Math.FloatBetween(28, 92) * impulse) * dir + Phaser.Math.FloatBetween(10, 34) * impulse;
+      const landY = part.oldTrailRestY || part.y;
+      const jump = Phaser.Math.FloatBetween(14, 46) * impulse;
+      const spinDir = dx >= 0 ? 1 : -1;
+      const spin = Phaser.Math.FloatBetween(46, 178) * impulse * spinDir;
+      const settleSpin = Phaser.Math.FloatBetween(-16, 22) * impulse;
+      const duration = Phaser.Math.Between(300, 430);
+      const arc = { t: 0 };
+
+      part.oldTrailImpactUntil = now + duration + 260;
+      part.setDepth(4.8);
+      this.tweens.add({
+        targets: arc,
+        t: 1,
+        duration,
+        ease: "Linear",
+        onUpdate: () => {
+          const t = arc.t;
+          const slideT = Phaser.Math.Easing.Sine.Out(t);
+          part.x = Phaser.Math.Linear(startX, landX, slideT);
+          part.y = Phaser.Math.Linear(startY, landY, t) - Math.sin(Math.PI * t) * jump;
+          part.angle = startAngle + spin * slideT + settleSpin * Math.sin(Math.PI * t);
+        },
+        onComplete: () => {
+          part.setPosition(landX, landY);
+          part.oldTrailRestY = landY;
+          part.oldTrailRestAngle = part.angle;
+          part.setDepth(4.25 + (part.trailIndex % 7) * 0.01);
+        }
+      });
+    });
+}
+
 getBounceCount(multiplier) {
   const cfg = CT.Config;
   const value = Math.max(0, Number(multiplier || 0));
@@ -4756,7 +5048,12 @@ settleDummy(payout) {
     angle: this.dummy.angle + 18,
     duration: finalLandingMs,
     ease: "Sine.out",
-    onComplete: () => this.showCrashFinal(payout)
+    onUpdate: () => this.updateDummyFlightShadow(),
+    onComplete: () => {
+      this.updateDummyFlightShadow();
+      this.bumpOldDummyTrailPartsAt(this.dummy.x, groundY, 0.72);
+      this.showCrashFinal(payout);
+    }
   });
 }
 
@@ -4996,6 +5293,8 @@ returnCameraToStart(spawnNewCar) {
   this.stopEngineAudio();
   this.setPageControlsDimmed(false);
   this.hud.setTurbo(false);
+  this.fadeDummyFlightShadow(300);
+  this.softenOldDummyTrailPartsForReturn();
   if (spawnNewCar) {
     this.car.setAlpha(1);
     if (this.car.turboFire) this.car.turboFire.setAlpha(0);
@@ -5065,6 +5364,7 @@ returnCameraToStart(spawnNewCar) {
 resetRunVisuals(launchPosition) {
   const cfg = CT.Config;
   this.clearFlightRagdoll();
+  this.hideDummyFlightShadow();
   this.tweens.killTweensOf([this.car, this.dummy]);
   this.stopCrashDebrisRoadLock();
   this.barrier.setVisible(false);
@@ -5092,6 +5392,7 @@ resetRunVisuals(launchPosition) {
   this.bonusPauseToken++;
   this.time.timeScale = 1;
   this.clearBonusItems();
+  this.clearOldDummyTrailParts();
   if (this.hud) {
     this.hud.setMultiplier(this.multiplier);
     this.hud.setTurbo(false);
@@ -5113,6 +5414,7 @@ resetRunVisuals(launchPosition) {
 resetRunStateOnly() {
   const cfg = CT.Config;
   this.clearFlightRagdoll();
+  this.hideDummyFlightShadow();
   this.stopCrashDebrisRoadLock();
   this.barrier.setVisible(false);
   this.barrier.setAlpha(this.hitWallAlpha).setScale(1);
@@ -5133,6 +5435,7 @@ resetRunStateOnly() {
   this.bonusPauseToken++;
   this.time.timeScale = 1;
   this.clearBonusItems();
+  this.clearOldDummyTrailParts();
   if (this.hud) {
     this.hud.setMultiplier(this.multiplier);
     this.hud.setTurbo(false);
@@ -5192,6 +5495,7 @@ update(_time, delta) {
       this.flightRoadSpeed = 0;
     }
     this.advanceCrashDebris(roadDx);
+    this.updateDummyFlightShadow();
     this.updateDummyCamera();
     return;
   }
@@ -5243,7 +5547,16 @@ advanceRoad(dx) {
     this.fenceOffset = Phaser.Math.Wrap(this.fenceOffset + dx, 0, fenceWidth);
   }
   this.advanceLoopObjectLayers(dx);
+  this.advanceOldDummyTrailLayer(dx);
   this.updateRoadTilesLayout();
+}
+
+advanceOldDummyTrailLayer(dx) {
+  if (!this.oldDummyTrailLayer || !this.oldDummyTrailParts || !this.oldDummyTrailParts.length) return;
+  const hasVisibleParts = this.oldDummyTrailParts.some((part) => part && part.active && part.visible);
+  if (!hasVisibleParts) return;
+  const factor = this.oldDummyTrailReturnMode || this.state === "returning" ? 0.42 : 1;
+  this.oldDummyTrailLayer.x -= (Number(dx) || 0) * factor;
 }
 
 updateDummyCamera() {

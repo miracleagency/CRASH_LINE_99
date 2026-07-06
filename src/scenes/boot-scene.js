@@ -40,6 +40,7 @@
       });
       const wheelShadowUrl = CT.asset("images/shadow_for_wheels.png");
       const carGroundShadowUrl = CT.asset("images/shadow_under_car_wheels.png");
+      const monekenShadowUrl = CT.asset("images/moneken_shadow.png");
       const wheelUrls = [1, 2, 3, 4, 5].map((index) => CT.asset("images/wheel_seq/wheel_" + index + ".png"));
       const turboFireUrls = [1, 2, 3, 4, 5, 6, 7, 8].map((index) => CT.asset("images/turbo_fire_seq/turbo_fire_" + index + ".png"));
       const dummyPartFiles = {
@@ -113,6 +114,7 @@
       });
       this.load.image("wheelShadow", wheelShadowUrl);
       this.load.image("carGroundShadow", carGroundShadowUrl);
+      this.load.image("monekenShadow", monekenShadowUrl);
       wheelUrls.forEach((url, index) => {
         this.load.image("wheel" + (index + 1), url);
       });
