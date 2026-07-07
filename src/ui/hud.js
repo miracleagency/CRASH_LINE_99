@@ -7,6 +7,10 @@
       this.wallet = wallet;
       this.callbacks = callbacks || {};
       this.betPopup = null;
+      this.jumpBoosterEnabled = false;
+      this.jumpBoosterLocked = false;
+      this.autospinActive = false;
+      this.autospinLocked = false;
       this.create();
       this.update();
     }
@@ -65,9 +69,12 @@
       this.betButton.add([betBg, this.betText, betHit]);
       this.betButton.hit = betHit;
 
-      this.createLever(W / 2, H - 224);
+      this.createJumpBooster();
+      this.createAutospinButton();
+      this.createBuyBonusButton();
+      this.createLever(W / 2, H - 250);
 
-      this.safeButton = this.createCommandButton(W - 292, H - 50, 168, 54, 0x111719, "SAFE", "#8f969b", () => {
+      this.safeButton = this.createCommandButton(W - 108, H - 112, 168, 54, 0x111719, "SAFE", "#8f969b", () => {
         if (this.callbacks.onSafeToggle) this.callbacks.onSafeToggle();
       });
       this.safeButton.setAlpha(0.74);
@@ -76,6 +83,201 @@
 
       this.createBetPopup();
       this.setRunning(false);
+    }
+
+    getJumpBoosterConfig() {
+      return CT.Config.gameplay.jumpBooster || { x: 76, y: 1165, scale: 0.68, knobOffX: -32, knobOffY: 0, knobOnX: 32, knobOnY: 0, labelX: 2, labelY: -59, labelSize: 45 };
+    }
+
+    createJumpBooster() {
+      const cfg = CT.Config;
+      const root = this.scene.add.container(0, 0).setDepth(10);
+      root.setScrollFactor(0);
+
+      this.jumpBoosterLabel = this.scene.add.text(2, -59, "JUMP BOOSTER", {
+        fontFamily: CT.Config.fontFamily || "Arial",
+        fontSize: "45px",
+        color: cfg.colors.text,
+        letterSpacing: cfg.fontLetterSpacing || 0,
+        resolution: cfg.fontResolution || 1
+      }).setOrigin(0.5).setAlpha(0.6);
+
+      this.jumpBoosterBackOff = this.scene.add.image(0, 18, "jumpBoosterBackOff").setOrigin(0.5);
+      this.jumpBoosterBackOn = this.scene.add.image(0, 18, "jumpBoosterBackOn").setOrigin(0.5).setAlpha(0);
+      this.jumpBoosterKnob = this.scene.add.container(0, 18);
+      this.jumpBoosterButtonOff = this.scene.add.image(0, 0, "jumpBoosterButtonOff").setOrigin(0.5);
+      this.jumpBoosterButtonOn = this.scene.add.image(0, 0, "jumpBoosterButtonOn").setOrigin(0.5).setAlpha(0);
+      this.jumpBoosterKnob.add([this.jumpBoosterButtonOff, this.jumpBoosterButtonOn]);
+
+      const hit = this.scene.add.zone(0, 4, 230, 96).setInteractive({ useHandCursor: true });
+      hit.on("pointerdown", () => this.toggleJumpBooster());
+      root.add([this.jumpBoosterBackOff, this.jumpBoosterBackOn, this.jumpBoosterKnob, this.jumpBoosterLabel, hit]);
+      root.hit = hit;
+      this.jumpBooster = root;
+      this.applyJumpBoosterLayout(this.getJumpBoosterConfig());
+      this.setJumpBoosterEnabled(false, false);
+    }
+
+    applyJumpBoosterLayout(config) {
+      if (!this.jumpBooster) return;
+      const cfg = config || this.getJumpBoosterConfig();
+      const scale = Math.max(0.05, Number(cfg.scale) || 1);
+      this.jumpBooster.setPosition(Number(cfg.x) || 0, Number(cfg.y) || 0).setScale(scale);
+      this.jumpBoosterLabel
+        .setPosition(Number(cfg.labelX) || 0, Number(cfg.labelY) || -59)
+        .setFontSize((Math.max(8, Number(cfg.labelSize) || 45)) + "px");
+      const knobX = this.jumpBoosterEnabled ? Number(cfg.knobOnX) || 0 : Number(cfg.knobOffX) || 0;
+      const knobY = this.jumpBoosterEnabled ? Number(cfg.knobOnY) || 0 : Number(cfg.knobOffY) || 0;
+      this.jumpBoosterKnob.setPosition(knobX, 18 + knobY);
+    }
+
+    toggleJumpBooster() {
+      if (this.jumpBoosterLocked) return;
+      const next = this.callbacks.onJumpBoosterToggle ? this.callbacks.onJumpBoosterToggle() : !this.jumpBoosterEnabled;
+      if (typeof next === "boolean") this.setJumpBoosterEnabled(next, true);
+    }
+
+    setJumpBoosterEnabled(enabled, animated) {
+      this.jumpBoosterEnabled = !!enabled;
+      const cfg = this.getJumpBoosterConfig();
+      const knobX = this.jumpBoosterEnabled ? Number(cfg.knobOnX) || 0 : Number(cfg.knobOffX) || 0;
+      const knobY = this.jumpBoosterEnabled ? Number(cfg.knobOnY) || 0 : Number(cfg.knobOffY) || 0;
+      const duration = animated ? 260 : 0;
+
+      this.scene.tweens.killTweensOf([
+        this.jumpBoosterBackOff,
+        this.jumpBoosterBackOn,
+        this.jumpBoosterButtonOff,
+        this.jumpBoosterButtonOn,
+        this.jumpBoosterKnob,
+        this.jumpBoosterLabel
+      ]);
+
+      if (!animated) {
+        this.jumpBoosterBackOff.setAlpha(this.jumpBoosterEnabled ? 0 : 1);
+        this.jumpBoosterBackOn.setAlpha(this.jumpBoosterEnabled ? 1 : 0);
+        this.jumpBoosterButtonOff.setAlpha(this.jumpBoosterEnabled ? 0 : 1);
+        this.jumpBoosterButtonOn.setAlpha(this.jumpBoosterEnabled ? 1 : 0);
+        this.jumpBoosterKnob.setPosition(knobX, 18 + knobY).setAngle(0);
+        this.jumpBoosterLabel.setAlpha(this.jumpBoosterEnabled ? 1 : 0.6);
+        return;
+      }
+
+      this.scene.tweens.add({ targets: this.jumpBoosterBackOff, alpha: this.jumpBoosterEnabled ? 0 : 1, duration, ease: "Sine.out" });
+      this.scene.tweens.add({ targets: this.jumpBoosterBackOn, alpha: this.jumpBoosterEnabled ? 1 : 0, duration, ease: "Sine.out" });
+      this.scene.tweens.add({ targets: this.jumpBoosterButtonOff, alpha: this.jumpBoosterEnabled ? 0 : 1, duration, ease: "Sine.out" });
+      this.scene.tweens.add({ targets: this.jumpBoosterButtonOn, alpha: this.jumpBoosterEnabled ? 1 : 0, duration, ease: "Sine.out" });
+      this.scene.tweens.add({ targets: this.jumpBoosterLabel, alpha: this.jumpBoosterEnabled ? 1 : 0.6, duration: 180, ease: "Sine.out" });
+      this.scene.tweens.add({
+        targets: this.jumpBoosterKnob,
+        x: knobX,
+        y: 18 + knobY,
+        angle: this.jumpBoosterKnob.angle + 360,
+        duration,
+        ease: "Cubic.inOut"
+      });
+    }
+
+    getBuyBonusButtonConfig() {
+      const fallback = CT.Config.gameplay.sceneTest && CT.Config.gameplay.sceneTest.bonusBuyButton
+        ? CT.Config.gameplay.sceneTest.bonusBuyButton
+        : { x: CT.Config.width / 2, y: CT.Config.height - 66, scale: 0.94 };
+      return this.callbacks.getBuyBonusButtonConfig ? (this.callbacks.getBuyBonusButtonConfig() || fallback) : fallback;
+    }
+
+    createBuyBonusButton() {
+      const root = this.scene.add.container(0, 0).setDepth(10);
+      root.setScrollFactor(0);
+
+      const image = this.scene.add.image(0, 0, "bonusBuyButton").setOrigin(0.5);
+      const hit = this.scene.add.zone(0, 0, 150, 144).setInteractive({ useHandCursor: true });
+      hit.on("pointerdown", () => {
+        if (this.buyBonusLocked) return;
+        this.scene.tweens.killTweensOf(root);
+        const baseScale = this.buyBonusButtonBaseScale || 1;
+        root.setScale(baseScale * 0.88);
+        this.scene.tweens.add({
+          targets: root,
+          scaleX: baseScale,
+          scaleY: baseScale,
+          duration: 220,
+          ease: "Back.out"
+        });
+        if (this.callbacks.onBuyBonusPress) this.callbacks.onBuyBonusPress();
+      });
+
+      root.add([image, hit]);
+      root.image = image;
+      root.hit = hit;
+      this.buyBonusButton = root;
+      this.buyBonusLocked = false;
+      this.applyBuyBonusButtonLayout(this.getBuyBonusButtonConfig());
+    }
+
+    applyBuyBonusButtonLayout(config) {
+      if (!this.buyBonusButton) return;
+      const cfg = config || this.getBuyBonusButtonConfig();
+      const scale = Math.max(0.05, Number(cfg.scale) || 1);
+      this.buyBonusButtonBaseScale = scale;
+      this.buyBonusButton.setPosition(Number(cfg.x) || 0, Number(cfg.y) || 0).setScale(scale);
+    }
+
+    getAutospinButtonConfig() {
+      const fallback = CT.Config.gameplay.sceneTest && CT.Config.gameplay.sceneTest.autospinIcon
+        ? CT.Config.gameplay.sceneTest.autospinIcon
+        : { x: 238, y: 1165, scale: 0.64 };
+      return this.callbacks.getAutospinButtonConfig ? (this.callbacks.getAutospinButtonConfig() || fallback) : fallback;
+    }
+
+    createAutospinButton() {
+      const root = this.scene.add.container(0, 0).setDepth(10);
+      root.setScrollFactor(0);
+
+      this.autospinOpenIcon = this.scene.add.image(0, 0, "autospinIconOpen").setOrigin(0.5);
+      this.autospinCloseIcon = this.scene.add.image(0, 0, "autospinIconClose").setOrigin(0.5).setAlpha(0);
+      const hit = this.scene.add.zone(0, 0, 112, 112).setInteractive({ useHandCursor: true });
+      hit.on("pointerdown", () => {
+        if (this.autospinLocked) return;
+        const baseScale = this.autospinButtonBaseScale || 1;
+        this.scene.tweens.killTweensOf(root);
+        root.setScale(baseScale * 0.9);
+        this.scene.tweens.add({
+          targets: root,
+          scaleX: baseScale,
+          scaleY: baseScale,
+          duration: 180,
+          ease: "Back.out"
+        });
+        if (this.callbacks.onAutospinPress) this.callbacks.onAutospinPress();
+      });
+
+      root.add([this.autospinOpenIcon, this.autospinCloseIcon, hit]);
+      root.hit = hit;
+      this.autospinButton = root;
+      this.applyAutospinButtonLayout(this.getAutospinButtonConfig());
+      this.setAutospinActive(false, false);
+    }
+
+    applyAutospinButtonLayout(config) {
+      if (!this.autospinButton) return;
+      const cfg = config || this.getAutospinButtonConfig();
+      const scale = Math.max(0.05, Number(cfg.scale) || 1);
+      this.autospinButtonBaseScale = scale;
+      this.autospinButton.setPosition(Number(cfg.x) || 0, Number(cfg.y) || 0).setScale(scale);
+    }
+
+    setAutospinActive(active, animated) {
+      this.autospinActive = !!active;
+      if (!this.autospinOpenIcon || !this.autospinCloseIcon) return;
+      this.scene.tweens.killTweensOf([this.autospinOpenIcon, this.autospinCloseIcon]);
+      const duration = animated ? 160 : 0;
+      if (!animated) {
+        this.autospinOpenIcon.setAlpha(this.autospinActive ? 0 : 1);
+        this.autospinCloseIcon.setAlpha(this.autospinActive ? 1 : 0);
+        return;
+      }
+      this.scene.tweens.add({ targets: this.autospinOpenIcon, alpha: this.autospinActive ? 0 : 1, duration, ease: "Sine.out" });
+      this.scene.tweens.add({ targets: this.autospinCloseIcon, alpha: this.autospinActive ? 1 : 0, duration, ease: "Sine.out" });
     }
 
     createLever(x, y) {
@@ -201,6 +403,26 @@
       if (!silent && this.callbacks.onLeverPower) this.callbacks.onLeverPower(value);
     }
 
+    setLeverVisualPower(power, animated) {
+      const value = Phaser.Math.Clamp(Number(power || 0), 0, 1);
+      const targetX = Phaser.Math.Linear(this.leverNeutralX, this.leverMaxX, value);
+      this.setLeverPower(value, true);
+      this.scene.tweens.killTweensOf(this.leverKnob);
+      if (!animated || Math.abs(this.leverKnob.x - targetX) < 0.5) {
+        this.leverKnob.setPosition(targetX, 28);
+        this.leverKnob.setScale(1);
+        return;
+      }
+      this.scene.tweens.add({
+        targets: this.leverKnob,
+        x: targetX,
+        scaleX: 1,
+        scaleY: 1,
+        duration: 150,
+        ease: "Back.out"
+      });
+    }
+
     createCommandButton(x, y, width, height, color, label, textColor, onClick, hold) {
       const button = this.scene.add.container(x, y).setDepth(10);
       button.setScrollFactor(0);
@@ -254,11 +476,25 @@
 
     setRunning(running) {
       this.lever.setVisible(true);
+      this.lever.setAlpha(1);
       this.leverLocked = false;
+      this.lever.hit.setInteractive({ useHandCursor: true });
       this.safeButton.setVisible(!running);
       this.betButton.setAlpha(running ? 0.5 : 1);
       if (running) this.betButton.hit.disableInteractive();
       else this.betButton.hit.setInteractive({ useHandCursor: true });
+      this.buyBonusLocked = !!running;
+      this.buyBonusButton.setAlpha(running ? 0.5 : 1);
+      if (running) this.buyBonusButton.hit.disableInteractive();
+      else this.buyBonusButton.hit.setInteractive({ useHandCursor: true });
+      this.jumpBoosterLocked = !!running;
+      this.jumpBooster.setAlpha(running ? 0.62 : 1);
+      if (running) this.jumpBooster.hit.disableInteractive();
+      else this.jumpBooster.hit.setInteractive({ useHandCursor: true });
+      this.autospinLocked = !!running && !this.autospinActive;
+      this.autospinButton.setAlpha(this.autospinLocked ? 0.5 : 1);
+      if (this.autospinLocked) this.autospinButton.hit.disableInteractive();
+      else this.autospinButton.hit.setInteractive({ useHandCursor: true });
       if (running) this.hideBetPopup();
     }
 
@@ -267,18 +503,36 @@
         this.setRunning(false);
         return;
       }
-      this.lever.setVisible(false);
+      this.lever.setVisible(true);
       this.leverLocked = true;
       this.leverDragging = false;
       this.animateLeverCenter();
+      this.lever.hit.disableInteractive();
+      this.scene.tweens.killTweensOf(this.lever);
+      this.scene.tweens.add({
+        targets: this.lever,
+        alpha: 0.38,
+        duration: 160,
+        ease: "Sine.out"
+      });
       this.safeButton.setVisible(false);
       this.betButton.setAlpha(0.5);
       this.betButton.hit.disableInteractive();
+      this.buyBonusLocked = true;
+      this.buyBonusButton.setAlpha(0.5);
+      this.buyBonusButton.hit.disableInteractive();
+      this.jumpBoosterLocked = true;
+      this.jumpBooster.setAlpha(0.62);
+      this.jumpBooster.hit.disableInteractive();
+      this.autospinLocked = !this.autospinActive;
+      this.autospinButton.setAlpha(this.autospinActive ? 1 : 0.5);
+      if (this.autospinActive) this.autospinButton.hit.setInteractive({ useHandCursor: true });
+      else this.autospinButton.hit.disableInteractive();
       this.hideBetPopup();
     }
 
     setTurbo(enabled) {
-      if (!this.leverDragging) this.setLeverPower(enabled ? 1 : 0);
+      if (!this.leverDragging) this.setLeverVisualPower(enabled ? 1 : 0, true);
     }
 
     setSafeMode(enabled) {
@@ -334,7 +588,7 @@
         const x = (i % 2 === 0) ? -104 : 104;
         const y = -84 + Math.floor(i / 2) * 98;
         const opt = this.scene.add.container(x, y);
-        const active = value === this.wallet.currentBet;
+        const active = value === (this.wallet.getBaseBet ? this.wallet.getBaseBet() : this.wallet.currentBet);
         const bg = this.scene.add.rectangle(0, 0, 178, 78, active ? cfg.colors.accent : 0xc89a22, 1)
           .setStrokeStyle(3, cfg.colors.panelStroke, 0.95);
         const txt = this.scene.add.text(0, 0, String(value), {

@@ -41,6 +41,26 @@
       const wheelShadowUrl = CT.asset("images/shadow_for_wheels.png");
       const carGroundShadowUrl = CT.asset("images/shadow_under_car_wheels.png");
       const monekenShadowUrl = CT.asset("images/moneken_shadow.png");
+      const jumpBoosterUrls = {
+        backOff: CT.asset("images/1 jump buster/tumbler_back_off.png"),
+        backOn: CT.asset("images/1 jump buster/tumbler_back_on.png"),
+        buttonOff: CT.asset("images/1 jump buster/tumbler_button_off.png"),
+        buttonOn: CT.asset("images/1 jump buster/tumbler_button_on.png")
+      };
+      const bonusGameUrls = {
+        buyButton: CT.asset("images/bounus game_asets/buy_bonus_button.png"),
+        popup: CT.asset("images/bounus game_asets/bounus_main_pop_up.png"),
+        startButton: CT.asset("images/bounus game_asets/bounus_main_pop_up_button.png"),
+        closeButton: CT.asset("images/bounus game_asets/bounus_main_pop_up_close.png"),
+        infoLine1: CT.asset("images/bounus game_asets/info_line_1.png"),
+        infoLine2: CT.asset("images/bounus game_asets/info_line_2.png")
+      };
+      const autospinUrls = {
+        iconOpen: CT.asset("images/autospin asets/inter_autospin_icon.png"),
+        iconClose: CT.asset("images/autospin asets/close_autospin_icon.png"),
+        popup: CT.asset("images/autospin asets/autospin_main_popap.png"),
+        sliderKnob: CT.asset("images/autospin asets/autospin_tumbler.png")
+      };
       const wheelUrls = [1, 2, 3, 4, 5].map((index) => CT.asset("images/wheel_seq/wheel_" + index + ".png"));
       const turboFireUrls = [1, 2, 3, 4, 5, 6, 7, 8].map((index) => CT.asset("images/turbo_fire_seq/turbo_fire_" + index + ".png"));
       const dummyPartFiles = {
@@ -115,6 +135,20 @@
       this.load.image("wheelShadow", wheelShadowUrl);
       this.load.image("carGroundShadow", carGroundShadowUrl);
       this.load.image("monekenShadow", monekenShadowUrl);
+      this.load.image("jumpBoosterBackOff", jumpBoosterUrls.backOff);
+      this.load.image("jumpBoosterBackOn", jumpBoosterUrls.backOn);
+      this.load.image("jumpBoosterButtonOff", jumpBoosterUrls.buttonOff);
+      this.load.image("jumpBoosterButtonOn", jumpBoosterUrls.buttonOn);
+      this.load.image("bonusBuyButton", bonusGameUrls.buyButton);
+      this.load.image("bonusMainPopup", bonusGameUrls.popup);
+      this.load.image("bonusMainPopupButton", bonusGameUrls.startButton);
+      this.load.image("bonusMainPopupClose", bonusGameUrls.closeButton);
+      this.load.image("bonusInfoLine1", bonusGameUrls.infoLine1);
+      this.load.image("bonusInfoLine2", bonusGameUrls.infoLine2);
+      this.load.image("autospinIconOpen", autospinUrls.iconOpen);
+      this.load.image("autospinIconClose", autospinUrls.iconClose);
+      this.load.image("autospinMainPopup", autospinUrls.popup);
+      this.load.image("autospinSliderKnob", autospinUrls.sliderKnob);
       wheelUrls.forEach((url, index) => {
         this.load.image("wheel" + (index + 1), url);
       });

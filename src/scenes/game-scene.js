@@ -1,6 +1,6 @@
 ﻿(function () {const CT = window.CrashTest = window.CrashTest || {};
 
-class GameScene extends Phaser.Scene {constructor() {super("GameScene");this.wallet = null;this.hud = null;this.state = "ready";this.round = 0;this.multiplier = 0;this.speed = 0;this.turbo = false;this.turboPower = 0;this.engineBreakAt = 0;this.roadOffset = 0;this.fenceOffset = 0;this.testBgOffset = 0;this.testBgPropOffset = 0;this.testBgProps = null;this.testBgPropTileIndex = null;this.testBgPropSignature = "";this.visualSpeed = 0;this.flightRoadSpeed = 0;this.pendingPayout = 0;this.autoCrash = false;this.safeMode = false;this.bonusAdd = 0;this.bonusItems = [];this.bonusPauseToken = 0;this.lastMultiplierDisplay = -1;this.lastMultiplierPulseAt = 0;this.rareBounceCount = 0;this.nextRareBounceAt = 0;this.remainingBounces = null;this.extraBounceAdder = null;this.extraBounceBonusCount = 0;this.sfx = {};this.engineAudioToken = 0;this.engineLoopTimer = null;this.engineLoopIndex = 0;this.roadTiles = [];this.testBgTiles = [];this.fenceTiles = [];this.loopObjectLayers = [];this.crashDebrisActive = false;this.fencePoleItems = [];this.fencePoleLayer = null;this.fenceOverlayItems = [];this.fenceOverlayLayer = null;this.fenceOverlayKeys = [];this.sceneTuningConfig = null;this.sceneControlRoot = null;this.sceneControlJson = null;this.refOverlay = null;this.roadArtX = 0;this.roadArtY = 0;this.roadArtScale = 1;this.fenceArtX = 0;this.fenceArtY = 0;this.fenceArtScale = 1;this.fencePoleX = 0;this.fencePoleY = 0;this.fencePoleSpacing = 247;this.fencePoleScale = 0.5;this.fenceLightOffsetY = -29;this.fenceLightScale = 0.4;this.fenceLightIntensity = 0.79;this.fenceLightDelay = 0.085;this.fenceOverlayX = 0;this.fenceOverlayY = 760;this.fenceOverlayHeight = 64;this.fenceOverlaySpacing = 420;this.fenceOverlayJitterX = 110;this.fenceOverlayCount = 24;this.fenceOverlayChance = 0.36;this.fenceOverlayScaleMin = 0.42;this.fenceOverlayScaleMax = 0.62;this.fenceOverlayAlpha = 0.96;this.hitWallX = 570;this.hitWallY = 888;this.hitWallVisualOffsetX = 0;this.hitWallScale = 0.34;this.hitWallAlpha = 1;this.hitWallImage = null;this.hitWallPreview = false;this.carControlConfig = null;this.turboFireTintStops = null;this.nextCarLightSweepAt = 0;this.nextFenceLightUpdateAt = 0;this.Matter = null;this.mobilePerfMode = null;this.ragdollMatterReady = false;this.ragdollGround = null;this.ragdollCollisionLayers = null;this.flightRagdoll = null;this.dummyFlightHistoryCount = 0;this.oldDummyTrailLayer = null;this.oldDummyTrailParts = [];this.oldDummyTrailTextureKeys = null;this.oldDummyTrailReturnMode = false;this.dummyFlightShadow = null;}
+class GameScene extends Phaser.Scene {constructor() {super("GameScene");this.wallet = null;this.hud = null;this.state = "ready";this.round = 0;this.multiplier = 0;this.speed = 0;this.turbo = false;this.turboPower = 0;this.engineBreakAt = 0;this.roadOffset = 0;this.fenceOffset = 0;this.testBgOffset = 0;this.testBgPropOffset = 0;this.testBgProps = null;this.testBgPropTileIndex = null;this.testBgPropSignature = "";this.visualSpeed = 0;this.flightRoadSpeed = 0;this.pendingPayout = 0;this.autoCrash = false;this.safeMode = false;this.jumpBoosterEnabled = false;this.bonusGameActive = false;this.bonusGameStarting = false;this.bonusGameIntroElapsed = 0;this.bonusGameIntroComplete = false;this.bonusGamePostIntroElapsed = 0;this.bonusGameCrashQueued = false;this.bonusGameBounceDisplay = 0;this.bonusGamePayoutBet = 0;this.bonusGameOverlay = null;this.bonusGamePopup = null;this.autospinActive = false;this.autospinLaunching = false;this.autospinRoundActive = false;this.autospinSettings = { crashX: 0, crashJumps: 0 };this.autospinOverlay = null;this.autospinPopup = null;this.autospinControls = null;this.autospinNextRunTimer = null;this.bonusAdd = 0;this.bonusItems = [];this.bonusPauseToken = 0;this.lastMultiplierDisplay = -1;this.lastMultiplierPulseAt = 0;this.rareBounceCount = 0;this.nextRareBounceAt = 0;this.remainingBounces = null;this.extraBounceAdder = null;this.extraBounceBonusCount = 0;this.sfx = {};this.engineAudioToken = 0;this.engineLoopTimer = null;this.engineLoopIndex = 0;this.roadTiles = [];this.testBgTiles = [];this.fenceTiles = [];this.loopObjectLayers = [];this.crashDebrisActive = false;this.fencePoleItems = [];this.fencePoleLayer = null;this.fenceOverlayItems = [];this.fenceOverlayLayer = null;this.fenceOverlayKeys = [];this.sceneTuningConfig = null;this.sceneControlRoot = null;this.sceneControlJson = null;this.refOverlay = null;this.roadArtX = 0;this.roadArtY = 0;this.roadArtScale = 1;this.fenceArtX = 0;this.fenceArtY = 0;this.fenceArtScale = 1;this.fencePoleX = 0;this.fencePoleY = 0;this.fencePoleSpacing = 247;this.fencePoleScale = 0.5;this.fenceLightOffsetY = -29;this.fenceLightScale = 0.4;this.fenceLightIntensity = 0.79;this.fenceLightDelay = 0.085;this.fenceOverlayX = 0;this.fenceOverlayY = 760;this.fenceOverlayHeight = 0;this.fenceOverlaySpacing = 420;this.fenceOverlayJitterX = 110;this.fenceOverlayCount = 24;this.fenceOverlayChance = 0.36;this.fenceOverlayScaleMin = 0.42;this.fenceOverlayScaleMax = 0.62;this.fenceOverlayAlpha = 0.96;this.hitWallX = 570;this.hitWallY = 888;this.hitWallVisualOffsetX = 0;this.hitWallScale = 0.34;this.hitWallAlpha = 1;this.hitWallImage = null;this.hitWallPreview = false;this.carControlConfig = null;this.turboFireTintStops = null;this.nextCarLightSweepAt = 0;this.nextFenceLightUpdateAt = 0;this.Matter = null;this.mobilePerfMode = null;this.ragdollMatterReady = false;this.ragdollGround = null;this.ragdollCollisionLayers = null;this.flightRagdoll = null;this.dummyFlightHistoryCount = 0;this.oldDummyTrailLayer = null;this.oldDummyTrailParts = [];this.oldDummyTrailTextureKeys = null;this.oldDummyTrailReturnMode = false;this.dummyFlightShadow = null;}
 
 create() {
   this.wallet = new CT.Wallet();
@@ -15,7 +15,12 @@ create() {
     onLeverPower: (power) => this.setTurboPower(power),
     onLeverRelease: () => this.handleLeverRelease(),
     onSafeToggle: () => this.toggleSafeMode(),
-    onMultiplierDisplay: (value) => this.setMultiplierDisplay(value)
+    onMultiplierDisplay: (value) => this.setMultiplierDisplay(value),
+    onJumpBoosterToggle: () => this.toggleJumpBooster(),
+    onBuyBonusPress: () => this.showBonusGamePopup(),
+    onAutospinPress: () => this.handleAutospinButtonPress(),
+    getBuyBonusButtonConfig: () => this.sceneTuningConfig && this.sceneTuningConfig.bonusBuyButton,
+    getAutospinButtonConfig: () => this.sceneTuningConfig && this.sceneTuningConfig.autospinIcon
   });
   this.createAudio();
   this.resetRunVisuals();
@@ -185,7 +190,7 @@ createPlayfield() {
   this.dummy.setVisible(false);
   this.multiplierPanel = this.add.container(W / 2, cfg.gameplay.roadY - 345).setDepth(9);
   this.multiplierPanel.setScrollFactor(0);
-  this.multiplierGlow = this.add.circle(0, 0, 178, 0xffcf30, 0.12).setBlendMode(Phaser.BlendModes.ADD);
+  this.multiplierGlow = null;
   this.multiplierPanelBg = this.add.rectangle(0, 0, 438, 188, 0x071012, 0.84)
     .setStrokeStyle(7, 0xffcf30, 0.9);
   this.multiplierPanelInner = this.add.rectangle(0, 0, 396, 146, 0x1b2327, 0.58);
@@ -210,7 +215,7 @@ createPlayfield() {
     letterSpacing: cfg.fontLetterSpacing || 0,
     resolution: cfg.fontResolution || 1
   }).setOrigin(0.5);
-  this.multiplierPanel.add([this.multiplierGlow, this.multiplierPanelBg, this.multiplierPanelInner, this.multiplierPanelLabel, this.finalWinText, this.multiplierText]);
+  this.multiplierPanel.add([this.multiplierPanelBg, this.multiplierPanelInner, this.multiplierPanelLabel, this.finalWinText, this.multiplierText]);
   this.createBounceBadge();
   this.createRefOverlay();
   this.applySceneTuningConfig(false);
@@ -715,7 +720,7 @@ createSceneTuningConfig() {
   const defaults = JSON.parse(JSON.stringify(CT.Config.gameplay.sceneTest || {}));
   let saved = null;
   try {
-    saved = JSON.parse(localStorage.getItem("crashLineSceneTuningV3") || "null");
+    saved = JSON.parse(localStorage.getItem("crashLineSceneTuningV4") || "null");
   } catch (e) {
     saved = null;
   }
@@ -750,7 +755,34 @@ normalizeSceneTuningConfig() {
       cfg[name][key] = Number.isFinite(value) ? value : fallback[key];
     });
   };
-  ["world", "background", "road", "fence", "poles", "barrel", "fire", "refOverlay", "multiplierPanel"].forEach(normalizeGroup);
+  [
+    "world",
+    "background",
+    "road",
+    "fence",
+    "poles",
+    "barrel",
+    "fire",
+    "refOverlay",
+    "multiplierPanel",
+    "bonusBuyButton",
+    "bonusPopup",
+    "bonusPopupBg",
+    "bonusInfoLine1",
+    "bonusInfoLine2",
+    "bonusStartButton",
+    "bonusCloseButton",
+    "autospinIcon",
+    "autospinPopup",
+    "autospinLabelX",
+    "autospinValueX",
+    "autospinLabelJumps",
+    "autospinValueJumps",
+    "autospinSliderX",
+    "autospinSliderJumps",
+    "autospinStartButton",
+    "autospinCloseButton"
+  ].forEach(normalizeGroup);
   cfg.background.scale = Math.max(0.01, cfg.background.scale);
   cfg.road.scale = Math.max(0.01, cfg.road.scale);
   cfg.fence.scale = Math.max(0.01, cfg.fence.scale);
@@ -759,6 +791,23 @@ normalizeSceneTuningConfig() {
   cfg.barrel.scale = Math.max(0.01, cfg.barrel.scale);
   cfg.fire.scale = Math.max(0.01, cfg.fire.scale);
   cfg.refOverlay.alpha = Phaser.Math.Clamp(cfg.refOverlay.alpha, 0, 1);
+  cfg.bonusBuyButton.scale = Math.max(0.05, cfg.bonusBuyButton.scale);
+  cfg.bonusPopup.scale = Math.max(0.05, cfg.bonusPopup.scale);
+  cfg.bonusPopupBg.scale = Math.max(0.05, cfg.bonusPopupBg.scale);
+  cfg.bonusInfoLine1.scale = Math.max(0.05, cfg.bonusInfoLine1.scale);
+  cfg.bonusInfoLine2.scale = Math.max(0.05, cfg.bonusInfoLine2.scale);
+  cfg.bonusStartButton.scale = Math.max(0.05, cfg.bonusStartButton.scale);
+  cfg.bonusCloseButton.scale = Math.max(0.05, cfg.bonusCloseButton.scale);
+  cfg.autospinIcon.scale = Math.max(0.05, cfg.autospinIcon.scale);
+  cfg.autospinPopup.scale = Math.max(0.05, cfg.autospinPopup.scale);
+  cfg.autospinLabelX.size = Math.max(8, cfg.autospinLabelX.size);
+  cfg.autospinValueX.size = Math.max(8, cfg.autospinValueX.size);
+  cfg.autospinLabelJumps.size = Math.max(8, cfg.autospinLabelJumps.size);
+  cfg.autospinValueJumps.size = Math.max(8, cfg.autospinValueJumps.size);
+  cfg.autospinSliderX.scale = Math.max(0.05, cfg.autospinSliderX.scale);
+  cfg.autospinSliderJumps.scale = Math.max(0.05, cfg.autospinSliderJumps.scale);
+  cfg.autospinStartButton.scale = Math.max(0.05, cfg.autospinStartButton.scale);
+  cfg.autospinCloseButton.scale = Math.max(0.05, cfg.autospinCloseButton.scale);
 }
 
 applySceneTuningConfig(save) {
@@ -784,6 +833,14 @@ applySceneTuningConfig(save) {
   if (this.multiplierPanel) {
     this.multiplierPanel.setPosition(cfg.multiplierPanel.x, cfg.multiplierPanel.y);
   }
+  if (this.hud && this.hud.applyBuyBonusButtonLayout) {
+    this.hud.applyBuyBonusButtonLayout(cfg.bonusBuyButton);
+  }
+  if (this.hud && this.hud.applyAutospinButtonLayout) {
+    this.hud.applyAutospinButtonLayout(cfg.autospinIcon);
+  }
+  this.applyBonusGameUiLayout();
+  this.applyAutospinUiLayout();
   if (this.refOverlay) {
     this.refOverlay
       .setAlpha(cfg.refOverlay.alpha)
@@ -791,7 +848,7 @@ applySceneTuningConfig(save) {
   }
   if (save) {
     try {
-      localStorage.setItem("crashLineSceneTuningV3", JSON.stringify(this.sceneTuningConfig));
+      localStorage.setItem("crashLineSceneTuningV4", JSON.stringify(this.sceneTuningConfig));
     } catch (e) {}
   }
   this.updateSceneControlJson();
@@ -803,45 +860,37 @@ createSceneControlUI() {
   this.sceneControlRoot = root;
   root.innerHTML = "";
 
-  root.appendChild(this.makeSceneControlTitle("WORLD"));
-  root.appendChild(this.makeSceneSlider("world y", this.sceneTuningConfig.world, "y", -1600, 1600, 1));
+  const addTransformSliders = (title, target, xMin, xMax, yMin, yMax, scaleMin, scaleMax) => {
+    root.appendChild(this.makeSceneControlTitle(title));
+    root.appendChild(this.makeSceneSlider("x", target, "x", xMin, xMax, 1));
+    root.appendChild(this.makeSceneSlider("y", target, "y", yMin, yMax, 1));
+    root.appendChild(this.makeSceneSlider("scale", target, "scale", scaleMin, scaleMax, 0.01));
+  };
+  const addTextSliders = (title, target) => {
+    root.appendChild(this.makeSceneControlTitle(title));
+    root.appendChild(this.makeSceneSlider("x", target, "x", -700, 700, 1));
+    root.appendChild(this.makeSceneSlider("y", target, "y", -700, 700, 1));
+    root.appendChild(this.makeSceneSlider("size", target, "size", 8, 140, 1));
+  };
+  const addTrackSliders = (title, target) => {
+    root.appendChild(this.makeSceneControlTitle(title));
+    root.appendChild(this.makeSceneSlider("start x", target, "startX", -700, 700, 1));
+    root.appendChild(this.makeSceneSlider("start y", target, "startY", -700, 700, 1));
+    root.appendChild(this.makeSceneSlider("end x", target, "endX", -700, 700, 1));
+    root.appendChild(this.makeSceneSlider("end y", target, "endY", -700, 700, 1));
+    root.appendChild(this.makeSceneSlider("scale", target, "scale", 0.05, 2, 0.01));
+  };
 
-  root.appendChild(this.makeSceneControlTitle("BG TEST"));
-  root.appendChild(this.makeSceneSlider("bg x", this.sceneTuningConfig.background, "x", -3000, 3000, 1));
-  root.appendChild(this.makeSceneSlider("bg y", this.sceneTuningConfig.background, "y", -1400, 1400, 1));
-  root.appendChild(this.makeSceneSlider("bg scale", this.sceneTuningConfig.background, "scale", 0.05, 2.2, 0.001));
-
-  root.appendChild(this.makeSceneControlTitle("ROAD"));
-  root.appendChild(this.makeSceneSlider("road x", this.sceneTuningConfig.road, "x", -3000, 3000, 1));
-  root.appendChild(this.makeSceneSlider("road y", this.sceneTuningConfig.road, "y", -800, 2200, 1));
-  root.appendChild(this.makeSceneSlider("road scale", this.sceneTuningConfig.road, "scale", 0.05, 2.2, 0.001));
-
-  root.appendChild(this.makeSceneControlTitle("FENCE"));
-  root.appendChild(this.makeSceneSlider("fence x", this.sceneTuningConfig.fence, "x", -3000, 3000, 1));
-  root.appendChild(this.makeSceneSlider("fence y", this.sceneTuningConfig.fence, "y", -800, 2200, 1));
-  root.appendChild(this.makeSceneSlider("fence scale", this.sceneTuningConfig.fence, "scale", 0.05, 2.2, 0.001));
-
-  root.appendChild(this.makeSceneControlTitle("POLES"));
-  root.appendChild(this.makeSceneSlider("poles spacing", this.sceneTuningConfig.poles, "spacing", 24, 900, 1));
-  root.appendChild(this.makeSceneSlider("poles y", this.sceneTuningConfig.poles, "y", -800, 2200, 1));
-  root.appendChild(this.makeSceneSlider("poles scale", this.sceneTuningConfig.poles, "scale", 0.05, 2.2, 0.001));
-
-  root.appendChild(this.makeSceneControlTitle("BARREL"));
-  root.appendChild(this.makeSceneSlider("barrel x", this.sceneTuningConfig.barrel, "x", -1000, 6500, 1));
-  root.appendChild(this.makeSceneSlider("barrel y", this.sceneTuningConfig.barrel, "y", -800, 2200, 1));
-  root.appendChild(this.makeSceneSlider("barrel scale", this.sceneTuningConfig.barrel, "scale", 0.01, 5, 0.01));
-
-  root.appendChild(this.makeSceneControlTitle("FIRE"));
-  root.appendChild(this.makeSceneSlider("fire x", this.sceneTuningConfig.fire, "x", -1000, 6500, 1));
-  root.appendChild(this.makeSceneSlider("fire y", this.sceneTuningConfig.fire, "y", -800, 2200, 1));
-  root.appendChild(this.makeSceneSlider("fire scale", this.sceneTuningConfig.fire, "scale", 0.01, 5, 0.01));
-
-  root.appendChild(this.makeSceneControlTitle("OVERLAY"));
-  root.appendChild(this.makeSceneSlider("alpha", this.sceneTuningConfig.refOverlay, "alpha", 0, 1, 0.01));
-
-  root.appendChild(this.makeSceneControlTitle("MULTIPLIER"));
-  root.appendChild(this.makeSceneSlider("panel x", this.sceneTuningConfig.multiplierPanel, "x", -400, 1100, 1));
-  root.appendChild(this.makeSceneSlider("panel y", this.sceneTuningConfig.multiplierPanel, "y", -400, 1500, 1));
+  addTransformSliders("AUTOSPIN ICON", this.sceneTuningConfig.autospinIcon, -240, 960, 880, 1380, 0.1, 2);
+  addTransformSliders("AUTOSPIN POPUP", this.sceneTuningConfig.autospinPopup, -240, 960, -220, 1500, 0.08, 1.4);
+  addTextSliders("CRASH ON X LABEL", this.sceneTuningConfig.autospinLabelX);
+  addTextSliders("CRASH ON X VALUE", this.sceneTuningConfig.autospinValueX);
+  addTextSliders("CRASH ON JUMPS LABEL", this.sceneTuningConfig.autospinLabelJumps);
+  addTextSliders("CRASH ON JUMPS VALUE", this.sceneTuningConfig.autospinValueJumps);
+  addTrackSliders("CRASH ON X SLIDER", this.sceneTuningConfig.autospinSliderX);
+  addTrackSliders("CRASH ON JUMPS SLIDER", this.sceneTuningConfig.autospinSliderJumps);
+  addTransformSliders("AUTOSPIN START BUTTON", this.sceneTuningConfig.autospinStartButton, -700, 700, -700, 700, 0.1, 2);
+  addTransformSliders("AUTOSPIN CLOSE BUTTON", this.sceneTuningConfig.autospinCloseButton, -700, 700, -700, 700, 0.1, 2);
 
   const actions = document.createElement("div");
   actions.className = "control-ui__actions";
@@ -849,7 +898,7 @@ createSceneControlUI() {
   copy.type = "button";
   copy.textContent = "COPY JSON";
   copy.onclick = async () => {
-    const text = JSON.stringify(this.sceneTuningConfig, null, 2);
+    const text = JSON.stringify(this.getAutospinUiTuningSnapshot(), null, 2);
     try {
       await navigator.clipboard.writeText(text);
       copy.textContent = "COPIED";
@@ -863,8 +912,10 @@ createSceneControlUI() {
   reset.type = "button";
   reset.textContent = "RESET";
   reset.onclick = () => {
-    localStorage.removeItem("crashLineSceneTuningV3");
-    this.sceneTuningConfig = JSON.parse(JSON.stringify(CT.Config.gameplay.sceneTest || {}));
+    const defaults = CT.Config.gameplay.sceneTest || {};
+    Object.keys(this.getAutospinUiTuningSnapshot()).forEach((key) => {
+      this.sceneTuningConfig[key] = JSON.parse(JSON.stringify(defaults[key] || {}));
+    });
     this.applySceneTuningConfig(true);
     this.createSceneControlUI();
   };
@@ -920,7 +971,23 @@ makeSceneSlider(labelText, target, key, min, max, step) {
 
 updateSceneControlJson() {
   if (!this.sceneControlJson || !this.sceneTuningConfig) return;
-  this.sceneControlJson.textContent = JSON.stringify(this.sceneTuningConfig, null, 2);
+  this.sceneControlJson.textContent = JSON.stringify(this.getAutospinUiTuningSnapshot(), null, 2);
+}
+
+getAutospinUiTuningSnapshot() {
+  if (!this.sceneTuningConfig) return {};
+  return {
+    autospinIcon: this.sceneTuningConfig.autospinIcon,
+    autospinPopup: this.sceneTuningConfig.autospinPopup,
+    autospinLabelX: this.sceneTuningConfig.autospinLabelX,
+    autospinValueX: this.sceneTuningConfig.autospinValueX,
+    autospinLabelJumps: this.sceneTuningConfig.autospinLabelJumps,
+    autospinValueJumps: this.sceneTuningConfig.autospinValueJumps,
+    autospinSliderX: this.sceneTuningConfig.autospinSliderX,
+    autospinSliderJumps: this.sceneTuningConfig.autospinSliderJumps,
+    autospinStartButton: this.sceneTuningConfig.autospinStartButton,
+    autospinCloseButton: this.sceneTuningConfig.autospinCloseButton
+  };
 }
 
 createCarControlConfig() {
@@ -1039,7 +1106,6 @@ mixMultiplierTheme(from, to, t) {
 
 setMultiplierThemeVisual(themeState) {
   if (!this.multiplierText || !this.multiplierPanelBg) return;
-  this.multiplierGlow.setFillStyle(themeState.glow, themeState.glowAlpha);
   this.multiplierPanelBg.setFillStyle(themeState.bg, themeState.bgAlpha);
   this.multiplierPanelBg.setStrokeStyle(7, themeState.main, themeState.strokeAlpha);
   this.multiplierPanelInner.setFillStyle(themeState.inner, themeState.innerAlpha);
@@ -4086,23 +4152,29 @@ startRun() {
   if (this.state !== "ready") return;
   if (!this.wallet.placeBet()) {
     this.hud.floatText(CT.Config.width - 150, CT.Config.height - 160, "NO BALANCE", CT.Config.colors.danger);
+    this.autospinLaunching = false;
+    if (this.autospinActive) this.stopAutospin();
     return false;
   }
 
   const cfg = CT.Config;
+  const autospinRun = !!(this.autospinActive && this.autospinLaunching);
+  this.autospinLaunching = false;
   this.state = "running";
   this.round += 1;
   this.resetRunVisuals(false);
+  this.autospinRoundActive = autospinRun;
   this.multiplier = cfg.gameplay.startMultiplier;
   this.speed = cfg.gameplay.baseSpeed;
-  this.turbo = false;
-  this.turboPower = 0;
+  this.turbo = autospinRun;
+  this.turboPower = autospinRun ? 1 : 0;
   this.autoCrash = false;
   this.engineBreakAt = this.pickEngineBreakAt();
   this.hud.update();
   this.hud.setMultiplier(this.multiplier);
   this.hud.setRunning(true);
-  this.hud.setTurbo(false);
+  if (this.hud && this.hud.setAutospinActive) this.hud.setAutospinActive(this.autospinActive, false);
+  this.hud.setTurbo(autospinRun);
   this.setPageControlsDimmed(true);
   this.hud.setResult("RUNNING...", "#ffffff");
   this.applyMultiplierTheme("running");
@@ -4159,17 +4231,754 @@ toggleSafeMode() {
   this.hud.setResult(this.safeMode ? "ENGINE SAFE MODE" : "LAST RESULT --", this.safeMode ? CT.Config.colors.ok : "#93a4ad");
 }
 
+toggleJumpBooster() {
+  if (this.state !== "ready") return this.jumpBoosterEnabled;
+  this.jumpBoosterEnabled = !this.jumpBoosterEnabled;
+  const costMultiplier = this.jumpBoosterEnabled ? (Number(CT.Config.gameplay.jumpBoosterCostMultiplier) || 1.3) : 1;
+  this.wallet.setBetCostMultiplier(costMultiplier);
+  this.hud.update();
+  this.updateBounceText();
+  return this.jumpBoosterEnabled;
+}
+
+handleAutospinButtonPress() {
+  if (this.autospinActive) {
+    this.stopAutospin();
+    return;
+  }
+  this.showAutospinPopup();
+}
+
+getAutospinUiGroup(name) {
+  const defaults = (CT.Config.gameplay.sceneTest || {});
+  return (this.sceneTuningConfig && this.sceneTuningConfig[name]) || defaults[name] || {};
+}
+
+numOr(value, fallback) {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+createAutospinText(text, originX) {
+  return this.add.text(0, 0, text, {
+    fontFamily: CT.Config.fontFamily || "Arial",
+    fontSize: "54px",
+    color: "#E9E8F9",
+    letterSpacing: CT.Config.fontLetterSpacing || 0,
+    resolution: CT.Config.fontResolution || 1
+  }).setOrigin(originX, 0.5).setShadow(0, 6, "rgba(0,0,0,0.64)", 0, false, true);
+}
+
+createAutospinSlider(maxValue, formatter, mode) {
+  const slider = {
+    maxValue,
+    value: 0,
+    formatter,
+    mode: mode || "linear",
+    track: this.add.graphics(),
+    knob: this.add.image(0, 0, "autospinSliderKnob").setOrigin(0.5),
+    hit: this.add.zone(0, 0, 520, 92).setInteractive({ useHandCursor: true }),
+    startX: 0,
+    startY: 0,
+    endX: 1,
+    endY: 0,
+    scale: 1
+  };
+  slider.hit.on("pointerdown", (pointer) => this.dragAutospinSlider(slider, pointer));
+  this.input.on("pointermove", (pointer) => {
+    if (slider.dragging) this.dragAutospinSlider(slider, pointer);
+  });
+  this.input.on("pointerup", () => { slider.dragging = false; });
+  slider.hit.on("pointerupoutside", () => { slider.dragging = false; });
+  return slider;
+}
+
+createAutospinPopup() {
+  if (this.autospinOverlay) return;
+  const W = CT.Config.width;
+  const H = CT.Config.height;
+  const root = this.add.container(0, 0).setDepth(122).setScrollFactor(0).setVisible(false);
+  const shade = this.add.rectangle(W / 2, H / 2, W, H, 0x000000, 1).setAlpha(0).setInteractive();
+  const popup = this.add.container(W / 2, H / 2).setAlpha(0);
+  const bg = this.add.image(0, 0, "autospinMainPopup").setOrigin(0.5);
+  const close = this.add.image(292, -330, "bonusMainPopupClose").setOrigin(0.5).setInteractive({ useHandCursor: true });
+  const start = this.add.image(0, 280, "bonusMainPopupButton").setOrigin(0.5).setInteractive({ useHandCursor: true });
+  const labelX = this.createAutospinText("CRASH ON X:", 0);
+  const valueX = this.createAutospinText("0x", 1);
+  const labelJumps = this.createAutospinText("CRASH ON JUMPS:", 0);
+  const valueJumps = this.createAutospinText("0", 1);
+  const xSlider = this.createAutospinSlider(1000, (value) => value + "x", "xSteps");
+  const jumpsSlider = this.createAutospinSlider(20, (value) => String(value));
+
+  close.on("pointerdown", () => this.closeAutospinPopup());
+  start.on("pointerdown", () => this.confirmAutospinPopup());
+
+  popup.add([
+    bg,
+    xSlider.track,
+    jumpsSlider.track,
+    xSlider.knob,
+    jumpsSlider.knob,
+    xSlider.hit,
+    jumpsSlider.hit,
+    labelX,
+    valueX,
+    labelJumps,
+    valueJumps,
+    start,
+    close
+  ]);
+  root.add([shade, popup]);
+  root.shade = shade;
+  root.popup = popup;
+  root.bg = bg;
+  root.close = close;
+  root.start = start;
+  this.autospinOverlay = root;
+  this.autospinPopup = popup;
+  this.autospinControls = { labelX, valueX, labelJumps, valueJumps, xSlider, jumpsSlider };
+  this.applyAutospinUiLayout();
+}
+
+applyAutospinUiLayout() {
+  if (!this.autospinOverlay || !this.autospinControls) return;
+  const popupCfg = this.getAutospinUiGroup("autospinPopup");
+  const startCfg = this.getAutospinUiGroup("autospinStartButton");
+  const closeCfg = this.getAutospinUiGroup("autospinCloseButton");
+  const textCfgs = [
+    [this.autospinControls.labelX, this.getAutospinUiGroup("autospinLabelX")],
+    [this.autospinControls.valueX, this.getAutospinUiGroup("autospinValueX")],
+    [this.autospinControls.labelJumps, this.getAutospinUiGroup("autospinLabelJumps")],
+    [this.autospinControls.valueJumps, this.getAutospinUiGroup("autospinValueJumps")]
+  ];
+  this.autospinOverlay.popup
+    .setPosition(this.numOr(popupCfg.x, CT.Config.width / 2), this.numOr(popupCfg.y, CT.Config.height / 2))
+    .setScale(Math.max(0.05, Number(popupCfg.scale) || 0.72));
+  textCfgs.forEach(([text, cfg]) => {
+    text.setPosition(this.numOr(cfg.x, 0), this.numOr(cfg.y, 0)).setFontSize((Math.max(8, Number(cfg.size) || 54)) + "px");
+  });
+  this.autospinOverlay.start
+    .setPosition(this.numOr(startCfg.x, 0), this.numOr(startCfg.y, 0))
+    .setScale(Math.max(0.05, Number(startCfg.scale) || 1));
+  this.autospinOverlay.close
+    .setPosition(this.numOr(closeCfg.x, 0), this.numOr(closeCfg.y, 0))
+    .setScale(Math.max(0.05, Number(closeCfg.scale) || 0.5));
+  this.layoutAutospinSlider(this.autospinControls.xSlider, this.getAutospinUiGroup("autospinSliderX"));
+  this.layoutAutospinSlider(this.autospinControls.jumpsSlider, this.getAutospinUiGroup("autospinSliderJumps"));
+  this.updateAutospinPopupValues(false);
+}
+
+layoutAutospinSlider(slider, cfg) {
+  if (!slider) return;
+  slider.startX = this.numOr(cfg.startX, 0);
+  slider.startY = this.numOr(cfg.startY, 0);
+  slider.endX = this.numOr(cfg.endX, slider.startX + 1);
+  slider.endY = this.numOr(cfg.endY, slider.startY);
+  slider.scale = Math.max(0.05, Number(cfg.scale) || 1);
+  const midX = (slider.startX + slider.endX) * 0.5;
+  const midY = (slider.startY + slider.endY) * 0.5;
+  const width = Math.max(80, Phaser.Math.Distance.Between(slider.startX, slider.startY, slider.endX, slider.endY) + 96 * slider.scale);
+  slider.hit.setPosition(midX, midY).setSize(width, 96 * slider.scale);
+  this.updateAutospinSliderVisual(slider);
+}
+
+dragAutospinSlider(slider, pointer) {
+  if (!this.autospinPopup || !slider) return;
+  slider.dragging = true;
+  const scale = this.autospinPopup.scaleX || 1;
+  const localX = (pointer.x - this.autospinPopup.x) / scale;
+  const localY = (pointer.y - this.autospinPopup.y) / scale;
+  const dx = slider.endX - slider.startX;
+  const dy = slider.endY - slider.startY;
+  const lenSq = Math.max(1, dx * dx + dy * dy);
+  const t = Phaser.Math.Clamp(((localX - slider.startX) * dx + (localY - slider.startY) * dy) / lenSq, 0, 1);
+  slider.value = this.getAutospinSliderValue(slider, t);
+  this.updateAutospinPopupValues(true);
+}
+
+getAutospinSliderValue(slider, progress) {
+  const t = Phaser.Math.Clamp(Number(progress) || 0, 0, 1);
+  if (!slider || slider.mode !== "xSteps") return Math.round(t * Math.max(1, slider ? slider.maxValue : 1));
+  if (t <= 0.001) return 0;
+  if (t <= 1 / 3) {
+    return Phaser.Math.Clamp(Math.ceil((t / (1 / 3)) * 10), 1, 10);
+  }
+  if (t <= 2 / 3) {
+    const p = (t - 1 / 3) / (1 / 3);
+    return Phaser.Math.Clamp(10 + Math.ceil(p * 9) * 10, 20, 100);
+  }
+  const p = (t - 2 / 3) / (1 / 3);
+  return Phaser.Math.Clamp(100 + Math.ceil(p * 9) * 100, 200, 1000);
+}
+
+getAutospinSliderProgress(slider) {
+  if (!slider) return 0;
+  const value = Phaser.Math.Clamp(Number(slider.value) || 0, 0, Number(slider.maxValue) || 1);
+  if (slider.mode !== "xSteps") return Phaser.Math.Clamp(value / Math.max(1, slider.maxValue), 0, 1);
+  if (value <= 0) return 0;
+  if (value <= 10) return (value / 10) / 3;
+  if (value <= 100) return (1 / 3) + (((value - 10) / 90) / 3);
+  return (2 / 3) + (((value - 100) / 900) / 3);
+}
+
+updateAutospinPopupValues(animated) {
+  if (!this.autospinControls) return;
+  const xSlider = this.autospinControls.xSlider;
+  const jumpsSlider = this.autospinControls.jumpsSlider;
+  this.autospinControls.valueX.setText(xSlider.formatter(xSlider.value));
+  this.autospinControls.valueJumps.setText(jumpsSlider.formatter(jumpsSlider.value));
+  this.updateAutospinSliderVisual(xSlider, animated, [this.autospinControls.labelX, this.autospinControls.valueX]);
+  this.updateAutospinSliderVisual(jumpsSlider, animated, [this.autospinControls.labelJumps, this.autospinControls.valueJumps]);
+}
+
+updateAutospinSliderVisual(slider, animated, linkedText) {
+  if (!slider) return;
+  const progress = this.getAutospinSliderProgress(slider);
+  const active = slider.value > 0;
+  const alpha = active ? 1 : 0.34;
+  const knobX = Phaser.Math.Linear(slider.startX, slider.endX, progress);
+  const knobY = Phaser.Math.Linear(slider.startY, slider.endY, progress);
+  slider.track.clear();
+  slider.track.lineStyle(6 * slider.scale, 0xe9e8f9, alpha);
+  slider.track.beginPath();
+  slider.track.moveTo(slider.startX, slider.startY);
+  slider.track.lineTo(slider.endX, slider.endY);
+  slider.track.strokePath();
+  if (active) {
+    slider.track.lineStyle(9 * slider.scale, 0xeefe0d, 0.78);
+    slider.track.beginPath();
+    slider.track.moveTo(slider.startX, slider.startY);
+    slider.track.lineTo(knobX, knobY);
+    slider.track.strokePath();
+  }
+  slider.knob.setAlpha(alpha).setScale(slider.scale);
+  this.tweens.killTweensOf(slider.knob);
+  slider.knob.setPosition(knobX, knobY);
+  (linkedText || []).forEach((text) => {
+    this.tweens.killTweensOf(text);
+    text.setAlpha(alpha);
+  });
+}
+
+showAutospinPopup() {
+  if (this.state !== "ready" || this.bonusGameStarting) return;
+  this.createAutospinPopup();
+  if (this.hud && this.hud.hideBetPopup) this.hud.hideBetPopup();
+  this.setPageControlsDimmed(true);
+  const overlay = this.autospinOverlay;
+  const popup = overlay.popup;
+  const popupCfg = this.getAutospinUiGroup("autospinPopup");
+  const popupX = this.numOr(popupCfg.x, CT.Config.width / 2);
+  const popupY = this.numOr(popupCfg.y, CT.Config.height / 2);
+  const popupScale = Math.max(0.05, Number(popupCfg.scale) || 0.72);
+  overlay.setVisible(true).setAlpha(1);
+  overlay.shade.setAlpha(0);
+  this.applyAutospinUiLayout();
+  popup.setPosition(popupX, popupY + 34).setScale(popupScale * 0.78).setAlpha(0);
+  this.tweens.killTweensOf([overlay, overlay.shade, popup]);
+  this.tweens.add({ targets: overlay.shade, alpha: 0.75, duration: 170, ease: "Sine.out" });
+  this.tweens.add({
+    targets: popup,
+    x: popupX,
+    y: popupY,
+    scaleX: popupScale,
+    scaleY: popupScale,
+    alpha: 1,
+    duration: 340,
+    ease: "Back.out"
+  });
+}
+
+closeAutospinPopup(duration, onComplete) {
+  if (!this.autospinOverlay || !this.autospinOverlay.visible) {
+    if (onComplete) onComplete();
+    return;
+  }
+  const overlay = this.autospinOverlay;
+  this.tweens.killTweensOf([overlay, overlay.shade, overlay.popup]);
+  this.tweens.add({
+    targets: overlay,
+    alpha: 0,
+    duration: duration == null ? 150 : duration,
+    ease: "Sine.out",
+    onComplete: () => {
+      overlay.setVisible(false).setAlpha(1);
+      if (this.state === "ready" && !this.autospinActive) this.setPageControlsDimmed(false);
+      if (onComplete) onComplete();
+    }
+  });
+}
+
+confirmAutospinPopup() {
+  const xLimit = this.autospinControls ? Math.floor(this.autospinControls.xSlider.value) : 0;
+  const jumpsLimit = this.autospinControls ? Math.floor(this.autospinControls.jumpsSlider.value) : 0;
+  if (xLimit <= 0 && jumpsLimit <= 0) {
+    if (this.autospinPopup) {
+      const baseX = this.autospinPopup.x;
+      this.tweens.add({
+        targets: this.autospinPopup,
+        x: baseX + 12,
+        duration: 44,
+        yoyo: true,
+        repeat: 4,
+        ease: "Sine.inOut",
+        onComplete: () => this.autospinPopup.setX(baseX)
+      });
+    }
+    return;
+  }
+  this.autospinSettings = {
+    crashX: Phaser.Math.Clamp(xLimit, 0, 1000),
+    crashJumps: Phaser.Math.Clamp(jumpsLimit, 0, 20)
+  };
+  this.startAutospin();
+}
+
+startAutospin() {
+  this.autospinActive = true;
+  if (this.hud && this.hud.setAutospinActive) this.hud.setAutospinActive(true, true);
+  this.closeAutospinPopup(170, () => {
+    this.setPageControlsDimmed(false);
+    this.queueAutospinNextRun(120);
+  });
+}
+
+stopAutospin() {
+  this.autospinActive = false;
+  this.autospinLaunching = false;
+  this.autospinRoundActive = false;
+  if (this.autospinNextRunTimer) {
+    this.autospinNextRunTimer.remove(false);
+    this.autospinNextRunTimer = null;
+  }
+  if (this.hud && this.hud.setAutospinActive) this.hud.setAutospinActive(false, true);
+  if (this.hud && this.state === "ready") this.hud.setRunning(false);
+  if (this.hud && this.state !== "ready" && this.hud.autospinButton) {
+    this.hud.autospinLocked = true;
+    this.hud.autospinButton.setAlpha(0.5);
+    this.hud.autospinButton.hit.disableInteractive();
+  }
+  if (this.state === "ready") this.setPageControlsDimmed(false);
+}
+
+queueAutospinNextRun(delay) {
+  if (!this.autospinActive || this.state !== "ready") return;
+  if (this.autospinNextRunTimer) this.autospinNextRunTimer.remove(false);
+  this.autospinNextRunTimer = this.time.delayedCall(delay == null ? 220 : delay, () => {
+    this.autospinNextRunTimer = null;
+    this.startAutospinRun();
+  });
+}
+
+startAutospinRun() {
+  if (!this.autospinActive || this.state !== "ready") return;
+  this.autospinLaunching = true;
+  const started = this.startRun();
+  if (!started) this.stopAutospin();
+}
+
+checkAutospinCrash() {
+  if (!this.autospinActive || !this.autospinRoundActive || this.state !== "running" || this.bonusGameActive) return false;
+  const xLimit = Number(this.autospinSettings.crashX) || 0;
+  const jumpsLimit = Number(this.autospinSettings.crashJumps) || 0;
+  const hitX = xLimit > 0 && this.multiplier >= xLimit;
+  const hitJumps = jumpsLimit > 0 && this.getBounceCount(this.multiplier) >= jumpsLimit;
+  if (!hitX && !hitJumps) return false;
+  this.autoCrash = true;
+  this.cashOutCrash();
+  return true;
+}
+
+getBonusGameBaseBet() {
+  return this.wallet && this.wallet.getBaseBet ? this.wallet.getBaseBet() : (this.wallet ? this.wallet.currentBet : 0);
+}
+
+getBonusGameCost() {
+  const price = Number(CT.Config.gameplay.bonusGameCostMultiplier) || 200;
+  return Number((this.getBonusGameBaseBet() * price).toFixed(2));
+}
+
+getBonusGameUiGroup(name) {
+  const defaults = (CT.Config.gameplay.sceneTest || {});
+  const source = (this.sceneTuningConfig && this.sceneTuningConfig[name]) || defaults[name] || {};
+  return source;
+}
+
+applyBonusGameUiLayout() {
+  if (!this.bonusGameOverlay) return;
+  const popupCfg = this.getBonusGameUiGroup("bonusPopup");
+  const bgCfg = this.getBonusGameUiGroup("bonusPopupBg");
+  const info1Cfg = this.getBonusGameUiGroup("bonusInfoLine1");
+  const info2Cfg = this.getBonusGameUiGroup("bonusInfoLine2");
+  const startCfg = this.getBonusGameUiGroup("bonusStartButton");
+  const closeCfg = this.getBonusGameUiGroup("bonusCloseButton");
+  const setImage = (image, cfg) => {
+    if (!image) return;
+    image
+      .setPosition(Number(cfg.x) || 0, Number(cfg.y) || 0)
+      .setScale(Math.max(0.05, Number(cfg.scale) || 1));
+  };
+
+  this.bonusGameOverlay.popup
+    .setPosition(Number(popupCfg.x) || CT.Config.width / 2, Number(popupCfg.y) || CT.Config.height / 2)
+    .setScale(Math.max(0.05, Number(popupCfg.scale) || 0.56));
+  setImage(this.bonusGameOverlay.bg, bgCfg);
+  setImage(this.bonusGameOverlay.info1, info1Cfg);
+  setImage(this.bonusGameOverlay.info2, info2Cfg);
+  setImage(this.bonusGameOverlay.start, startCfg);
+  setImage(this.bonusGameOverlay.close, closeCfg);
+}
+
+createBonusGamePopup() {
+  if (this.bonusGameOverlay) return;
+  const cfg = CT.Config;
+  const W = cfg.width;
+  const H = cfg.height;
+  const root = this.add.container(0, 0).setDepth(120).setScrollFactor(0).setVisible(false);
+  const shade = this.add.rectangle(W / 2, H / 2, W, H, 0x000000, 1).setAlpha(0).setInteractive();
+  const popup = this.add.container(W / 2, H / 2).setAlpha(0);
+
+  const bg = this.add.image(0, 0, "bonusMainPopup").setOrigin(0.5);
+  const close = this.add.image(500, -500, "bonusMainPopupClose").setOrigin(0.5).setInteractive({ useHandCursor: true });
+  const info1 = this.add.image(0, 150, "bonusInfoLine1").setOrigin(0.5).setAlpha(0);
+  const info2 = this.add.image(0, 238, "bonusInfoLine2").setOrigin(0.5).setAlpha(0);
+  const start = this.add.image(0, 405, "bonusMainPopupButton").setOrigin(0.5).setAlpha(0).setInteractive({ useHandCursor: true });
+
+  close.on("pointerdown", () => this.closeBonusGamePopup());
+  start.on("pointerdown", () => this.confirmBonusGamePurchase());
+
+  popup.add([bg, info1, info2, start, close]);
+  root.add([shade, popup]);
+  root.shade = shade;
+  root.popup = popup;
+  root.bg = bg;
+  root.info1 = info1;
+  root.info2 = info2;
+  root.start = start;
+  root.close = close;
+  this.bonusGameOverlay = root;
+  this.bonusGamePopup = popup;
+  this.applyBonusGameUiLayout();
+}
+
+showBonusGamePopup() {
+  if (this.state !== "ready" || this.bonusGameStarting) return;
+  this.createBonusGamePopup();
+  if (this.hud && this.hud.hideBetPopup) this.hud.hideBetPopup();
+  this.setPageControlsDimmed(true);
+
+  const overlay = this.bonusGameOverlay;
+  const popup = overlay.popup;
+  const popupCfg = this.getBonusGameUiGroup("bonusPopup");
+  const info1Cfg = this.getBonusGameUiGroup("bonusInfoLine1");
+  const info2Cfg = this.getBonusGameUiGroup("bonusInfoLine2");
+  const startCfg = this.getBonusGameUiGroup("bonusStartButton");
+  const closeCfg = this.getBonusGameUiGroup("bonusCloseButton");
+  const popupX = Number(popupCfg.x) || CT.Config.width / 2;
+  const popupY = Number(popupCfg.y) || CT.Config.height / 2;
+  const popupScale = Math.max(0.05, Number(popupCfg.scale) || 0.56);
+  const info1Scale = Math.max(0.05, Number(info1Cfg.scale) || 1);
+  const info2Scale = Math.max(0.05, Number(info2Cfg.scale) || 1);
+  const startScale = Math.max(0.05, Number(startCfg.scale) || 1);
+  const closeScale = Math.max(0.05, Number(closeCfg.scale) || 1);
+
+  overlay.setVisible(true).setAlpha(1);
+  overlay.shade.setAlpha(0);
+  this.applyBonusGameUiLayout();
+  popup.setPosition(popupX, popupY + 26).setScale(popupScale * 0.72).setAlpha(0);
+  overlay.info1.setPosition(Number(info1Cfg.x) || 0, (Number(info1Cfg.y) || 0) + 26).setScale(info1Scale * 0.84).setAlpha(0);
+  overlay.info2.setPosition(Number(info2Cfg.x) || 0, (Number(info2Cfg.y) || 0) + 26).setScale(info2Scale * 0.84).setAlpha(0);
+  overlay.start.setPosition(Number(startCfg.x) || 0, (Number(startCfg.y) || 0) - 74).setScale(startScale * 0.84).setAlpha(0);
+  overlay.close.setPosition(Number(closeCfg.x) || 0, Number(closeCfg.y) || 0).setAlpha(1).setScale(closeScale);
+
+  this.tweens.killTweensOf([overlay, overlay.shade, popup, overlay.info1, overlay.info2, overlay.start, overlay.close]);
+  this.tweens.add({ targets: overlay.shade, alpha: 0.75, duration: 180, ease: "Sine.out" });
+  this.tweens.add({
+    targets: popup,
+    x: popupX,
+    y: popupY,
+    scaleX: popupScale,
+    scaleY: popupScale,
+    alpha: 1,
+    duration: 390,
+    ease: "Back.out"
+  });
+  this.tweens.add({
+    targets: overlay.info1,
+    x: Number(info1Cfg.x) || 0,
+    y: Number(info1Cfg.y) || 0,
+    scaleX: info1Scale,
+    scaleY: info1Scale,
+    alpha: 1,
+    delay: 210,
+    duration: 260,
+    ease: "Back.out"
+  });
+  this.tweens.add({
+    targets: overlay.info2,
+    x: Number(info2Cfg.x) || 0,
+    y: Number(info2Cfg.y) || 0,
+    scaleX: info2Scale,
+    scaleY: info2Scale,
+    alpha: 1,
+    delay: 310,
+    duration: 280,
+    ease: "Back.out"
+  });
+  this.tweens.add({
+    targets: overlay.start,
+    x: Number(startCfg.x) || 0,
+    y: Number(startCfg.y) || 0,
+    scaleX: startScale,
+    scaleY: startScale,
+    alpha: 1,
+    delay: 420,
+    duration: 340,
+    ease: "Bounce.out"
+  });
+}
+
+closeBonusGamePopup(duration) {
+  if (!this.bonusGameOverlay || !this.bonusGameOverlay.visible) return;
+  const overlay = this.bonusGameOverlay;
+  this.tweens.killTweensOf([overlay, overlay.shade, overlay.popup, overlay.info1, overlay.info2, overlay.start, overlay.close]);
+  this.tweens.add({
+    targets: overlay,
+    alpha: 0,
+    duration: duration == null ? 160 : duration,
+    ease: "Sine.out",
+    onComplete: () => {
+      overlay.setVisible(false).setAlpha(1);
+      this.bonusGameStarting = false;
+      if (this.state === "ready") this.setPageControlsDimmed(false);
+    }
+  });
+}
+
+confirmBonusGamePurchase() {
+  if (this.state !== "ready" || this.bonusGameStarting) return;
+  const cost = this.getBonusGameCost();
+  if (!this.wallet.spend(cost)) {
+    if (this.bonusGameOverlay && this.bonusGameOverlay.popup) {
+      const popupCfg = this.getBonusGameUiGroup("bonusPopup");
+      const popupX = Number(popupCfg.x) || CT.Config.width / 2;
+      this.tweens.add({
+        targets: this.bonusGameOverlay.popup,
+        x: popupX + 10,
+        duration: 44,
+        yoyo: true,
+        repeat: 4,
+        ease: "Sine.inOut",
+        onComplete: () => this.bonusGameOverlay.popup.setX(popupX)
+      });
+    }
+    const warn = this.add.text(CT.Config.width / 2, CT.Config.height * 0.42, "NEED $" + this.wallet.format(cost), {
+      fontFamily: CT.Config.fontFamily || "Arial",
+      fontSize: "58px",
+      color: CT.Config.colors.danger,
+      letterSpacing: CT.Config.fontLetterSpacing || 0,
+      resolution: CT.Config.fontResolution || 1
+    }).setOrigin(0.5).setDepth(130).setScrollFactor(0);
+    this.tweens.add({
+      targets: warn,
+      y: warn.y - 70,
+      alpha: 0,
+      duration: 820,
+      ease: "Cubic.out",
+      onComplete: () => warn.destroy()
+    });
+    return;
+  }
+
+  this.bonusGameStarting = true;
+  this.hud.update();
+  const overlay = this.bonusGameOverlay;
+  this.tweens.killTweensOf([overlay.popup, overlay.shade]);
+  this.tweens.add({
+    targets: overlay.popup,
+    y: -520,
+    alpha: 0,
+    duration: 380,
+    ease: "Cubic.in"
+  });
+  this.tweens.add({
+    targets: overlay.shade,
+    alpha: 0,
+    duration: 380,
+    ease: "Sine.in",
+    onComplete: () => {
+      overlay.setVisible(false).setAlpha(1);
+      this.beginBonusGameRun();
+    }
+  });
+}
+
+beginBonusGameRun() {
+  const cfg = CT.Config;
+  this.resetRunVisuals(false);
+  this.state = "running";
+  this.round += 1;
+  this.bonusGameActive = true;
+  this.bonusGameStarting = false;
+  this.bonusGameIntroElapsed = 0;
+  this.bonusGameIntroComplete = false;
+  this.bonusGamePostIntroElapsed = 0;
+  this.bonusGameCrashQueued = false;
+  this.bonusGameBounceDisplay = 0;
+  this.bonusGamePayoutBet = this.getBonusGameBaseBet();
+  this.multiplier = cfg.gameplay.startMultiplier;
+  this.speed = cfg.gameplay.baseSpeed;
+  this.visualSpeed = cfg.gameplay.roadBaseSpeed;
+  this.turbo = true;
+  this.turboPower = 1;
+  this.autoCrash = true;
+  this.engineBreakAt = Number.POSITIVE_INFINITY;
+  this.hud.update();
+  this.hud.setMultiplier(0);
+  this.hud.setLocked(true);
+  this.hud.setTurbo(true);
+  this.setPageControlsDimmed(true);
+  this.hud.setResult("BONUS RUN", "#ffffff");
+  this.applyMultiplierTheme("running");
+  this.updateBounceText();
+  this.ensureBackgroundMusic();
+  this.playEngineStart();
+}
+
+updateBonusGameIntro(delta) {
+  const cfg = CT.Config;
+  const gameplay = cfg.gameplay;
+  const dt = delta / 1000;
+  const duration = Math.max(420, Number(gameplay.bonusGameIntroDuration) || 1450);
+  const targetBounces = Math.max(1, Math.floor(Number(gameplay.bonusGameBounces) || 10));
+  if (this.bonusGameIntroComplete) {
+    this.bonusGamePostIntroElapsed += delta;
+    const postT = Phaser.Math.Clamp(this.bonusGamePostIntroElapsed / 260, 0, 1);
+    const postEase = Phaser.Math.Easing.Sine.Out(postT);
+    const roadSpeed = Phaser.Math.Linear(2220, 2680, postEase);
+    const dx = roadSpeed * dt;
+    this.turbo = true;
+    this.turboPower = 1;
+    this.speed = Phaser.Math.Linear(6000, 7000, postEase);
+    this.visualSpeed = roadSpeed;
+    this.multiplier = 0;
+    this.hud.setMultiplier(0);
+    this.bonusGameBounceDisplay = targetBounces;
+    this.updateBounceText();
+    if (this.car.x < gameplay.carCruiseX) {
+      this.car.x = Math.min(gameplay.carCruiseX, this.car.x + dx);
+    }
+    this.car.y = this.getGameplayRoadY() - 59.04;
+    this.car.angle = -3.57;
+    this.updateCarBodyBounce(this.time.now);
+    this.setWheelPlayback(true, Phaser.Math.Linear(2.05, 2.22, postEase));
+    this.updateCarFlame();
+    this.updateCarLightSweep(roadSpeed);
+    this.updateCarGroundShadow();
+    this.advanceRoad(dx);
+    return;
+  }
+  this.bonusGameIntroElapsed += delta;
+  const t = Phaser.Math.Clamp(this.bonusGameIntroElapsed / duration, 0, 1);
+  const speedEase = Phaser.Math.Easing.Quadratic.Out(t);
+  const visualEase = Phaser.Math.Easing.Sine.Out(t);
+  const roadSpeed = Phaser.Math.Linear(920, 2220, speedEase);
+
+  this.turbo = true;
+  this.turboPower = 1;
+  this.speed = Phaser.Math.Linear(900, 6000, speedEase);
+  this.visualSpeed = roadSpeed;
+  this.multiplier = 0;
+  this.hud.setMultiplier(0);
+
+  const nextDisplay = Math.min(targetBounces, Math.floor(speedEase * targetBounces + 0.0001));
+  if (nextDisplay !== this.bonusGameBounceDisplay) {
+    this.bonusGameBounceDisplay = nextDisplay;
+    this.updateBounceText();
+    this.pulseBonusGameBounceBadge(false);
+  }
+
+  const dx = roadSpeed * dt;
+  if (this.car.x < gameplay.carCruiseX) {
+    this.car.x = Math.min(gameplay.carCruiseX, this.car.x + dx);
+  }
+  this.car.y = this.getGameplayRoadY() - 54 - 5.04 * visualEase;
+  this.car.angle = -3.57 * visualEase;
+  this.updateCarBodyBounce(this.time.now);
+  this.setWheelPlayback(true, Phaser.Math.Linear(0.92, 2.05, speedEase));
+  this.updateCarFlame();
+  this.updateCarLightSweep(roadSpeed);
+  this.updateCarGroundShadow();
+  this.advanceRoad(dx);
+
+  if (t >= 1 && !this.bonusGameCrashQueued) {
+    this.bonusGameIntroComplete = true;
+    this.bonusGameCrashQueued = true;
+    this.bonusGamePostIntroElapsed = 0;
+    this.bonusGameBounceDisplay = targetBounces;
+    this.updateBounceText();
+    this.pulseBonusGameBounceBadge(true);
+    this.time.delayedCall(240, () => {
+      if (this.state === "running" && this.bonusGameActive) this.cashOutCrash();
+    });
+  }
+}
+
+pulseBonusGameBounceBadge(finalPulse, onComplete) {
+  if (!this.bounceBadge) {
+    if (onComplete) onComplete();
+    return;
+  }
+  this.tweens.killTweensOf([this.bounceBadge, this.bounceBadgeIcon, this.bounceBadgeText]);
+  this.bounceBadge
+    .setVisible(true)
+    .setAlpha(1)
+    .setScale(finalPulse ? 1.68 : 1.16)
+    .setAngle(finalPulse ? -18 : -7);
+  this.bounceBadgeIcon.setAlpha(1).setScale(finalPulse ? 0.72 : 0.56);
+  this.bounceBadgeExtraIcon.setAlpha(0);
+  this.bounceBadgeText.setColor("#ffffff").setScale(finalPulse ? 1.36 : 1);
+  this.tweens.add({
+    targets: this.bounceBadge,
+    scaleX: finalPulse ? 1.12 : 1,
+    scaleY: finalPulse ? 1.12 : 1,
+    angle: -7,
+    duration: finalPulse ? 240 : 190,
+    ease: finalPulse ? "Back.out" : "Sine.out",
+    onComplete
+  });
+  if (finalPulse) {
+    this.tweens.add({
+      targets: this.bounceBadgeIcon,
+      scaleX: 0.56,
+      scaleY: 0.56,
+      duration: 220,
+      ease: "Back.out"
+    });
+    this.tweens.add({
+      targets: this.bounceBadgeText,
+      scaleX: 1,
+      scaleY: 1,
+      duration: 220,
+      ease: "Back.out"
+    });
+  }
+}
+
 cashOutCrash() {
   if (this.state !== "running") return;
   const releaseTurboPower = this.turboPower;
   const releaseFactor = 1 + (CT.Config.gameplay.turboFactor - 1) * releaseTurboPower;
-  const releaseRoadSpeed = Math.max(460, (this.visualSpeed || 340) * releaseFactor);
+  const releaseRoadSpeed = this.bonusGameActive
+    ? Math.max(1600, this.visualSpeed || 1400)
+    : Math.max(460, (this.visualSpeed || 340) * releaseFactor);
   this.setTurboPower(0);
   this.stopEngineAudio();
   this.playOneShot("carCrash");
   this.state = "crashing";
   this.updateCarFlame();
-  const payout = this.wallet.currentBet * this.multiplier;
+  const payoutBet = this.bonusGameActive ? this.bonusGamePayoutBet : (this.wallet.getPayoutBet ? this.wallet.getPayoutBet() : this.wallet.currentBet);
+  const payout = payoutBet * this.multiplier;
   const crashRoadTravel = 820;
   const crashApproachDuration = Phaser.Math.Clamp((crashRoadTravel / releaseRoadSpeed) * 1000 * 0.48, 240, 390);
   const impactWallX = CT.Config.width * 0.57 + 142;
@@ -4179,7 +4988,7 @@ cashOutCrash() {
   this.bonusAdd = 0;
   this.clearBonusItems();
   this.hud.setLocked(true);
-  this.hud.setResult(this.autoCrash ? "WALL HIT!" : "CRASH!", "#ffffff");
+  this.hud.setResult(this.bonusGameActive ? "BONUS CRASH!" : (this.autospinRoundActive ? "AUTOSPIN CRASH!" : (this.autoCrash ? "WALL HIT!" : "CRASH!")), "#ffffff");
   this.barrier.setVisible(true);
   this.barrier.setPosition(wallStartX, this.offsetGameplayY(this.hitWallY)).setAlpha(this.hitWallAlpha).setScale(1);
   const carStartX = this.car.x;
@@ -4653,6 +5462,13 @@ pickBonusMultiplier(tier) {
     { value: 4000, weight: 0.00002 + 0.105 * highBias },
     { value: 5000, weight: 0.00001 + 0.065 * highBias }
   ];
+  if (this.bonusGameActive) {
+    weights.forEach((item) => {
+      if (item.value >= 1000) item.weight *= 0.1;
+      else if (item.value >= 100) item.weight *= 0.22;
+      else if (item.value >= 10) item.weight *= 0.62;
+    });
+  }
   const total = weights.reduce((sum, item) => sum + item.weight, 0);
   let roll = Math.random() * total;
   for (const item of weights) {
@@ -5028,9 +5844,14 @@ bumpOldDummyTrailPartsAt(x, y, strength) {
 
 getBounceCount(multiplier) {
   const cfg = CT.Config;
+  if (this.bonusGameActive) {
+    const target = Math.max(1, Math.floor(Number(cfg.gameplay.bonusGameBounces) || 10));
+    return this.state === "running" ? Phaser.Math.Clamp(this.bonusGameBounceDisplay, 0, target) : target;
+  }
   const value = Math.max(0, Number(multiplier || 0));
   const raw = value < 2 ? 0 : Math.floor(Math.log2(value));
-  return Phaser.Math.Clamp(raw + this.rareBounceCount, cfg.gameplay.minBounces, cfg.gameplay.maxBounces);
+  const boosterBounce = this.jumpBoosterEnabled ? 1 : 0;
+  return Phaser.Math.Clamp(raw + this.rareBounceCount + boosterBounce, cfg.gameplay.minBounces, cfg.gameplay.maxBounces);
 }
 
 settleDummy(payout) {
@@ -5059,7 +5880,8 @@ settleDummy(payout) {
 
 showCrashFinal(payout) {
   const finalMultiplier = this.multiplier + this.bonusAdd;
-  const finalPayout = this.wallet.currentBet * finalMultiplier;
+  const payoutBet = this.bonusGameActive ? this.bonusGamePayoutBet : (this.wallet.getPayoutBet ? this.wallet.getPayoutBet() : this.wallet.currentBet);
+  const finalPayout = payoutBet * finalMultiplier;
   this.wallet.addWin(finalPayout);
   this.hud.update();
   this.hud.setResult("LAST WIN +$" + this.wallet.format(finalPayout), CT.Config.colors.ok);
@@ -5076,7 +5898,7 @@ showFinalWinCounter(finalPayout, onComplete) {
 
   this.applyMultiplierTheme("win", false, true);
   this.transitionMultiplierLabel("YOUR WIN", "#D8FFD8");
-  this.tweens.killTweensOf([this.multiplierPanel, this.multiplierText, this.multiplierGlow, this.finalWinText]);
+  this.tweens.killTweensOf([this.multiplierPanel, this.multiplierText, this.finalWinText]);
   this.finalWinText
     .setText("$0.00")
     .setColor("#29FF50")
@@ -5102,17 +5924,6 @@ showFinalWinCounter(finalPayout, onComplete) {
     duration: 280,
     ease: "Back.out"
   });
-  this.tweens.add({
-    targets: this.multiplierGlow,
-    alpha: 0.32,
-    scaleX: 1.18,
-    scaleY: 1.18,
-    duration: 220,
-    yoyo: true,
-    repeat: 1,
-    ease: "Sine.inOut"
-  });
-
   const counter = { value: 0 };
   this.tweens.add({
     targets: counter,
@@ -5321,6 +6132,7 @@ returnCameraToStart(spawnNewCar) {
         this.state = "ready";
         this.hud.setRunning(false);
         this.updateCarFlame();
+        this.queueAutospinNextRun();
       }, 0);
     };
     this.tweens.add({
@@ -5357,6 +6169,7 @@ returnCameraToStart(spawnNewCar) {
       this.state = "ready";
       this.hud.setRunning(false);
       this.updateCarFlame();
+      this.queueAutospinNextRun();
     }
   });
 }
@@ -5383,6 +6196,16 @@ resetRunVisuals(launchPosition) {
   this.turboPower = 0;
   this.stopEngineAudio();
   this.autoCrash = false;
+  this.autospinRoundActive = false;
+  this.autospinLaunching = false;
+  this.bonusGameActive = false;
+  this.bonusGameStarting = false;
+  this.bonusGameIntroElapsed = 0;
+  this.bonusGameIntroComplete = false;
+  this.bonusGamePostIntroElapsed = 0;
+  this.bonusGameCrashQueued = false;
+  this.bonusGameBounceDisplay = 0;
+  this.bonusGamePayoutBet = 0;
   this.bonusAdd = 0;
   this.rareBounceCount = 0;
   this.nextRareBounceAt = 0;
@@ -5426,6 +6249,16 @@ resetRunStateOnly() {
   this.turboPower = 0;
   this.stopEngineAudio();
   this.autoCrash = false;
+  this.autospinRoundActive = false;
+  this.autospinLaunching = false;
+  this.bonusGameActive = false;
+  this.bonusGameStarting = false;
+  this.bonusGameIntroElapsed = 0;
+  this.bonusGameIntroComplete = false;
+  this.bonusGamePostIntroElapsed = 0;
+  this.bonusGameCrashQueued = false;
+  this.bonusGameBounceDisplay = 0;
+  this.bonusGamePayoutBet = 0;
   this.bonusAdd = 0;
   this.rareBounceCount = 0;
   this.nextRareBounceAt = 0;
@@ -5501,6 +6334,10 @@ update(_time, delta) {
   }
 
   if (this.state !== "running") return;
+  if (this.bonusGameActive) {
+    this.updateBonusGameIntro(delta);
+    return;
+  }
   const factor = 1 + (cfg.gameplay.turboFactor - 1) * this.turboPower;
   this.speed += cfg.gameplay.acceleration * factor * (1 + this.speed * cfg.gameplay.speedProgression) * dt;
   this.visualSpeed = cfg.gameplay.roadBaseSpeed + this.speed * cfg.gameplay.roadSpeedScale;
@@ -5510,6 +6347,7 @@ update(_time, delta) {
   this.hud.setMultiplier(this.getDisplayedMultiplier());
   this.updateBounceText();
   this.tryRareBounceProc(dt);
+  if (this.checkAutospinCrash()) return;
 
   const roadSpeed = this.visualSpeed * factor;
   const dx = roadSpeed * dt;
@@ -5654,22 +6492,13 @@ setMultiplierDisplay(value) {
   if (n > 0 && Math.abs(n - this.lastMultiplierDisplay) > 0.035 && this.time.now - this.lastMultiplierPulseAt > 150) {
     this.lastMultiplierDisplay = n;
     this.lastMultiplierPulseAt = this.time.now;
-    this.tweens.killTweensOf([this.multiplierText, this.multiplierGlow]);
+    this.tweens.killTweensOf(this.multiplierText);
     this.multiplierText.setScale(1.08);
-    this.multiplierGlow.setAlpha(0.28).setScale(1.08);
     this.tweens.add({
       targets: this.multiplierText,
       scaleX: 1,
       scaleY: 1,
       duration: 130,
-      ease: "Sine.out"
-    });
-    this.tweens.add({
-      targets: this.multiplierGlow,
-      alpha: 0.12,
-      scaleX: 1,
-      scaleY: 1,
-      duration: 180,
       ease: "Sine.out"
     });
   }
@@ -5678,7 +6507,7 @@ setMultiplierDisplay(value) {
 animateMultiplierFail() {
   if (!this.multiplierText) return;
   this.applyMultiplierTheme("fail");
-  this.tweens.killTweensOf([this.multiplierText, this.multiplierGlow, this.multiplierPanel]);
+  this.tweens.killTweensOf([this.multiplierText, this.multiplierPanel]);
   const counter = { value: this.getDisplayedMultiplier() };
   this.tweens.add({
     targets: counter,
