@@ -7,8 +7,11 @@
       this.wallet = wallet;
       this.callbacks = callbacks || {};
       this.betPopup = null;
+      this.betOptionButtons = [];
+      this.bonusCostMode = false;
       this.jumpBoosterEnabled = false;
       this.jumpBoosterLocked = false;
+      this.buyBonusLocked = false;
       this.autospinActive = false;
       this.autospinLocked = false;
       this.create();
@@ -160,6 +163,7 @@
         this.jumpBoosterButtonOn.setAlpha(this.jumpBoosterEnabled ? 1 : 0);
         this.jumpBoosterKnob.setPosition(knobX, 18 + knobY).setAngle(0);
         this.jumpBoosterLabel.setAlpha(this.jumpBoosterEnabled ? 1 : 0.6);
+        this.refreshBuyBonusAvailability();
         return;
       }
 
@@ -176,6 +180,7 @@
         duration,
         ease: "Cubic.inOut"
       });
+      this.refreshBuyBonusAvailability();
     }
 
     getBuyBonusButtonConfig() {
@@ -193,6 +198,11 @@
       const hit = this.scene.add.zone(0, 0, 150, 144).setInteractive({ useHandCursor: true });
       hit.on("pointerdown", () => {
         if (this.buyBonusLocked) return;
+        if (this.jumpBoosterEnabled) {
+          this.pulseBuyBonusBlocked();
+          this.pulseJumpBoosterHint();
+          return;
+        }
         this.scene.tweens.killTweensOf(root);
         const baseScale = this.buyBonusButtonBaseScale || 1;
         root.setScale(baseScale * 0.88);
@@ -212,6 +222,7 @@
       this.buyBonusButton = root;
       this.buyBonusLocked = false;
       this.applyBuyBonusButtonLayout(this.getBuyBonusButtonConfig());
+      this.refreshBuyBonusAvailability();
     }
 
     applyBuyBonusButtonLayout(config) {
@@ -220,6 +231,58 @@
       const scale = Math.max(0.05, Number(cfg.scale) || 1);
       this.buyBonusButtonBaseScale = scale;
       this.buyBonusButton.setPosition(Number(cfg.x) || 0, Number(cfg.y) || 0).setScale(scale);
+      this.refreshBuyBonusAvailability();
+    }
+
+    refreshBuyBonusAvailability() {
+      if (!this.buyBonusButton || !this.buyBonusButton.hit) return;
+      const blockedByBooster = !!this.jumpBoosterEnabled && !this.buyBonusLocked;
+      this.buyBonusButton.setAlpha(this.buyBonusLocked || blockedByBooster ? 0.48 : 1);
+      if (this.buyBonusLocked) this.buyBonusButton.hit.disableInteractive();
+      else this.buyBonusButton.hit.setInteractive({ useHandCursor: true });
+    }
+
+    pulseBuyBonusBlocked() {
+      if (!this.buyBonusButton) return;
+      const baseScale = this.buyBonusButtonBaseScale || 1;
+      this.scene.tweens.killTweensOf(this.buyBonusButton);
+      this.buyBonusButton.setScale(baseScale * 0.94);
+      this.scene.tweens.add({
+        targets: this.buyBonusButton,
+        scaleX: baseScale,
+        scaleY: baseScale,
+        duration: 160,
+        ease: "Back.out"
+      });
+    }
+
+    pulseJumpBoosterHint() {
+      if (!this.jumpBoosterKnob) return;
+      const cfg = this.getJumpBoosterConfig();
+      const knobX = this.jumpBoosterEnabled ? Number(cfg.knobOnX) || 0 : Number(cfg.knobOffX) || 0;
+      const knobY = 18 + (this.jumpBoosterEnabled ? Number(cfg.knobOnY) || 0 : Number(cfg.knobOffY) || 0);
+      this.scene.tweens.killTweensOf([this.jumpBoosterKnob, this.jumpBoosterLabel]);
+      this.jumpBoosterKnob.setPosition(knobX, knobY).setScale(1).setAngle(0);
+      this.scene.tweens.add({
+        targets: this.jumpBoosterKnob,
+        y: knobY - 12,
+        scaleX: 1.18,
+        scaleY: 1.18,
+        duration: 95,
+        ease: "Quad.out",
+        yoyo: true,
+        repeat: 1,
+        onComplete: () => this.jumpBoosterKnob.setPosition(knobX, knobY).setScale(1)
+      });
+      this.scene.tweens.add({
+        targets: this.jumpBoosterLabel,
+        alpha: 1,
+        duration: 80,
+        ease: "Sine.out",
+        yoyo: true,
+        repeat: 1,
+        onComplete: () => this.jumpBoosterLabel.setAlpha(this.jumpBoosterEnabled ? 1 : 0.6)
+      });
     }
 
     getAutospinButtonConfig() {
@@ -460,7 +523,27 @@
 
     update() {
       this.balanceText.setText("BALANCE $" + this.wallet.format(this.wallet.balance));
-      this.betText.setText("BET $" + this.wallet.format(this.wallet.currentBet));
+      if (this.bonusCostMode) {
+        const cost = this.callbacks.getBonusGameCost ? this.callbacks.getBonusGameCost() : this.wallet.currentBet;
+        this.betText.setFontSize("30px");
+        this.betText.setText("COST $" + this.wallet.format(cost));
+      } else {
+        this.betText.setFontSize("36px");
+        this.betText.setText("BET $" + this.wallet.format(this.wallet.currentBet));
+      }
+    }
+
+    setBonusCostMode(enabled) {
+      this.bonusCostMode = !!enabled;
+      this.betButton.setDepth(this.bonusCostMode ? 132 : 10);
+      if (this.betPopup) this.betPopup.setDepth(this.bonusCostMode ? 134 : 40);
+      if (this.bonusCostMode) {
+        this.betButton.setAlpha(1);
+        this.betButton.hit.setInteractive({ useHandCursor: true });
+      } else {
+        this.hideBetPopup();
+      }
+      this.update();
     }
 
     setMultiplier(value) {
@@ -484,9 +567,7 @@
       if (running) this.betButton.hit.disableInteractive();
       else this.betButton.hit.setInteractive({ useHandCursor: true });
       this.buyBonusLocked = !!running;
-      this.buyBonusButton.setAlpha(running ? 0.5 : 1);
-      if (running) this.buyBonusButton.hit.disableInteractive();
-      else this.buyBonusButton.hit.setInteractive({ useHandCursor: true });
+      this.refreshBuyBonusAvailability();
       this.jumpBoosterLocked = !!running;
       this.jumpBooster.setAlpha(running ? 0.62 : 1);
       if (running) this.jumpBooster.hit.disableInteractive();
@@ -572,6 +653,7 @@
       const H = cfg.height;
       this.betPopup = this.scene.add.container(W / 2, H / 2).setDepth(40).setVisible(false);
       this.betPopup.setScrollFactor(0);
+      this.betOptionButtons = [];
       const shade = this.scene.add.rectangle(0, 0, W, H, 0x000000, 0.55).setInteractive();
       const panel = this.scene.add.rectangle(0, 0, 420, 420, 0x242424, 0.98)
         .setStrokeStyle(4, cfg.colors.panelStroke, 0.8);
@@ -588,8 +670,7 @@
         const x = (i % 2 === 0) ? -104 : 104;
         const y = -84 + Math.floor(i / 2) * 98;
         const opt = this.scene.add.container(x, y);
-        const active = value === (this.wallet.getBaseBet ? this.wallet.getBaseBet() : this.wallet.currentBet);
-        const bg = this.scene.add.rectangle(0, 0, 178, 78, active ? cfg.colors.accent : 0xc89a22, 1)
+        const bg = this.scene.add.rectangle(0, 0, 178, 78, 0xc89a22, 1)
           .setStrokeStyle(3, cfg.colors.panelStroke, 0.95);
         const txt = this.scene.add.text(0, 0, String(value), {
           fontFamily: CT.Config.fontFamily || "Arial",
@@ -602,23 +683,38 @@
         hit.on("pointerdown", () => {
           this.wallet.setBet(value);
           this.update();
+          this.refreshBetPopupSelection();
           this.hideBetPopup();
         });
         opt.add([bg, txt, hit]);
+        opt.bg = bg;
+        opt.value = value;
+        this.betOptionButtons.push(opt);
         this.betPopup.add(opt);
       });
 
       shade.on("pointerdown", () => this.hideBetPopup());
+      this.refreshBetPopupSelection();
     }
 
     showBetPopup() {
       if (this.betButton.alpha < 1) return;
+      this.refreshBetPopupSelection();
       this.betPopup.setVisible(true).setAlpha(0);
       this.scene.tweens.add({ targets: this.betPopup, alpha: 1, duration: 120, ease: "Quad.out" });
     }
 
     hideBetPopup() {
       if (this.betPopup) this.betPopup.setVisible(false);
+    }
+
+    refreshBetPopupSelection() {
+      const selected = this.wallet.getBaseBet ? this.wallet.getBaseBet() : this.wallet.currentBet;
+      this.betOptionButtons.forEach((opt) => {
+        const active = Number(opt.value) === Number(selected);
+        opt.bg.setFillStyle(active ? CT.Config.colors.accent : 0xc89a22, 1);
+        opt.bg.setStrokeStyle(3, CT.Config.colors.panelStroke, active ? 1 : 0.78);
+      });
     }
 
     floatText(x, y, text, color, size) {

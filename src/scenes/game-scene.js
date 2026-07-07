@@ -19,6 +19,7 @@ create() {
     onJumpBoosterToggle: () => this.toggleJumpBooster(),
     onBuyBonusPress: () => this.showBonusGamePopup(),
     onAutospinPress: () => this.handleAutospinButtonPress(),
+    getBonusGameCost: () => this.getBonusGameCost(),
     getBuyBonusButtonConfig: () => this.sceneTuningConfig && this.sceneTuningConfig.bonusBuyButton,
     getAutospinButtonConfig: () => this.sceneTuningConfig && this.sceneTuningConfig.autospinIcon
   });
@@ -4199,12 +4200,17 @@ handleLeverRelease() {
 pickEngineBreakAt() {
   if (this.safeMode) return Number.POSITIVE_INFINITY;
   const cfg = CT.Config;
-  const instantBustChance = 0.12;
+  const instantBustChance = 0.15;
   if (Math.random() < instantBustChance) {
     return Phaser.Math.FloatBetween(0.12, 0.98);
   }
 
-  const houseEdge = 0.88;
+  if (Math.random() < 0.07) {
+    const t = Math.pow(Math.random(), 1.35);
+    return Number((1.01 + t * 0.92).toFixed(2));
+  }
+
+  const houseEdge = 0.86;
   const raw = houseEdge / Math.max(0.001, 1 - Math.random());
   if (raw < 1.03) {
     return Phaser.Math.FloatBetween(1.01, 1.18);
@@ -4234,7 +4240,7 @@ toggleSafeMode() {
 toggleJumpBooster() {
   if (this.state !== "ready") return this.jumpBoosterEnabled;
   this.jumpBoosterEnabled = !this.jumpBoosterEnabled;
-  const costMultiplier = this.jumpBoosterEnabled ? (Number(CT.Config.gameplay.jumpBoosterCostMultiplier) || 1.3) : 1;
+  const costMultiplier = this.jumpBoosterEnabled ? (Number(CT.Config.gameplay.jumpBoosterCostMultiplier) || 1.5) : 1;
   this.wallet.setBetCostMultiplier(costMultiplier);
   this.hud.update();
   this.updateBounceText();
@@ -4663,9 +4669,14 @@ createBonusGamePopup() {
 
 showBonusGamePopup() {
   if (this.state !== "ready" || this.bonusGameStarting) return;
+  if (this.jumpBoosterEnabled) {
+    if (this.hud && this.hud.pulseJumpBoosterHint) this.hud.pulseJumpBoosterHint();
+    return;
+  }
   this.createBonusGamePopup();
   if (this.hud && this.hud.hideBetPopup) this.hud.hideBetPopup();
   this.setPageControlsDimmed(true);
+  if (this.hud && this.hud.setBonusCostMode) this.hud.setBonusCostMode(true);
 
   const overlay = this.bonusGameOverlay;
   const popup = overlay.popup;
@@ -4741,6 +4752,7 @@ showBonusGamePopup() {
 closeBonusGamePopup(duration) {
   if (!this.bonusGameOverlay || !this.bonusGameOverlay.visible) return;
   const overlay = this.bonusGameOverlay;
+  if (this.hud && this.hud.setBonusCostMode) this.hud.setBonusCostMode(false);
   this.tweens.killTweensOf([overlay, overlay.shade, overlay.popup, overlay.info1, overlay.info2, overlay.start, overlay.close]);
   this.tweens.add({
     targets: overlay,
@@ -4757,6 +4769,10 @@ closeBonusGamePopup(duration) {
 
 confirmBonusGamePurchase() {
   if (this.state !== "ready" || this.bonusGameStarting) return;
+  if (this.jumpBoosterEnabled) {
+    if (this.hud && this.hud.pulseJumpBoosterHint) this.hud.pulseJumpBoosterHint();
+    return;
+  }
   const cost = this.getBonusGameCost();
   if (!this.wallet.spend(cost)) {
     if (this.bonusGameOverlay && this.bonusGameOverlay.popup) {
@@ -4791,6 +4807,7 @@ confirmBonusGamePurchase() {
   }
 
   this.bonusGameStarting = true;
+  if (this.hud && this.hud.setBonusCostMode) this.hud.setBonusCostMode(false);
   this.hud.update();
   const overlay = this.bonusGameOverlay;
   this.tweens.killTweensOf([overlay.popup, overlay.shade]);

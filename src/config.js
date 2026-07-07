@@ -3,8 +3,8 @@
   const assetRoot = new URL("./assets/", window.location.href).href;
 
   CT.Config = {
-    build: "2026-07-07-v0.1.198-autospin-lever",
-    gameVersion: "v0.1.198",
+    build: "2026-07-07-v0.1.200-bonus-cost-bet",
+    gameVersion: "v0.1.200",
     phaserVersion: "3.88.2",
     fontFamily: "RoadRage",
     fontLetterSpacing: 0,
@@ -28,7 +28,7 @@
       acceleration: 4.2,
       speedProgression: 0.008,
       turboFactor: 7,
-      jumpBoosterCostMultiplier: 1.3,
+      jumpBoosterCostMultiplier: 1.5,
       jumpBooster: {
         x: 76,
         y: 1165,
