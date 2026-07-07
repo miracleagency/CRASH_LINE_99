@@ -4200,17 +4200,17 @@ handleLeverRelease() {
 pickEngineBreakAt() {
   if (this.safeMode) return Number.POSITIVE_INFINITY;
   const cfg = CT.Config;
-  const instantBustChance = 0.15;
+  const instantBustChance = 0.23;
   if (Math.random() < instantBustChance) {
     return Phaser.Math.FloatBetween(0.12, 0.98);
   }
 
-  if (Math.random() < 0.07) {
-    const t = Math.pow(Math.random(), 1.35);
+  if (Math.random() < 0.16) {
+    const t = Math.pow(Math.random(), 1.45);
     return Number((1.01 + t * 0.92).toFixed(2));
   }
 
-  const houseEdge = 0.86;
+  const houseEdge = 0.84;
   const raw = houseEdge / Math.max(0.001, 1 - Math.random());
   if (raw < 1.03) {
     return Phaser.Math.FloatBetween(1.01, 1.18);
