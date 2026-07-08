@@ -98,11 +98,11 @@
       const audio = {
         mainTrack: CT.asset("audio/main_track_loop.mp3"),
         bonusGameLoop: CT.asset("audio/bonus_game_loop.mp3"),
-        bonusUp: CT.asset("audio/bonus up.mp3"),
+        bonusUp: CT.asset("audio/ogg/bonus_up.ogg"),
         carCrash: CT.asset("audio/car crash.mp3"),
         carEngineFail: CT.asset("audio/car_engin_fail.mp3"),
-        carEngineStart: CT.asset("audio/car_engin_start.mp3"),
-        carEngineLoop: CT.asset("audio/car_engin_loop.mp3")
+        carEngineStart: CT.asset("audio/ogg/car_engin_start.ogg"),
+        carEngineLoop: CT.asset("audio/ogg/car_engin_loop.ogg")
       };
 
       this.load.on("loaderror", (file) => {

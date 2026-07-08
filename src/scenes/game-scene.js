@@ -39,11 +39,11 @@ createAudio() {
     mainTrack: addSound("mainTrack", { loop: true, volume: 1 }),
     bonusGameLoop: addSound("bonusGameLoop", { loop: true, volume: 0 }),
     bonusUp: addSound("bonusUp", { volume: 0.66 }),
-    carCrash: addSound("carCrash", { volume: 1 }),
+    carCrash: addSound("carCrash", { volume: 2.2 }),
     carEngineFail: addSound("carEngineFail", { volume: 1 }),
-    carEngineStart: addSound("carEngineStart", { volume: 1 }),
-    carEngineLoopA: addSound("carEngineLoop", { loop: false, volume: 1 }),
-    carEngineLoopB: addSound("carEngineLoop", { loop: false, volume: 1 })
+    carEngineStart: addSound("carEngineStart", { volume: 2 }),
+    carEngineLoopA: addSound("carEngineLoop", { loop: false, volume: 2.15 }),
+    carEngineLoopB: addSound("carEngineLoop", { loop: false, volume: 2.15 })
   };
 
   this.ensureBackgroundMusic();
@@ -127,7 +127,7 @@ restoreMainMusic() {
 playOneShot(key) {
   const volumes = {
     bonusUp: 0.66,
-    carCrash: 1,
+    carCrash: 2.2,
     carEngineFail: 1
   };
   if (this.cache.audio.exists(key)) {
@@ -169,7 +169,7 @@ playEngineLoopLayer(token) {
   const previous = loops[(this.engineLoopIndex + loops.length - 1) % loops.length];
   const loop = loops[this.engineLoopIndex % loops.length];
   this.engineLoopIndex += 1;
-  const loopVolume = 1;
+  const loopVolume = 2.15;
   const hasPreviousLoop = previous && previous !== loop && previous.isPlaying;
   if (hasPreviousLoop) {
     this.tweens.killTweensOf(previous);
