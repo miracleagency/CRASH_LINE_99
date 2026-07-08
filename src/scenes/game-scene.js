@@ -97,10 +97,12 @@ startBonusMusic() {
       this.fadeMusicTrack(bonusTrack, 1, 620);
     });
   }
-  if (mainTrack && mainTrack.isPlaying) {
-    this.fadeMusicTrack(mainTrack, 0, 420, () => {
-      if (this.bonusMusicActive && mainTrack.isPlaying) mainTrack.stop();
-    });
+  if (mainTrack) {
+    if (!mainTrack.isPlaying) {
+      mainTrack.setVolume(0);
+      mainTrack.play();
+    }
+    this.fadeMusicTrack(mainTrack, 0, 420);
   }
 }
 
