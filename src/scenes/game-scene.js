@@ -39,11 +39,11 @@ createAudio() {
     mainTrack: addSound("mainTrack", { loop: true, volume: 1 }),
     bonusGameLoop: addSound("bonusGameLoop", { loop: true, volume: 0 }),
     bonusUp: addSound("bonusUp", { volume: 0.66 }),
-    carCrash: addSound("carCrash", { volume: 0.78 }),
-    carEngineFail: addSound("carEngineFail", { volume: 0.78 }),
-    carEngineStart: addSound("carEngineStart", { volume: 0.68 }),
-    carEngineLoopA: addSound("carEngineLoop", { loop: false, volume: 0.48 }),
-    carEngineLoopB: addSound("carEngineLoop", { loop: false, volume: 0.48 })
+    carCrash: addSound("carCrash", { volume: 1 }),
+    carEngineFail: addSound("carEngineFail", { volume: 1 }),
+    carEngineStart: addSound("carEngineStart", { volume: 1 }),
+    carEngineLoopA: addSound("carEngineLoop", { loop: false, volume: 1 }),
+    carEngineLoopB: addSound("carEngineLoop", { loop: false, volume: 1 })
   };
 
   this.ensureBackgroundMusic();
@@ -89,7 +89,7 @@ startBonusMusic() {
     this.time.delayedCall(100, () => {
       if (!this.bonusMusicActive || bonusTrack.isPlaying) return;
       bonusTrack.play();
-  this.fadeMusicTrack(bonusTrack, 1, 620);
+      this.fadeMusicTrack(bonusTrack, 1, 620);
     });
   } else {
     this.time.delayedCall(100, () => {
@@ -127,8 +127,8 @@ restoreMainMusic() {
 playOneShot(key) {
   const volumes = {
     bonusUp: 0.66,
-    carCrash: 0.78,
-    carEngineFail: 0.78
+    carCrash: 1,
+    carEngineFail: 1
   };
   if (this.cache.audio.exists(key)) {
     this.sound.play(key, { volume: volumes[key] || 0.7 });
@@ -166,13 +166,38 @@ playEngineLoopLayer(token) {
   const loops = [this.sfx.carEngineLoopA, this.sfx.carEngineLoopB].filter(Boolean);
   if (!loops.length) return;
 
+  const previous = loops[(this.engineLoopIndex + loops.length - 1) % loops.length];
   const loop = loops[this.engineLoopIndex % loops.length];
   this.engineLoopIndex += 1;
+  const loopVolume = 1;
+  const hasPreviousLoop = previous && previous !== loop && previous.isPlaying;
+  if (hasPreviousLoop) {
+    this.tweens.killTweensOf(previous);
+    this.tweens.add({
+      targets: previous,
+      volume: 0,
+      duration: 105,
+      ease: "Sine.out",
+      onComplete: () => {
+        if (previous.isPlaying) previous.stop();
+      }
+    });
+  }
+  this.tweens.killTweensOf(loop);
   loop.stop();
+  loop.setVolume(hasPreviousLoop ? 0 : loopVolume);
   loop.play();
+  if (hasPreviousLoop) {
+    this.tweens.add({
+      targets: loop,
+      volume: loopVolume,
+      duration: 95,
+      ease: "Sine.out"
+    });
+  }
 
   const duration = loop.totalDuration || loop.duration || 1.1;
-  const overlap = Phaser.Math.Clamp(duration * 0.16, 0.08, 0.18);
+  const overlap = Phaser.Math.Clamp(duration * 0.24, 0.14, 0.28);
   const nextDelay = Math.max(120, Math.round((duration - overlap) * 1000));
   if (this.engineLoopTimer) this.engineLoopTimer.remove(false);
   this.engineLoopTimer = this.time.delayedCall(nextDelay, () => this.playEngineLoopLayer(token));
@@ -185,8 +210,14 @@ stopEngineAudio() {
     this.engineLoopTimer = null;
   }
   if (this.sfx && this.sfx.carEngineStart) this.sfx.carEngineStart.stop();
-  if (this.sfx && this.sfx.carEngineLoopA) this.sfx.carEngineLoopA.stop();
-  if (this.sfx && this.sfx.carEngineLoopB) this.sfx.carEngineLoopB.stop();
+  if (this.sfx && this.sfx.carEngineLoopA) {
+    this.tweens.killTweensOf(this.sfx.carEngineLoopA);
+    this.sfx.carEngineLoopA.stop();
+  }
+  if (this.sfx && this.sfx.carEngineLoopB) {
+    this.tweens.killTweensOf(this.sfx.carEngineLoopB);
+    this.sfx.carEngineLoopB.stop();
+  }
 }
 
 getWorldOffsetY() {
