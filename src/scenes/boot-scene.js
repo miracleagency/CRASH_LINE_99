@@ -97,6 +97,7 @@
       ];
       const audio = {
         mainTrack: CT.asset("audio/main_track_loop.mp3"),
+        bonusGameLoop: CT.asset("audio/bonus_game_loop.mp3"),
         bonusUp: CT.asset("audio/bonus up.mp3"),
         carCrash: CT.asset("audio/car crash.mp3"),
         carEngineFail: CT.asset("audio/car_engin_fail.mp3"),

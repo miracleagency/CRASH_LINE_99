@@ -1,6 +1,6 @@
 ﻿(function () {const CT = window.CrashTest = window.CrashTest || {};
 
-class GameScene extends Phaser.Scene {constructor() {super("GameScene");this.wallet = null;this.hud = null;this.state = "ready";this.round = 0;this.multiplier = 0;this.speed = 0;this.turbo = false;this.turboPower = 0;this.engineBreakAt = 0;this.roadOffset = 0;this.fenceOffset = 0;this.testBgOffset = 0;this.testBgPropOffset = 0;this.testBgProps = null;this.testBgPropTileIndex = null;this.testBgPropSignature = "";this.visualSpeed = 0;this.flightRoadSpeed = 0;this.pendingPayout = 0;this.autoCrash = false;this.safeMode = false;this.jumpBoosterEnabled = false;this.bonusGameActive = false;this.bonusGameStarting = false;this.bonusGameIntroElapsed = 0;this.bonusGameIntroComplete = false;this.bonusGamePostIntroElapsed = 0;this.bonusGameCrashQueued = false;this.bonusGameBounceDisplay = 0;this.bonusGamePayoutBet = 0;this.bonusGameOverlay = null;this.bonusGamePopup = null;this.autospinActive = false;this.autospinLaunching = false;this.autospinRoundActive = false;this.autospinSettings = { crashX: 0, crashJumps: 0 };this.autospinOverlay = null;this.autospinPopup = null;this.autospinControls = null;this.autospinNextRunTimer = null;this.bonusAdd = 0;this.bonusItems = [];this.bonusPauseToken = 0;this.lastMultiplierDisplay = -1;this.lastMultiplierPulseAt = 0;this.rareBounceCount = 0;this.nextRareBounceAt = 0;this.remainingBounces = null;this.extraBounceAdder = null;this.extraBounceBonusCount = 0;this.sfx = {};this.engineAudioToken = 0;this.engineLoopTimer = null;this.engineLoopIndex = 0;this.roadTiles = [];this.testBgTiles = [];this.fenceTiles = [];this.loopObjectLayers = [];this.crashDebrisActive = false;this.fencePoleItems = [];this.fencePoleLayer = null;this.fenceOverlayItems = [];this.fenceOverlayLayer = null;this.fenceOverlayKeys = [];this.sceneTuningConfig = null;this.sceneControlRoot = null;this.sceneControlJson = null;this.refOverlay = null;this.roadArtX = 0;this.roadArtY = 0;this.roadArtScale = 1;this.fenceArtX = 0;this.fenceArtY = 0;this.fenceArtScale = 1;this.fencePoleX = 0;this.fencePoleY = 0;this.fencePoleSpacing = 247;this.fencePoleScale = 0.5;this.fenceLightOffsetY = -29;this.fenceLightScale = 0.4;this.fenceLightIntensity = 0.79;this.fenceLightDelay = 0.085;this.fenceOverlayX = 0;this.fenceOverlayY = 760;this.fenceOverlayHeight = 0;this.fenceOverlaySpacing = 420;this.fenceOverlayJitterX = 110;this.fenceOverlayCount = 24;this.fenceOverlayChance = 0.36;this.fenceOverlayScaleMin = 0.42;this.fenceOverlayScaleMax = 0.62;this.fenceOverlayAlpha = 0.96;this.hitWallX = 570;this.hitWallY = 888;this.hitWallVisualOffsetX = 0;this.hitWallScale = 0.34;this.hitWallAlpha = 1;this.hitWallImage = null;this.hitWallPreview = false;this.carControlConfig = null;this.turboFireTintStops = null;this.nextCarLightSweepAt = 0;this.nextFenceLightUpdateAt = 0;this.Matter = null;this.mobilePerfMode = null;this.ragdollMatterReady = false;this.ragdollGround = null;this.ragdollCollisionLayers = null;this.flightRagdoll = null;this.dummyFlightHistoryCount = 0;this.oldDummyTrailLayer = null;this.oldDummyTrailParts = [];this.oldDummyTrailTextureKeys = null;this.oldDummyTrailReturnMode = false;this.dummyFlightShadow = null;}
+class GameScene extends Phaser.Scene {constructor() {super("GameScene");this.wallet = null;this.hud = null;this.state = "ready";this.round = 0;this.multiplier = 0;this.speed = 0;this.turbo = false;this.turboPower = 0;this.engineBreakAt = 0;this.roadOffset = 0;this.fenceOffset = 0;this.testBgOffset = 0;this.testBgPropOffset = 0;this.testBgProps = null;this.testBgPropTileIndex = null;this.testBgPropSignature = "";this.visualSpeed = 0;this.flightRoadSpeed = 0;this.pendingPayout = 0;this.autoCrash = false;this.safeMode = false;this.jumpBoosterEnabled = false;this.bonusGameActive = false;this.bonusGameStarting = false;this.bonusGameIntroElapsed = 0;this.bonusGameIntroComplete = false;this.bonusGamePostIntroElapsed = 0;this.bonusGameCrashQueued = false;this.bonusGameBounceDisplay = 0;this.bonusGamePayoutBet = 0;this.bonusGameOverlay = null;this.bonusGamePopup = null;this.autospinActive = false;this.autospinLaunching = false;this.autospinRoundActive = false;this.autospinSettings = { crashX: 0, crashJumps: 0 };this.autospinOverlay = null;this.autospinPopup = null;this.autospinControls = null;this.autospinNextRunTimer = null;this.bonusAdd = 0;this.bonusItems = [];this.bonusPauseToken = 0;this.lastMultiplierDisplay = -1;this.lastMultiplierPulseAt = 0;this.rareBounceCount = 0;this.nextRareBounceAt = 0;this.remainingBounces = null;this.extraBounceAdder = null;this.extraBounceBonusCount = 0;this.sfx = {};this.bonusMusicActive = false;this.engineAudioToken = 0;this.engineLoopTimer = null;this.engineLoopIndex = 0;this.roadTiles = [];this.testBgTiles = [];this.fenceTiles = [];this.loopObjectLayers = [];this.crashDebrisActive = false;this.fencePoleItems = [];this.fencePoleLayer = null;this.fenceOverlayItems = [];this.fenceOverlayLayer = null;this.fenceOverlayKeys = [];this.sceneTuningConfig = null;this.sceneControlRoot = null;this.sceneControlJson = null;this.refOverlay = null;this.roadArtX = 0;this.roadArtY = 0;this.roadArtScale = 1;this.fenceArtX = 0;this.fenceArtY = 0;this.fenceArtScale = 1;this.fencePoleX = 0;this.fencePoleY = 0;this.fencePoleSpacing = 247;this.fencePoleScale = 0.5;this.fenceLightOffsetY = -29;this.fenceLightScale = 0.4;this.fenceLightIntensity = 0.79;this.fenceLightDelay = 0.085;this.fenceOverlayX = 0;this.fenceOverlayY = 760;this.fenceOverlayHeight = 0;this.fenceOverlaySpacing = 420;this.fenceOverlayJitterX = 110;this.fenceOverlayCount = 24;this.fenceOverlayChance = 0.36;this.fenceOverlayScaleMin = 0.42;this.fenceOverlayScaleMax = 0.62;this.fenceOverlayAlpha = 0.96;this.hitWallX = 570;this.hitWallY = 888;this.hitWallVisualOffsetX = 0;this.hitWallScale = 0.34;this.hitWallAlpha = 1;this.hitWallImage = null;this.hitWallPreview = false;this.carControlConfig = null;this.turboFireTintStops = null;this.nextCarLightSweepAt = 0;this.nextFenceLightUpdateAt = 0;this.Matter = null;this.mobilePerfMode = null;this.ragdollMatterReady = false;this.ragdollGround = null;this.ragdollCollisionLayers = null;this.flightRagdoll = null;this.dummyFlightHistoryCount = 0;this.oldDummyTrailLayer = null;this.oldDummyTrailParts = [];this.oldDummyTrailTextureKeys = null;this.oldDummyTrailReturnMode = false;this.dummyFlightShadow = null;}
 
 create() {
   this.wallet = new CT.Wallet();
@@ -36,7 +36,8 @@ createAudio() {
   this.sound.mute = localStorage.getItem(CT.Config.storage.muted) === "1";
 
   this.sfx = {
-    mainTrack: addSound("mainTrack", { loop: true, volume: 0.28 }),
+    mainTrack: addSound("mainTrack", { loop: true, volume: 1 }),
+    bonusGameLoop: addSound("bonusGameLoop", { loop: true, volume: 0 }),
     bonusUp: addSound("bonusUp", { volume: 0.66 }),
     carCrash: addSound("carCrash", { volume: 0.78 }),
     carEngineFail: addSound("carEngineFail", { volume: 0.78 }),
@@ -54,8 +55,73 @@ createAudio() {
 
 ensureBackgroundMusic() {
   const track = this.sfx && this.sfx.mainTrack;
+  if (this.bonusMusicActive) return;
   if (!track || track.isPlaying || this.sound.locked) return;
+  track.setVolume(1);
   track.play();
+}
+
+fadeMusicTrack(track, targetVolume, duration, onComplete) {
+  if (!track) {
+    if (onComplete) onComplete();
+    return;
+  }
+  this.tweens.killTweensOf(track);
+  this.tweens.add({
+    targets: track,
+    volume: targetVolume,
+    duration: duration || 360,
+    ease: "Sine.inOut",
+    onComplete
+  });
+}
+
+startBonusMusic() {
+  this.bonusMusicActive = true;
+  const mainTrack = this.sfx && this.sfx.mainTrack;
+  const bonusTrack = this.sfx && this.sfx.bonusGameLoop;
+  if (this.sound.locked) {
+    this.sound.once("unlocked", () => this.startBonusMusic());
+    return;
+  }
+  if (bonusTrack && !bonusTrack.isPlaying) {
+    bonusTrack.setVolume(0);
+    this.time.delayedCall(100, () => {
+      if (!this.bonusMusicActive || bonusTrack.isPlaying) return;
+      bonusTrack.play();
+  this.fadeMusicTrack(bonusTrack, 1, 620);
+    });
+  } else {
+    this.time.delayedCall(100, () => {
+      if (!this.bonusMusicActive) return;
+      this.fadeMusicTrack(bonusTrack, 1, 620);
+    });
+  }
+  if (mainTrack && mainTrack.isPlaying) {
+    this.fadeMusicTrack(mainTrack, 0, 420, () => {
+      if (this.bonusMusicActive && mainTrack.isPlaying) mainTrack.stop();
+    });
+  }
+}
+
+restoreMainMusic() {
+  this.bonusMusicActive = false;
+  const mainTrack = this.sfx && this.sfx.mainTrack;
+  const bonusTrack = this.sfx && this.sfx.bonusGameLoop;
+  if (this.sound.locked) {
+    this.sound.once("unlocked", () => this.restoreMainMusic());
+    return;
+  }
+  if (mainTrack && !mainTrack.isPlaying) {
+    mainTrack.setVolume(0);
+    mainTrack.play();
+  }
+  this.fadeMusicTrack(mainTrack, 1, 620);
+  if (bonusTrack && bonusTrack.isPlaying) {
+    this.fadeMusicTrack(bonusTrack, 0, 520, () => {
+      if (!this.bonusMusicActive && bonusTrack.isPlaying) bonusTrack.stop();
+    });
+  }
 }
 
 playOneShot(key) {
@@ -4807,6 +4873,7 @@ confirmBonusGamePurchase() {
   }
 
   this.bonusGameStarting = true;
+  this.startBonusMusic();
   if (this.hud && this.hud.setBonusCostMode) this.hud.setBonusCostMode(false);
   this.hud.update();
   const overlay = this.bonusGameOverlay;
@@ -4870,13 +4937,13 @@ updateBonusGameIntro(delta) {
   const targetBounces = Math.max(1, Math.floor(Number(gameplay.bonusGameBounces) || 10));
   if (this.bonusGameIntroComplete) {
     this.bonusGamePostIntroElapsed += delta;
-    const postT = Phaser.Math.Clamp(this.bonusGamePostIntroElapsed / 260, 0, 1);
+    const postT = Phaser.Math.Clamp(this.bonusGamePostIntroElapsed / 240, 0, 1);
     const postEase = Phaser.Math.Easing.Sine.Out(postT);
-    const roadSpeed = Phaser.Math.Linear(2220, 2680, postEase);
+    const roadSpeed = Phaser.Math.Linear(4500, 5400, postEase);
     const dx = roadSpeed * dt;
     this.turbo = true;
     this.turboPower = 1;
-    this.speed = Phaser.Math.Linear(6000, 7000, postEase);
+    this.speed = Phaser.Math.Linear(11600, 13200, postEase);
     this.visualSpeed = roadSpeed;
     this.multiplier = 0;
     this.hud.setMultiplier(0);
@@ -4888,7 +4955,7 @@ updateBonusGameIntro(delta) {
     this.car.y = this.getGameplayRoadY() - 59.04;
     this.car.angle = -3.57;
     this.updateCarBodyBounce(this.time.now);
-    this.setWheelPlayback(true, Phaser.Math.Linear(2.05, 2.22, postEase));
+    this.setWheelPlayback(true, Phaser.Math.Linear(3.05, 3.52, postEase));
     this.updateCarFlame();
     this.updateCarLightSweep(roadSpeed);
     this.updateCarGroundShadow();
@@ -4899,11 +4966,11 @@ updateBonusGameIntro(delta) {
   const t = Phaser.Math.Clamp(this.bonusGameIntroElapsed / duration, 0, 1);
   const speedEase = Phaser.Math.Easing.Quadratic.Out(t);
   const visualEase = Phaser.Math.Easing.Sine.Out(t);
-  const roadSpeed = Phaser.Math.Linear(920, 2220, speedEase);
+  const roadSpeed = Phaser.Math.Linear(2300, 4500, speedEase);
 
   this.turbo = true;
   this.turboPower = 1;
-  this.speed = Phaser.Math.Linear(900, 6000, speedEase);
+  this.speed = Phaser.Math.Linear(3100, 11600, speedEase);
   this.visualSpeed = roadSpeed;
   this.multiplier = 0;
   this.hud.setMultiplier(0);
@@ -4922,7 +4989,7 @@ updateBonusGameIntro(delta) {
   this.car.y = this.getGameplayRoadY() - 54 - 5.04 * visualEase;
   this.car.angle = -3.57 * visualEase;
   this.updateCarBodyBounce(this.time.now);
-  this.setWheelPlayback(true, Phaser.Math.Linear(0.92, 2.05, speedEase));
+  this.setWheelPlayback(true, Phaser.Math.Linear(1.72, 3.05, speedEase));
   this.updateCarFlame();
   this.updateCarLightSweep(roadSpeed);
   this.updateCarGroundShadow();
@@ -5896,6 +5963,7 @@ settleDummy(payout) {
 }
 
 showCrashFinal(payout) {
+  const wasBonusGame = !!this.bonusGameActive;
   const finalMultiplier = this.multiplier + this.bonusAdd;
   const payoutBet = this.bonusGameActive ? this.bonusGamePayoutBet : (this.wallet.getPayoutBet ? this.wallet.getPayoutBet() : this.wallet.currentBet);
   const finalPayout = payoutBet * finalMultiplier;
@@ -5903,6 +5971,7 @@ showCrashFinal(payout) {
   this.hud.update();
   this.hud.setResult("LAST WIN +$" + this.wallet.format(finalPayout), CT.Config.colors.ok);
   this.showFinalWinCounter(finalPayout, () => {
+    if (wasBonusGame) this.restoreMainMusic();
     this.time.delayedCall(120, () => this.returnCameraToStart(true));
   });
 }

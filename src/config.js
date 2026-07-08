@@ -3,8 +3,8 @@
   const assetRoot = new URL("./assets/", window.location.href).href;
 
   CT.Config = {
-    build: "2026-07-07-v0.1.201-early-bust-up",
-    gameVersion: "v0.1.201",
+    build: "2026-07-08-v0.1.208-music-volume-full",
+    gameVersion: "v0.1.208",
     phaserVersion: "3.88.2",
     fontFamily: "RoadRage",
     fontLetterSpacing: 0,
