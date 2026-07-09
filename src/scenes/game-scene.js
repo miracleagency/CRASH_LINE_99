@@ -473,25 +473,6 @@ updateTestBackgroundPropsLayout(tileWidth, bgCfg, barrelCfg, fireCfg, worldY) {
   }
 }
 
-setTestBackgroundPropsVisible(visible) {
-  if (!this.testBgProps) return;
-  if (this.testBgProps.propItem) this.testBgProps.propItem.setVisible(visible);
-}
-
-resetTestBackgroundProps() {
-  this.testBgPropOffset = 0;
-  this.updateTestBackgroundLayout();
-  this.setTestBackgroundPropsVisible(true);
-}
-
-prepareTestBackgroundPropsForReturn(targetScrollX) {
-  const currentScrollX = Number(this.cameras.main.scrollX) || 0;
-  const returnDistance = Math.max(0, currentScrollX - targetScrollX);
-  this.testBgPropOffset = returnDistance;
-  this.updateTestBackgroundLayout();
-  this.setTestBackgroundPropsVisible(true);
-}
-
 advanceTestBackground(dx) {
   if (!this.testBgTiles || !this.testBgTiles.length) return;
   this.testBgOffset += dx;
@@ -4259,10 +4240,17 @@ startRun() {
 
   const cfg = CT.Config;
   const autospinRun = !!(this.autospinActive && this.autospinLaunching);
+  const resumeFromEngineFail = !!(this.resumeFromEngineFail && this.car);
+  const resumeCarX = resumeFromEngineFail ? this.car.x : null;
+  const resumeCarY = resumeFromEngineFail ? this.car.y : null;
   this.autospinLaunching = false;
   this.state = "running";
   this.round += 1;
   this.resetRunVisuals(false);
+  if (resumeFromEngineFail) {
+    this.car.setPosition(resumeCarX, resumeCarY).setAngle(0).setAlpha(1);
+    this.updateCarGroundShadow();
+  }
   this.autospinRoundActive = autospinRun;
   this.multiplier = cfg.gameplay.startMultiplier;
   this.speed = cfg.gameplay.baseSpeed;
@@ -5329,8 +5317,6 @@ playDummyBounces(payout, count) {
   let totalBounces = count;
   let index = 0;
   this.extraBounceAdder = () => {
-    const maxExtraBounces = 3;
-    if (this.extraBounceBonusCount >= maxExtraBounces) return false;
     const lastPlan = plannedBounces[plannedBounces.length - 1];
     const startX = lastPlan ? lastPlan.endX : this.dummy.x;
     const nextIndex = plannedBounces.length;
@@ -6190,6 +6176,11 @@ engineFail() {
   this.setPageControlsDimmed(false);
   this.tweens.killTweensOf(this.car);
   this.setWheelPlayback(false);
+  if (this.car && this.car.bodyRig) {
+    this.car.bodyRig.y = this.car.bodyBaseY || 0;
+    this.car.bodyRig.angle = 0;
+  }
+  this.setCarCrashVisual(false);
   this.hideCarLightSweep();
   this.updateCarFlame();
   this.cameras.main.shake(180, 0.006);
@@ -6199,19 +6190,26 @@ engineFail() {
   this.speed = 0;
   this.visualSpeed = 0;
   this.updateBounceText();
+  this.resumeFromEngineFail = true;
+  this.car.setAlpha(1);
   this.tweens.add({
     targets: this.car,
-    x: this.car.x + 42,
     y: baseCarY,
-    angle: 3,
-    duration: 260,
-    ease: "Cubic.out",
+    angle: 0,
+    duration: 160,
+    ease: "Sine.out",
     onUpdate: () => this.updateCarGroundShadow(),
     onComplete: () => {
+      this.car.setAngle(0);
       this.updateCarGroundShadow();
       this.hud.setResult("LAST LOSS -$" + this.wallet.format(this.wallet.currentBet), CT.Config.colors.danger);
       this.hud.floatText(CT.Config.width / 2, 350, "-$" + this.wallet.format(this.wallet.currentBet), CT.Config.colors.danger, 42);
-      this.time.delayedCall(140, () => this.returnCameraToStart(true));
+      this.state = "ready";
+      this.hud.setRunning(false);
+      this.hud.setTurbo(false);
+      this.setPageControlsDimmed(false);
+      this.updateCarFlame();
+      this.queueAutospinNextRun(180);
     }
   });
 }
@@ -6231,7 +6229,6 @@ returnCameraToStart(spawnNewCar) {
     this.updateCarGroundShadow();
     const cfg = CT.Config;
     const awayScrollX = -Phaser.Math.Clamp(cfg.width * 1.85, 980, 1580);
-    this.prepareTestBackgroundPropsForReturn(awayScrollX);
     const awayMotion = { scrollX: this.cameras.main.scrollX };
     let lastAwayScrollX = awayMotion.scrollX;
     const launchCar = () => {
@@ -6325,6 +6322,7 @@ resetRunVisuals(launchPosition) {
   this.bonusGameCrashQueued = false;
   this.bonusGameBounceDisplay = 0;
   this.bonusGamePayoutBet = 0;
+  this.resumeFromEngineFail = false;
   this.bonusAdd = 0;
   this.rareBounceCount = 0;
   this.nextRareBounceAt = 0;
@@ -6347,7 +6345,6 @@ resetRunVisuals(launchPosition) {
   this.nextCarLightSweepAt = 0;
   this.updateCarFlame();
   this.updateCarGroundShadow();
-  this.resetTestBackgroundProps();
   this.applyMultiplierTheme("idle");
   this.updateBounceText();
   this.smokeLayer.removeAll(true);
@@ -6378,6 +6375,7 @@ resetRunStateOnly() {
   this.bonusGameCrashQueued = false;
   this.bonusGameBounceDisplay = 0;
   this.bonusGamePayoutBet = 0;
+  this.resumeFromEngineFail = false;
   this.bonusAdd = 0;
   this.rareBounceCount = 0;
   this.nextRareBounceAt = 0;
@@ -6400,7 +6398,6 @@ resetRunStateOnly() {
   this.nextCarLightSweepAt = 0;
   this.updateCarFlame();
   this.updateCarGroundShadow();
-  this.resetTestBackgroundProps();
   this.applyMultiplierTheme("idle");
   this.updateBounceText();
   this.smokeLayer.removeAll(true);
